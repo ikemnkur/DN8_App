@@ -96,15 +96,17 @@ const LiveAdvertisement = ({
 
   const handleAdView = async () => {
     if (!ad || adViewed) return;
-
+    let guest = true;
     try {
       // check if user is logged or a guest
       if (localStorage.getItem('token')) {
-        await trackAdView(ad.id);
-      } else {
-        await recordAdInteractionGuest(ad.id, 'view');
-        console.log("User is a guest, not tracking ad view.");
+        guest = false;
       }
+      await trackAdView(ad.id, guest);
+      // } else {
+      //   await recordAdInteractionGuest(ad.id, 'view');
+      //   console.log("User is a guest, not tracking ad view.");
+      // }
       setAdViewed(true);
 
       if (onAdView) {

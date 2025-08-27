@@ -745,7 +745,7 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
       <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
         {/* Header */}
         <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Avatar sx={{
+          {/* <Avatar sx={{
             width: 80,
             height: 80,
             mx: 'auto',
@@ -765,7 +765,47 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 600, mx: 'auto' }}>
             Create engaging ads with interactive quizzes to boost user engagement and drive conversions
-          </Typography>
+          </Typography> */}
+
+
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto 16px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            color: 'white',
+            fontSize: '40px'
+          }}>
+            🎯
+          </div>
+          <h1 style={{
+            fontSize: '2.5rem',
+            fontWeight: 800,
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            marginBottom: '8px',
+            textShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}>
+            Create Advertisement
+          </h1>
+          <p style={{
+            color: 'rgba(255, 255, 255, 0.9)',
+            fontSize: '1.25rem',
+            maxWidth: '600px',
+            margin: '0 auto',
+            fontWeight: 400,
+            textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
+          }}>
+            Create engaging ads with interactive quizzes with rewards to boost user engagement.
+          </p>
+          {/* </div> */}
         </Box>
 
         <Stack spacing={3}>

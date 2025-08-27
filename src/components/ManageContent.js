@@ -272,29 +272,40 @@ const ManageContent = () => {
             justifyContent: 'space-between',
           }}
         >
-          <TextField
-            label="Search content"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            size="small"
-            sx={{ flex: { xs: '1 1 100%', md: '0 1 340px' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-            <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <TextField
+              label="Search content"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+              sx={{ flex: { xs: '1 1 100%', md: '0 1 340px' } }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ textTransform: 'none', flexShrink: 0 }}
+            >
               Search
             </Button>
-          <Chip
-            label={`${filteredContentList.length} item${filteredContentList.length === 1 ? '' : 's'}`}
-            variant="outlined"
-            color="primary"
-          />
+            {/* <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
+              Search
+            </Button> */}
+          </Box>
+
+
           <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <Chip
+              label={`${filteredContentList.length} item${filteredContentList.length === 1 ? '' : 's'}`}
+              variant="outlined"
+              color="primary"
+            />
             <SortByAlpha fontSize="small" />
             <Select value={sortBy} size="small" onChange={(e) => setSortBy(e.target.value)}>
               <MenuItem value="date">Date</MenuItem>
@@ -363,7 +374,7 @@ const ManageContent = () => {
                 filteredContentList.map((item) => (
                   <TableRow key={item.id} hover>
                     <TableCell>{item.title}</TableCell>
-                    <TableCell sx={{ maxWidth: 360, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <TableCell sx={{ maxWidth: 240, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {item.description}
                     </TableCell>
                     <TableCell>{item.created_at.slice(0, 10)}</TableCell>

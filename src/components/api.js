@@ -783,12 +783,13 @@ export const fetchPreviewAd = async (ad_id) => {
 // AD INTERACTIONS
 // =================
 
-export const recordAdInteraction = async (adId, interactionType, creditsEarned = 0) => {
+export const recordAdInteraction = async (adId, interactionType, creditsEarned = 0, guest) => {
   try {
-    console.log("Recording ad interaction:", { adId, interactionType, creditsEarned });
+    console.log("Recording ad interaction:", { adId, interactionType, creditsEarned, guest });
     const response = await api.post(`/ads/ad/${adId}/interactions`, {
       interactionType,
-      creditsEarned
+      creditsEarned,
+      guest
     });
     return response.data;
   } catch (error) {
@@ -797,33 +798,33 @@ export const recordAdInteraction = async (adId, interactionType, creditsEarned =
   }
 };
 
-export const recordAdInteractionGuest = async (adId, interactionType) => {
-  try {
-    console.log("Recording ad interaction:", { adId, interactionType });
-    const response = await api.post(`/ads/guest-ad/${adId}/interactions`, {
-      interactionType,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('API - Error recording guest ad interaction:', error);
-    throw error;
-  }
+// export const recordAdInteractionGuest = async (adId, interactionType) => {
+//   try {
+//     console.log("Recording ad interaction:", { adId, interactionType });
+//     const response = await api.post(`/ads/guest-ad/${adId}/interactions`, {
+//       interactionType,
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error('API - Error recording guest ad interaction:', error);
+//     throw error;
+//   }
+// };
+
+export const trackAdView = async (adId, guest) => {
+  return recordAdInteraction(adId, 'view', guest);
 };
 
-export const trackAdView = async (adId) => {
-  return recordAdInteraction(adId, 'view');
+export const trackAdSkip = async (adId, guest) => {
+  return recordAdInteraction(adId, 'skip', guest);
 };
 
-export const trackAdSkip = async (adId) => {
-  return recordAdInteraction(adId, 'skip');
+export const trackAdCompletion = async (adId, guest) => {
+  return recordAdInteraction(adId, 'completion', guest);
 };
 
-export const trackAdCompletion = async (adId) => {
-  return recordAdInteraction(adId, 'completion');
-};
-
-export const trackRewardClaim = async (adId, creditsEarned) => {
-  return recordAdInteraction(adId, 'reward_claimed', creditsEarned);
+export const trackRewardClaim = async (adId, creditsEarned, guest) => {
+  return recordAdInteraction(adId, 'reward_claimed', creditsEarned, guest);
 };
 
 // =================

@@ -15,7 +15,7 @@ import {
   SendOutlined
 } from '@mui/icons-material';
 import AdObject from '../pages/AdObject'; // Assuming you have an AdObject component
-import Adobject from '../pages/AdObject'
+
 
 import { fetchUserProfile } from './api';
 
@@ -683,10 +683,29 @@ const UnlockContent = () => {
           className="banner-ad"
         />
       </Paper>
-
-      <Typography variant="h3" gutterBottom sx={{ textAlign: 'center', marginTop: '20px' }}>
+      {/* Gradient Header to match SendMoney */}
+      <Box sx={{ mb: 2, textAlign: 'center' }}>
+        <Typography
+          variant="h3"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 0.5
+          }}
+        >
+          Unlock Content
+        </Typography>
+        <Typography variant="h6" color="text.secondary">
+          Watch an ad OR spend some coins to unlock this link. 
+        </Typography>
+      </Box>
+      {/* <Typography variant="h3" gutterBottom sx={{ textAlign: 'center', marginTop: '20px' }}>
         Unlock Content
-      </Typography>
+      </Typography> */}
 
       {/* Basic info about the content */}
 
