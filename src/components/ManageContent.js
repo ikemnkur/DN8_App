@@ -1,21 +1,14 @@
-// src/components/ManageContent.jsx
-
+// ManageContent.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  Box,
+  Paper,
   Typography,
   TextField,
   Button,
   Select,
-  Snackbar,
-  Paper,
   MenuItem,
-  Box,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Table,
   TableBody,
   TableCell,
@@ -23,6 +16,16 @@ import {
   TableHead,
   TableRow,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Snackbar,
+  InputAdornment,
+  Chip,
+  Tooltip,
+  CircularProgress
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -30,15 +33,17 @@ import {
   Share as ShareIcon,
   SortByAlpha,
   SortTwoTone,
+  Search as SearchIcon,
+  Visibility,
 } from '@mui/icons-material';
 import QRCode from 'qrcode.react';
-import Clipboard from "./Clipboard.js";
+import Clipboard from './Clipboard.js';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 const ManageContent = () => {
-
   const navigate = useNavigate();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
@@ -50,11 +55,13 @@ const ManageContent = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [editing, setEditing] = useState(false);
-  const [thisUser] = useState(JSON.parse(localStorage.getItem("userdata")));
+  const [shareLink, setShareLink] = useState('');
+  const [openShareDialog, setOpenShareDialog] = useState(false);
+  const [thisUser] = useState(JSON.parse(localStorage.getItem('userdata')));
 
   const [newContent, setNewContent] = useState({
-    username: thisUser.username,
-    hostuser_id: thisUser.id,
+    username: thisUser?.username,
+    hostuser_id: thisUser?.id,
     title: '',
     cost: 1,
     description: '',
@@ -62,16 +69,13 @@ const ManageContent = () => {
     type: 'url',
     reference_id: uuidv4(),
     id: 0,
-    account_id: thisUser.account_id,
+    account_id: thisUser?.account_id,
   });
 
   const API_URL = process.env.REACT_APP_API_SERVER_URL + '/api';
-  let siteURL = "";
-  if (typeof window !== 'undefined') {
-    siteURL = window.location.origin;
-  } else {
-    siteURL = process.env.REACT_APP_BASE_URL || 'http://localhost:3000';
-  }
+  let siteURL = typeof window !== 'undefined'
+    ? window.location.origin
+    : process.env.REACT_APP_BASE_URL || 'http://localhost:3000';
 
   const loadContent = async () => {
     try {
@@ -82,14 +86,13 @@ const ManageContent = () => {
       const data = response.data;
       setContentList(data);
       setFilteredContentList(data);
-      setLoading(false);
     } catch (err) {
       console.error('Failed to fetch content:', err);
       setError('Failed to load content. Please try again later.');
+    } finally {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     loadContent();
@@ -99,39 +102,39 @@ const ManageContent = () => {
     const { name, value } = e.target;
     setNewContent((prev) => ({
       ...prev,
-      [name]: name === 'cost' ? parseInt(value) : value,
+      [name]: name === 'cost' ? parseInt(value) || 0 : value,
     }));
   };
 
   const searchContent = () => {
+    const term = searchTerm.toLowerCase();
     const filtered = contentList.filter((item) =>
-      item.host_username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.cost.toString().includes(searchTerm) ||
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.created_at.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
+      String(item.host_username || '').toLowerCase().includes(term) ||
+      String(item.cost || '').includes(searchTerm) ||
+      String(item.title || '').toLowerCase().includes(term) ||
+      String(item.created_at || '').toLowerCase().includes(term) ||
+      String(item.description || '').toLowerCase().includes(term)
     );
     setFilteredContentList(filtered);
   };
 
-
-  const handleSearch = () => {
+  const handleSearch = (e) => {
+    e?.preventDefault?.();
     searchContent();
   };
 
   const handleDelete = async (contentId) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${API_URL}/public-content/delete/${contentId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        loadContent();
-      } catch (error) {
-        console.error('Failed to delete content:', error);
-        setSnackbarMessage('Failed to delete content.');
-        setOpenSnackbar(true);
-      }
+    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/public-content/delete/${contentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      loadContent();
+    } catch (err) {
+      console.error('Failed to delete content:', err);
+      setSnackbarMessage('Failed to delete content.');
+      setOpenSnackbar(true);
     }
   };
 
@@ -154,8 +157,8 @@ const ManageContent = () => {
       });
       setOpenDialog(false);
       loadContent();
-    } catch (error) {
-      console.error('Failed to create content:', error);
+    } catch (err) {
+      console.error('Failed to create content:', err);
       setSnackbarMessage('Failed to create content.');
       setOpenSnackbar(true);
     }
@@ -178,7 +181,6 @@ const ManageContent = () => {
     setOpenDialog(true);
   };
 
-
   const handleSubmitEdit = async (e) => {
     e.preventDefault();
     try {
@@ -200,13 +202,12 @@ const ManageContent = () => {
       setEditing(false);
       setOpenDialog(false);
       loadContent();
-    } catch (error) {
+    } catch (err) {
       console.error('Failed to update content');
       setSnackbarMessage('Failed to update content.');
       setOpenSnackbar(true);
     }
   };
-
 
   const cancelEdit = () => {
     setEditing(false);
@@ -223,73 +224,128 @@ const ManageContent = () => {
     setOpenDialog(false);
   };
 
-
-  // Share content state and handlers
-  const [shareLink, setShareLink] = useState('');
-  const [openShareDialog, setOpenShareDialog] = useState(false);
-
   const handleShare = (item) => {
     setShareLink(`${siteURL}/unlock/${item.reference_id}`);
     setOpenShareDialog(true);
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Paper sx={{ p: 2, pb: 8, mb: 2 }}>
-        <Typography variant="h4" align="center" gutterBottom>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+      {/* Header */}
+      <Box sx={{ mb: 3, textAlign: 'center' }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1,
+          }}
+        >
           Manage Unlockable Content
         </Typography>
+        <Typography variant="h6" color="text.secondary">
+          Create, search, sort, preview and share your content
+        </Typography>
+      </Box>
+
+      <Paper
+        sx={{
+          p: { xs: 2, md: 3 },
+          border: '1px solid #e9ecef',
+          backgroundColor: '#f8f9fa',
+          borderRadius: 2,
+        }}
+      >
+        {/* Controls */}
         <Box
+          component="form"
+          onSubmit={handleSearch}
           sx={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 2,
-            mb: 2,
+            gap: 1.5,
             alignItems: 'center',
-            justifyContent: 'center',
+            mb: 2,
+            justifyContent: 'space-between',
           }}
         >
           <TextField
-            label="Search"
-            variant="outlined"
+            label="Search content"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: { xs: '100%', md: '30%' } }}
+            size="small"
+            sx={{ flex: { xs: '1 1 100%', md: '0 1 340px' } }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
           />
-          <Button variant="contained" color="primary" onClick={handleSearch}>
-            Search
-          </Button>
-          <SortByAlpha fontSize="small" />
-          <Select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
+              Search
+            </Button>
+          <Chip
+            label={`${filteredContentList.length} item${filteredContentList.length === 1 ? '' : 's'}`}
             variant="outlined"
-            size="small"
-          >
-            <MenuItem value="date">Date</MenuItem>
-            <MenuItem value="cost">Cost</MenuItem>
-            <MenuItem value="username">Username</MenuItem>
-          </Select>
-          <SortTwoTone fontSize="small" />
-          <Select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            variant="outlined"
-            size="small"
-          >
-            <MenuItem value="asc">Ascending</MenuItem>
-            <MenuItem value="desc">Descending</MenuItem>
-          </Select>
+            color="primary"
+          />
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <SortByAlpha fontSize="small" />
+            <Select value={sortBy} size="small" onChange={(e) => setSortBy(e.target.value)}>
+              <MenuItem value="date">Date</MenuItem>
+              <MenuItem value="cost">Cost</MenuItem>
+              <MenuItem value="username">Username</MenuItem>
+            </Select>
+
+            <SortTwoTone fontSize="small" />
+            <Select value={sortOrder} size="small" onChange={(e) => setSortOrder(e.target.value)}>
+              <MenuItem value="asc">Ascending</MenuItem>
+              <MenuItem value="desc">Descending</MenuItem>
+            </Select>
+
+            {/* <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
+              Search
+            </Button> */}
+            <Button
+              variant="outlined"
+              sx={{ textTransform: 'none' }}
+              onClick={() => {
+                setSearchTerm('');
+                setFilteredContentList(contentList);
+              }}
+            >
+              Reset
+            </Button>
+            {/* move to the right most  */}
+            <Button
+              variant="contained"
+              sx={{ textTransform: 'none', ml: 'auto', marginLeft: '50%' }}
+              onClick={() => {
+                setEditing(false);
+                setOpenDialog(true);
+              }}
+            >
+              Add Content
+            </Button>
+          </Box>
         </Box>
+
+        {/* Scrollable Table */}
         <TableContainer
           component={Paper}
-          sx={{ maxHeight: 360, overflowY: 'auto' }}
+          sx={{ maxHeight: { xs: 360, md: 500 }, overflowY: 'auto', borderRadius: 1 }}
         >
           <Table stickyHeader>
             <TableHead
               sx={{
                 '& .MuiTableCell-stickyHeader': {
-                  backgroundColor: 'lightgray !important',
+                  backgroundColor: (t) => t.palette.background.paper + ' !important',
+                  fontWeight: 600,
                 },
               }}
             >
@@ -299,84 +355,81 @@ const ManageContent = () => {
                 <TableCell>Date</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Price</TableCell>
-                <TableCell>Action</TableCell>
+                <TableCell align="center">Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {!loading &&
                 filteredContentList.map((item) => (
-                  <TableRow key={item.id}>
+                  <TableRow key={item.id} hover>
                     <TableCell>{item.title}</TableCell>
-                    <TableCell>{item.description}</TableCell>
+                    <TableCell sx={{ maxWidth: 360, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {item.description}
+                    </TableCell>
                     <TableCell>{item.created_at.slice(0, 10)}</TableCell>
                     <TableCell>{item.type}</TableCell>
                     <TableCell>₡{item.cost}</TableCell>
-                    <TableCell
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                      }}
-                    >
-                      <IconButton
-                        aria-label="delete"
-                        onClick={() => handleDelete(item.id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton
-                        aria-label="edit"
-                        onClick={() => handleEdit(item)}
-                      >
-                        <EditNoteIcon />
-                      </IconButton>
-                      <IconButton
-                        aria-label="share"
-                        onClick={() => handleShare(item)}
-                      >
-                        <ShareIcon />
-                      </IconButton>
+                    <TableCell align="center">
+                      <Tooltip title="Preview">
+                        <IconButton onClick={() => navigate(`/unlock/${item.reference_id}`)} size="small">
+                          <Visibility fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Share">
+                        <IconButton onClick={() => handleShare(item)} size="small">
+                          <ShareIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit">
+                        <IconButton onClick={() => handleEdit(item)} size="small">
+                          <EditNoteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <IconButton onClick={() => handleDelete(item.id)} size="small">
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
-              {filteredContentList.length === 0 && (
+
+              {!loading && filteredContentList.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
-                    No content available.
+                    No content found.
+                  </TableCell>
+                </TableRow>
+              )}
+              {loading && (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    <CircularProgress size={24} />
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </TableContainer>
-        <Button
-          variant="contained"
-          color="secondary"
-          sx={{ mt: 2, ml: 'auto', display: 'block' }}
-          onClick={() => setOpenDialog(true)}
-        >
-          CREATE NEW CONTENT
-        </Button>
       </Paper>
 
-      {/* Dialog for creating/editing content */}
+      {/* Add/Edit Content */}
       <Dialog
         open={openDialog}
         onClose={() => setOpenDialog(false)}
+        fullWidth
+        maxWidth="sm"
         PaperProps={{
-          sx: {
-            width: '512px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          },
+          sx: { borderRadius: 2 },
         }}
       >
-        <DialogTitle>{editing ? 'Edit Content' : 'Create Content'}</DialogTitle>
-        <DialogContent
-          sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}
-        >
-          <form onSubmit={editing ? handleSubmitEdit : handleCreateContent}>
+        <DialogTitle>{editing ? 'Edit Content' : 'Add New Content'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText sx={{ mb: 2 }}>
+            {editing ? 'Update your content details below.' : 'Fill in the details to add content.'}
+          </DialogContentText>
+
+          <Box component="form" onSubmit={editing ? handleSubmitEdit : handleCreateContent}>
             <TextField
               label="Title"
               name="title"
@@ -387,9 +440,10 @@ const ManageContent = () => {
               required
             />
             <TextField
-              label="Cost"
+              label="Price (₡)"
               name="cost"
               type="number"
+              inputProps={{ min: 0, step: 1 }}
               value={newContent.cost}
               onChange={handleInputChange}
               fullWidth
@@ -419,13 +473,11 @@ const ManageContent = () => {
               helperText="Enter URL, text, or file path based on content type"
             />
             <Select
-              label="Content Type"
               name="type"
               value={newContent.type}
               onChange={handleInputChange}
               fullWidth
-              margin="normal"
-              inputProps={{ name: 'type' }}
+              sx={{ mt: 2 }}
             >
               <MenuItem value="url">URL</MenuItem>
               <MenuItem value="image">Image</MenuItem>
@@ -433,79 +485,57 @@ const ManageContent = () => {
               <MenuItem value="video">Video</MenuItem>
               <MenuItem value="file">File</MenuItem>
             </Select>
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
               {editing ? (
                 <>
-                  <Button
-                    onClick={cancelEdit}
-                    variant="contained"
-                    color="secondary"
-                  >
+                  <Button onClick={cancelEdit} variant="outlined" color="inherit" sx={{ textTransform: 'none' }}>
                     Cancel
                   </Button>
-                  <Button type="submit" variant="contained" color="primary">
+                  <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
                     Save Changes
                   </Button>
                 </>
               ) : (
-                <Button type="submit" variant="contained" color="primary">
+                <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
                   Add Content
                 </Button>
               )}
             </Box>
-          </form>
+          </Box>
         </DialogContent>
       </Dialog>
 
-      {/* Dialog for sharing content */}
+      {/* Share Dialog */}
       <Dialog
         open={openShareDialog}
         onClose={() => setOpenShareDialog(false)}
-        PaperProps={{
-          sx: {
-            width: '400px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          },
-        }}
+        PaperProps={{ sx: { borderRadius: 2, p: 1 } }}
       >
         <DialogTitle>Share Content</DialogTitle>
-        <DialogContent
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-          }}
-        >
-          <DialogContentText>Share this content:</DialogContentText>
+        <DialogContent sx={{ textAlign: 'center' }}>
+          <DialogContentText>Scan or copy the link below:</DialogContentText>
           {shareLink && (
             <>
-              <Box sx={{ my: 2 }}>
-                <QRCode value={shareLink} size={256} />
+              <Box sx={{ my: 2, display: 'flex', justifyContent: 'center' }}>
+                <QRCode value={shareLink} size={240} />
               </Box>
-              <Box
-                sx={{
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  mb: 2,
-                }}
-              >
+              <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
                 <Clipboard Item={shareLink} />
               </Box>
             </>
           )}
         </DialogContent>
-        <DialogActions sx={{ width: '100%', justifyContent: 'flex-end' }}>
-          <Button onClick={() => setOpenShareDialog(false)}>Close</Button>
+        <DialogActions>
+          <Button onClick={() => setOpenShareDialog(false)} sx={{ textTransform: 'none' }}>
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
 
       <Snackbar
         open={openSnackbar}
-        autoHideDuration={6000}
+        autoHideDuration={4000}
         onClose={() => setOpenSnackbar(false)}
         message={snackbarMessage}
       />
