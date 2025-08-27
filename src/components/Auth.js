@@ -157,6 +157,10 @@ const Auth = ({ isLogin, onLoginSuccess }) => {
     // If CAPTCHA has not been shown yet
     if (!showCaptcha) {
       // Check if required fields are filled
+      if(email.includes('@') === false || email.includes('.') === false || email.indexOf('.') < email.indexOf('@')|| email.startsWith('@') || email.endsWith('@') || email.startsWith('.') || email.endsWith('.')){
+        alert('Please enter a valid email address.');
+        return;
+      }
       if (isLogin) {
         if (!email || !password) {
           alert('Please enter your email and password.');
