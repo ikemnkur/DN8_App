@@ -68,10 +68,8 @@ const NavBar = ({ children }) => {
   const location = useLocation();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const isMobilePortrait = useIsMobilePortrait();
-  const [tooltipOpen, setTooltipOpen] = useState({});
 
   const enterFullScreen = () => {
-    // ... (existing code)
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen();
     } else if (document.documentElement.mozRequestFullScreen) {
@@ -85,7 +83,6 @@ const NavBar = ({ children }) => {
   };
 
   const exitFullScreen = () => {
-    // ... (existing code)
     if (document.exitFullscreen) {
       document.exitFullscreen();
     } else if (document.mozCancelFullScreen) {
@@ -93,7 +90,7 @@ const NavBar = ({ children }) => {
     } else if (document.webkitExitFullscreen) {
       document.webkitExitFullscreen();
     } else if (document.msExitFullscreen) {
-      document.msExitFullscreen();
+      document.msExitFullScreen();
     }
     setIsFullScreen(false);
   };
@@ -152,7 +149,7 @@ const NavBar = ({ children }) => {
         const profile = await fetchUserProfile('NavBar');
         const updatedUserData = {
           ...profile,
-          birthDate: profile.birthDate ? profile.birthDate.split('T')[0] : '',
+          birthDate: profile.birthDate ? profile.birthDate.split('T') : '',
           accountTier: profile.accountTier || 1,
           encryptionKey: profile.encryptionKey || '',
         };
@@ -175,21 +172,6 @@ const NavBar = ({ children }) => {
   }
 
   const menuItems = getMenuItems();
-
-  const handleMobileClick = (itemText) => {
-    // Single click: open tooltip
-    setTooltipOpen((prev) => ({ ...prev, [itemText]: true }));
-  };
-
-  const handleMobileDoubleClick = (itemText, itemPath) => {
-    // Double click: navigate
-    setTooltipOpen({}); // Close all tooltips
-    navigate(itemPath);
-  };
-
-  const closeTooltip = (itemText) => {
-    setTooltipOpen((prev) => ({ ...prev, [itemText]: false }));
-  };
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -248,7 +230,7 @@ const NavBar = ({ children }) => {
                 duration: theme.transitions.duration.enteringScreen,
               }),
             '& .MuiDrawer-paper': {
-              width: open ? drawerWidth : collapsedDrawerWidth,
+              width: open ? drawerWidth : 40,
               boxSizing: 'border-box',
               overflowX: 'hidden',
               transition: (theme) =>
@@ -256,14 +238,14 @@ const NavBar = ({ children }) => {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.enteringScreen,
                 }),
-              top: 64, // Adjust for AppBar height
+              top: 64,
             },
           }}
         >
           <Toolbar />
           <Box sx={{ overflow: 'auto' }}>
             <List>
-              {menuItems.map((item, index) => (
+              {menuItems.map((item) => (
                 <ListItem
                   button
                   key={item.text}
@@ -299,27 +281,67 @@ const NavBar = ({ children }) => {
           sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }}
           elevation={3}
         >
-          <List sx={{ display: 'flex', flexDirection: 'row', p: 0, justifyContent: 'space-around' }}>
-            {menuItems.map((item, index) => (
-              <Box key={item.text} sx={{ position: 'relative' }}>
-                <Tooltip
-                  title={item.text}
-                  arrow
-                  placement="top"
-                  open={tooltipOpen[item.text]}
-                  onClose={() => closeTooltip(item.text)}
+          <List
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              p: 0,
+              overflowX: 'auto',
+              flexWrap: 'nowrap',
+              '&::-webkit-scrollbar': {
+                height: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: 'rgba(0,0,0,.1)',
+                borderRadius: '8px',
+              },
+            }}
+          >
+            {menuItems.map((item) => (
+              <Box
+                key={item.text}
+                sx={{
+                  flexShrink: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  minWidth: 70, // Ensure enough space for icon and text
+                }}
+              >
+                <ListItem
+                  button
+                  component={RouterLink}
+                  to={item.path}
+                  sx={{
+                    p: 1,
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                  }}
                 >
-                  <ListItem
-                    button
-                    sx={{ p: 1 }}
-                    onClick={() => handleMobileClick(item.text)}
-                    onDoubleClick={() => handleMobileDoubleClick(item.text, item.path)}
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      justifyContent: 'center',
+                      mb: 0.5, // Spacing between icon and text
+                      '& .MuiSvgIcon-root': {
+                        fontSize: '3rem',
+                      },
+                    }}
                   >
-                    <ListItemIcon sx={{ minWidth: 0 }}>
-                      {item.icon}
-                    </ListItemIcon>
-                  </ListItem>
-                </Tooltip>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    primaryTypographyProps={{
+                      fontSize: '0.65rem',
+                      whiteSpace: 'nowrap', // Prevent text from wrapping
+                    }}
+                    sx={{
+                      m: 0,
+                    }}
+                  />
+                </ListItem>
               </Box>
             ))}
           </List>
