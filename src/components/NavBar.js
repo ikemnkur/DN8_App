@@ -238,7 +238,7 @@ const NavBar = ({ children }) => {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.enteringScreen,
                 }),
-              top: 64,
+              top: 8,
             },
           }}
         >
