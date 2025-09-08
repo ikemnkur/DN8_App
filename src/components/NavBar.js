@@ -51,7 +51,6 @@ const useIsMobilePortrait = () => {
       setIsMobilePortrait(height / width >= 16 / 9);
     };
 
-    // Initial check
     handleResize();
 
     window.addEventListener('resize', handleResize);
@@ -68,6 +67,8 @@ const NavBar = ({ children }) => {
   const location = useLocation();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const isMobilePortrait = useIsMobilePortrait();
+  const mobileNavRef = useRef(null);
+  const [mobileNavHeight, setMobileNavHeight] = useState(0);
 
   const enterFullScreen = () => {
     if (document.documentElement.requestFullscreen) {
@@ -90,7 +91,7 @@ const NavBar = ({ children }) => {
     } else if (document.webkitExitFullscreen) {
       document.webkitExitFullscreen();
     } else if (document.msExitFullscreen) {
-      document.msExitFullScreen();
+      document.msExitFullscreen();
     }
     setIsFullScreen(false);
   };
@@ -167,6 +168,15 @@ const NavBar = ({ children }) => {
     loadDashboardData();
   }, [navigate, location.pathname, hideNavBar, unlockPage, subPage]);
 
+  // Effect to measure mobile nav height
+  useEffect(() => {
+    if (isMobilePortrait && mobileNavRef.current) {
+      setMobileNavHeight(mobileNavRef.current.offsetHeight);
+    } else {
+      setMobileNavHeight(0); // Reset height if not in mobile portrait mode
+    }
+  }, [isMobilePortrait, menuItems]); // Re-measure if items change
+
   if (hideNavBar || unlockPage || subPage) {
     return children;
   }
@@ -238,7 +248,7 @@ const NavBar = ({ children }) => {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.enteringScreen,
                 }),
-              top: 8,
+              top: 64,
             },
           }}
         >
@@ -278,6 +288,7 @@ const NavBar = ({ children }) => {
       {/* Mobile Bottom Navigation Bar */}
       {isMobilePortrait && (
         <Paper
+          ref={mobileNavRef}
           sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }}
           elevation={3}
         >
@@ -288,6 +299,7 @@ const NavBar = ({ children }) => {
               p: 0,
               overflowX: 'auto',
               flexWrap: 'nowrap',
+              justifyContent: 'space-around', // Distribute items evenly
               '&::-webkit-scrollbar': {
                 height: '8px',
               },
@@ -305,7 +317,7 @@ const NavBar = ({ children }) => {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  minWidth: 70, // Ensure enough space for icon and text
+                  minWidth: 70,
                 }}
               >
                 <ListItem
@@ -323,7 +335,7 @@ const NavBar = ({ children }) => {
                     sx={{
                       minWidth: 0,
                       justifyContent: 'center',
-                      mb: 0.5, // Spacing between icon and text
+                      mb: 0.5,
                       '& .MuiSvgIcon-root': {
                         fontSize: '3rem',
                       },
@@ -335,7 +347,7 @@ const NavBar = ({ children }) => {
                     primary={item.text}
                     primaryTypographyProps={{
                       fontSize: '0.65rem',
-                      whiteSpace: 'nowrap', // Prevent text from wrapping
+                      whiteSpace: 'nowrap',
                     }}
                     sx={{
                       m: 0,
@@ -348,7 +360,15 @@ const NavBar = ({ children }) => {
         </Paper>
       )}
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      {/* Main Content Area */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          mb: isMobilePortrait ? `${mobileNavHeight}px` : 0, // Add bottom padding dynamically
+        }}
+      >
         {!isMobilePortrait && <Toolbar />}
         {children}
       </Box>
