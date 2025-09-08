@@ -1,5 +1,5 @@
 // src/components/NavBar.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar,
@@ -67,8 +67,14 @@ const NavBar = ({ children }) => {
   const location = useLocation();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const isMobilePortrait = useIsMobilePortrait();
-  const mobileNavRef = useRef(null);
   const [mobileNavHeight, setMobileNavHeight] = useState(0);
+
+  // Callback ref to measure mobile nav height
+  const mobileNavRef = useCallback((node) => {
+    if (node !== null) {
+      setMobileNavHeight(node.offsetHeight);
+    }
+  }, []);
 
   const enterFullScreen = () => {
     if (document.documentElement.requestFullscreen) {
@@ -150,7 +156,7 @@ const NavBar = ({ children }) => {
         const profile = await fetchUserProfile('NavBar');
         const updatedUserData = {
           ...profile,
-          birthDate: profile.birthDate ? profile.birthDate.split('T') : '',
+          birthDate: profile.birthDate ? profile.birthDate.split('T')[0] : '',
           accountTier: profile.accountTier || 1,
           encryptionKey: profile.encryptionKey || '',
         };
@@ -167,15 +173,6 @@ const NavBar = ({ children }) => {
     };
     loadDashboardData();
   }, [navigate, location.pathname, hideNavBar, unlockPage, subPage]);
-
-  // Effect to measure mobile nav height
-  useEffect(() => {
-    if (isMobilePortrait && mobileNavRef.current) {
-      setMobileNavHeight(mobileNavRef.current.offsetHeight);
-    } else {
-      setMobileNavHeight(0); // Reset height if not in mobile portrait mode
-    }
-  }, [isMobilePortrait, menuItems]); // Re-measure if items change
 
   if (hideNavBar || unlockPage || subPage) {
     return children;
@@ -299,7 +296,7 @@ const NavBar = ({ children }) => {
               p: 0,
               overflowX: 'auto',
               flexWrap: 'nowrap',
-              justifyContent: 'space-around', // Distribute items evenly
+              justifyContent: 'space-around',
               '&::-webkit-scrollbar': {
                 height: '8px',
               },
@@ -366,7 +363,7 @@ const NavBar = ({ children }) => {
         sx={{
           flexGrow: 1,
           p: 3,
-          mb: isMobilePortrait ? `${mobileNavHeight}px` : 0, // Add bottom padding dynamically
+          mb: isMobilePortrait ? `${mobileNavHeight}px` : 0,
         }}
       >
         {!isMobilePortrait && <Toolbar />}
