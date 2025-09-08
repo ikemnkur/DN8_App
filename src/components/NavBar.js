@@ -1,5 +1,5 @@
 // src/components/NavBar.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar,
@@ -14,6 +14,7 @@ import {
   Box,
   CssBaseline,
   Tooltip,
+  Paper,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -30,21 +31,35 @@ import {
   LockOutlined,
   BookmarkAdd,
   LogoutOutlined,
-
 } from '@mui/icons-material';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
-
 import InfoIcon from '@mui/icons-material/Info';
 import HelpIcon from '@mui/icons-material/Help';
 import CategoryIcon from '@mui/icons-material/Category';
 import { fetchUserProfile } from './api';
 
 const drawerWidth = 190;
-const collapsedDrawerWidth = 40;
 
+// Custom hook to track window size and aspect ratio
+const useIsMobilePortrait = () => {
+  const [isMobilePortrait, setIsMobilePortrait] = useState(false);
 
+  useEffect(() => {
+    const handleResize = () => {
+      const { innerWidth: width, innerHeight: height } = window;
+      setIsMobilePortrait(height / width >= 16 / 9);
+    };
 
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return isMobilePortrait;
+};
 
 const NavBar = ({ children }) => {
   const [open, setOpen] = useState(true);
@@ -52,50 +67,45 @@ const NavBar = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const isMobilePortrait = useIsMobilePortrait();
+  const [tooltipOpen, setTooltipOpen] = useState({});
 
   const enterFullScreen = () => {
+    // ... (existing code)
     if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen();
-    } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+    } else if (document.documentElement.mozRequestFullScreen) {
       document.documentElement.mozRequestFullScreen();
-    } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari, Opera
+    } else if (document.documentElement.webkitRequestFullscreen) {
       document.documentElement.webkitRequestFullscreen();
-    } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+    } else if (document.documentElement.msRequestFullscreen) {
       document.documentElement.msRequestFullscreen();
     }
-
     setIsFullScreen(true);
   };
 
   const exitFullScreen = () => {
+    // ... (existing code)
     if (document.exitFullscreen) {
       document.exitFullscreen();
-    } else if (document.mozCancelFullScreen) { // Firefox
+    } else if (document.mozCancelFullScreen) {
       document.mozCancelFullScreen();
-    } else if (document.webkitExitFullscreen) { // Chrome, Safari, Opera
+    } else if (document.webkitExitFullscreen) {
       document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) { // IE/Edge
+    } else if (document.msExitFullscreen) {
       document.msExitFullscreen();
     }
-
     setIsFullScreen(false);
   };
 
-
-  // Calculate ads path based on current user data
   const getAdsPath = () => {
-    console.log('User Data.Advertising:', userData.advertising);
     if (userData.advertising === "active") {
-      console.log('Ads Path: /ads-homepage');
-      // window.open("/ads-homepage", '_blank');
       return '/ads-homepage';
     } else {
-      console.log('Ads Path: /ads-activate');
       return '/ads-activate';
     }
   };
 
-  // Create menu items dynamically based on current user data
   const getMenuItems = () => [
     { text: 'Dashboard', icon: <Dashboard />, path: '/Dashboard' },
     { text: 'Your Wallet', icon: <AccountBalance />, path: '/wallet' },
@@ -120,19 +130,13 @@ const NavBar = ({ children }) => {
     window.location.reload(false);
   }
 
-  // Listen for localStorage changes
   useEffect(() => {
     const handleStorageChange = () => {
       const updatedUserData = JSON.parse(localStorage.getItem('userdata')) || {};
       setUserData(updatedUserData);
     };
-
-    // Listen for storage events (when localStorage is changed in another tab)
     window.addEventListener('storage', handleStorageChange);
-
-    // Listen for custom events (when localStorage is changed in the same tab)
     window.addEventListener('localStorageChange', handleStorageChange);
-
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('localStorageChange', handleStorageChange);
@@ -143,7 +147,6 @@ const NavBar = ({ children }) => {
     if (hideNavBar || unlockPage || subPage || previewPage) {
       return;
     }
-
     const loadDashboardData = async () => {
       try {
         const profile = await fetchUserProfile('NavBar');
@@ -153,16 +156,9 @@ const NavBar = ({ children }) => {
           accountTier: profile.accountTier || 1,
           encryptionKey: profile.encryptionKey || '',
         };
-
-        // Update local state
         setUserData(updatedUserData);
-
-        // Update localStorage
         localStorage.setItem('userdata', JSON.stringify(updatedUserData));
-
-        // Dispatch custom event to notify other components
         window.dispatchEvent(new Event('localStorageChange'));
-
       } catch (err) {
         console.log('Error: ', err);
         setTimeout(() => {
@@ -171,7 +167,6 @@ const NavBar = ({ children }) => {
         }, 250);
       }
     };
-
     loadDashboardData();
   }, [navigate, location.pathname, hideNavBar, unlockPage, subPage]);
 
@@ -179,33 +174,55 @@ const NavBar = ({ children }) => {
     return children;
   }
 
-  // Get current menu items (will be recalculated when userData changes)
   const menuItems = getMenuItems();
+
+  const handleMobileClick = (itemText) => {
+    // Single click: open tooltip
+    setTooltipOpen((prev) => ({ ...prev, [itemText]: true }));
+  };
+
+  const handleMobileDoubleClick = (itemText, itemPath) => {
+    // Double click: navigate
+    setTooltipOpen({}); // Close all tooltips
+    navigate(itemPath);
+  };
+
+  const closeTooltip = (itemText) => {
+    setTooltipOpen((prev) => ({ ...prev, [itemText]: false }));
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          ...(isMobilePortrait && { display: 'none' }),
+        }}
+      >
         <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="toggle drawer"
-            onClick={() => setOpen(!open)}
-            edge="start"
-            sx={{ mx: 1.5, p: 1.5, fontSize: 32 }}
-            size="large"
-          >
-            {open ? <ChevronLeftIcon fontSize="large" /> : <MenuIcon fontSize="large" />}
-          </IconButton>
+          {!isMobilePortrait && (
+            <IconButton
+              color="inherit"
+              aria-label="toggle drawer"
+              onClick={() => setOpen(!open)}
+              edge="start"
+              sx={{ mx: 1, p: 1, fontSize: 32 }}
+              size="large"
+            >
+              {open ? <ChevronLeftIcon fontSize="large" /> : <MenuIcon fontSize="large" />}
+            </IconButton>
+          )}
           <IconButton
             color="inherit"
             aria-label="toggle full screen"
-            onClick={() => (isFullScreen ? exitFullScreen() : enterFullScreen() )}
+            onClick={() => (isFullScreen ? exitFullScreen() : enterFullScreen())}
             edge="start"
-            sx={{ mx: 1.5, p: 1.5, fontSize: 32 }}
+            sx={{ mx: 1, p: 1.5, fontSize: 32 }}
             size="large"
           >
-            {open ? <FullscreenExitIcon fontSize="large" /> : <FullscreenIcon fontSize="large" />}
+            {isFullScreen ? <FullscreenExitIcon fontSize="large" /> : <FullscreenIcon fontSize="large" />}
           </IconButton>
           <Typography
             variant="h6"
@@ -215,95 +232,102 @@ const NavBar = ({ children }) => {
           >
             Clout Coin
           </Typography>
-          <IconButton
-            color="inherit"
-            onClick={() => navigate('/settings')}
-            sx={{ mr: 2, p: 1.5, fontSize: 32 }}
-            size="large"
-          >
-            <SettingsIcon fontSize="large" />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            onClick={() => navigate('/account')}
-            sx={{ mr: 2, p: 1.5, fontSize: 32 }}
-            size="large"
-          >
-            <AccountCircle fontSize="large" />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            onClick={() => navigate('/login')}
-            sx={{ mr: 2, p: 1.5, fontSize: 32 }}
-            size="large"
-          >
-            <LogoutOutlined fontSize="large" />
-          </IconButton>
         </Toolbar>
       </AppBar>
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: open ? drawerWidth : collapsedDrawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: {
-            width: open ? drawerWidth : collapsedDrawerWidth,
-            boxSizing: 'border-box',
-            overflowX: 'hidden',
-            transition: 'width 0.3s',
-          },
-        }}
-        open={open}
-      >
-        <Toolbar />
-        <Box sx={{ overflow: 'auto' }}>
-          <List>
-            {menuItems.map((item) => (
-              <Tooltip title={open ? '' : item.text} placement="right" key={item.text}>
+
+      {/* Desktop Drawer */}
+      {!isMobilePortrait && (
+        <Drawer
+          variant="permanent"
+          sx={{
+            width: open ? drawerWidth : 0,
+            flexShrink: 0,
+            transition: (theme) =>
+              theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+            '& .MuiDrawer-paper': {
+              width: open ? drawerWidth : collapsedDrawerWidth,
+              boxSizing: 'border-box',
+              overflowX: 'hidden',
+              transition: (theme) =>
+                theme.transitions.create('width', {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.enteringScreen,
+                }),
+              top: 64, // Adjust for AppBar height
+            },
+          }}
+        >
+          <Toolbar />
+          <Box sx={{ overflow: 'auto' }}>
+            <List>
+              {menuItems.map((item, index) => (
                 <ListItem
                   button
+                  key={item.text}
                   component={RouterLink}
                   to={item.path}
                   sx={{
                     justifyContent: open ? 'initial' : 'center',
-                    px: '5px',
+                    px: 2.5,
                   }}
                 >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? '5px' : 'auto',
-                      justifyContent: 'center',
-                      px: '5px',
-                    }}
-                  >
-                    {React.cloneElement(item.icon, { fontSize: 'large' })}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={open ? item.text : ''}
-                    sx={{
-                      opacity: open ? 1 : 0,
-                      px: '05px 10px 10px 0px',
-                    }}
-                    style={{ paddingTop: 5 }}
-                  />
+                  <Tooltip title={!open ? item.text : ''} placement="right">
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {item.icon}
+                    </ListItemIcon>
+                  </Tooltip>
+                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
                 </ListItem>
-              </Tooltip>
+              ))}
+            </List>
+          </Box>
+        </Drawer>
+      )}
+
+      {/* Mobile Bottom Navigation Bar */}
+      {isMobilePortrait && (
+        <Paper
+          sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }}
+          elevation={3}
+        >
+          <List sx={{ display: 'flex', flexDirection: 'row', p: 0, justifyContent: 'space-around' }}>
+            {menuItems.map((item, index) => (
+              <Box key={item.text} sx={{ position: 'relative' }}>
+                <Tooltip
+                  title={item.text}
+                  arrow
+                  placement="top"
+                  open={tooltipOpen[item.text]}
+                  onClose={() => closeTooltip(item.text)}
+                >
+                  <ListItem
+                    button
+                    sx={{ p: 1 }}
+                    onClick={() => handleMobileClick(item.text)}
+                    onDoubleClick={() => handleMobileDoubleClick(item.text, item.path)}
+                  >
+                    <ListItemIcon sx={{ minWidth: 0 }}>
+                      {item.icon}
+                    </ListItemIcon>
+                  </ListItem>
+                </Tooltip>
+              </Box>
             ))}
           </List>
-        </Box>
-      </Drawer>
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          width: {
-            sm: `calc(100% - ${open ? drawerWidth : collapsedDrawerWidth}px)`,
-          },
-        }}
-      >
-        <Toolbar />
+        </Paper>
+      )}
+
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        {!isMobilePortrait && <Toolbar />}
         {children}
       </Box>
     </Box>
