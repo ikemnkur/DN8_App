@@ -1,3 +1,4 @@
+// UserProfile.js (restyled to match the app theme)
 require('dotenv').config();
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -14,6 +15,9 @@ import {
   DialogActions,
   TextField,
   Grid,
+  Chip,
+  Divider,
+  CircularProgress,
   Rating
 } from '@mui/material';
 import {
@@ -33,10 +37,12 @@ import {
   updateFavoriteStatus,
   submitUserReport,
   submitUserMessage
-} from './api'; // Ensure submitUserMessage is implemented in your API file
+} from './api';
 
 const UserProfile = () => {
   const { userId } = useParams();
+  console.log('UserProfile for userid_or_username:', userId);
+  const [userid_or_username, setUserid_or_Username] = useState(userId);
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
@@ -49,8 +55,17 @@ const UserProfile = () => {
   const [userMessage, setUserMessage] = useState('');
   const [userRating, setUserRating] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Utility to convert ISO timestamps to a more readable format
+  const cardSx = {
+    p: { xs: 2, sm: 2.5 },
+    backgroundColor: '#f8f9fa',
+    border: '1px solid #e9ecef',
+    borderRadius: 2,
+    boxShadow: 'none',
+  };
+
+  // timestamp helper (kept from your code)
   const convertTimestamp = (isoString) => {
     if (!isoString) return '';
     const date = new Date(isoString);
@@ -59,14 +74,9 @@ const UserProfile = () => {
     const day = String(date.getDate()).padStart(2, '0');
     let hour = date.getHours();
     let meridiem = 'AM';
-    if (hour === 0) {
-      hour = 12;
-    } else if (hour === 12) {
-      meridiem = 'PM';
-    } else if (hour > 12) {
-      hour -= 12;
-      meridiem = 'PM';
-    }
+    if (hour === 0) hour = 12;
+    else if (hour === 12) meridiem = 'PM';
+    else if (hour > 12) { hour -= 12; meridiem = 'PM'; }
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${year}-${month}-${day} at ${String(hour).padStart(2, '0')}:${minutes}:${seconds} ${meridiem}`;
@@ -75,80 +85,71 @@ const UserProfile = () => {
   useEffect(() => {
     const loadUserProfile = async () => {
       try {
-        let userData = await fetchOtherUserProfileId(userId);
-        if (userData.created_at) {
-          userData.created_at = convertTimestamp(userData.created_at);
-        }
-        console.log("user-profile: User ID = ", userId)
-        console.log("user-profile-data: ", userData)
+        let userData = await fetchOtherUserProfileId(userid_or_username);
+        if (userData?.created_at) userData.created_at = convertTimestamp(userData.created_at);
         setUser(userData);
-        setIsFavorite(userData.isFavorite);
+        setIsFavorite(!!userData.isFavorite);
+        setUserRating(Number(userData.avgRating || 0));
       } catch (error) {
+        // fallback to username
         try {
-          let username = userId;
-          console.log("user-profile: UserName = ", username)
-          const userData = await fetchOtherUserProfile(username);
+          const userData = await fetchOtherUserProfile(userid_or_username);
+          if (userData?.created_at) userData.created_at = convertTimestamp(userData.created_at);
           setUser(userData);
-          // console.log("user-profile: User ID = ", userId)
-          console.log("user-profile-data: ", userData)
-          setIsFavorite(userData.isFavorite);
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
+          setIsFavorite(!!userData.isFavorite);
+          setUserRating(Number(userData.avgRating || 0));
+        } catch (err) {
+          console.error('Error fetching user profile:', err);
           setSnackbarMessage('Failed to load user profile.');
           setOpenSnackbar(true);
-          if (error.response?.status === 403) {
-            setTimeout(() => navigate('/dashboard'), 1000);
-          }
+          if (err?.response?.status === 403) setTimeout(() => navigate('/dashboard'), 1000);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
-    const checkLoginStatus = async () => {
+    const checkLoginStatus = () => {
       try {
         const token = localStorage.getItem('token');
-        if (token) {
-          setIsLoggedIn(true);
-        }
-      } catch (error) {
+        setIsLoggedIn(!!token);
+      } catch {
         setIsLoggedIn(false);
       }
     };
 
     checkLoginStatus();
     loadUserProfile();
-  }, [userId, navigate]);
+  }, [userid_or_username, navigate]);
 
   const handleSendMoney = () => {
+    if (!user?.username) return;
     navigate(`/send?recipient=${user.username}`);
   };
 
   const handleViewingUserPosts = () => {
+    if (!user?.username) return;
     navigate(`/user-posts/${user.username}`);
   };
 
   const handleToggleFavorite = async () => {
-
+    if (!user) return;
     try {
       const newFavoriteStatus = !isFavorite;
-      console.log("user-profile: User ID = ", userId)
-      console.log("user-profile-data: ", user)
-      let username = userId;
-      await updateFavoriteStatus(username, newFavoriteStatus, user);
+      await updateFavoriteStatus(userid_or_username, newFavoriteStatus, user);
       setIsFavorite(newFavoriteStatus);
       setSnackbarMessage(newFavoriteStatus ? 'User added to favorites' : 'User removed from favorites');
       setOpenSnackbar(true);
+
+      // refresh cached current user profile in localStorage (kept from your code)
       const profile = await fetchUserProfile();
-
-        const updatedUserData = {
-          ...profile,
-          birthDate: profile.birthDate ? profile.birthDate.split('T')[0] : '',
-          accountTier: profile.accountTier || 1,
-          encryptionKey: profile.encryptionKey || '',
-        };
-
-        // setUserData(updatedUserData);
-        localStorage.setItem('userdata', JSON.stringify(updatedUserData));
-      // await fetchUserProfile(); // Refresh user profile after updating favorite status
+      const updatedUserData = {
+        ...profile,
+        birthDate: profile.birthDate ? profile.birthDate.split('T')[0] : '',
+        accountTier: profile.accountTier || 1,
+        encryptionKey: profile.encryptionKey || '',
+      };
+      localStorage.setItem('userdata', JSON.stringify(updatedUserData));
     } catch (error) {
       console.error('Error updating favorite status:', error);
       setSnackbarMessage('Failed to update favorite status');
@@ -156,12 +157,11 @@ const UserProfile = () => {
     }
   };
 
-  const handleReport = () => {
-    setOpenReportDialog(true);
-  };
+  const handleReport = () => setOpenReportDialog(true);
 
   const handleSubmitReport = async () => {
-    confirmation('Are you sure you want to report this user? This will cost you 10 coins.')
+    if (!window.confirm('Are you sure you want to report this user? This will cost you 10 coins.')) return;
+
     if (!reportMessage) {
       setSnackbarMessage('Please provide a reason for reporting');
       setOpenSnackbar(true);
@@ -178,9 +178,9 @@ const UserProfile = () => {
       return;
     }
     try {
-      let reportedUser = user.username;
-      let reportingUser = localStorage.getItem('username');
-      await submitUserReport(userId, reportMessage, reportedUser, reportingUser);
+      const reportedUser = user?.username;
+      const reportingUser = localStorage.getItem('username');
+      await submitUserReport(userid_or_username, reportMessage, reportedUser, reportingUser);
       setOpenReportDialog(false);
       setReportMessage('');
       setSnackbarMessage('Report submitted successfully');
@@ -193,13 +193,14 @@ const UserProfile = () => {
   };
 
   const handleMessage = () => {
+    if (!user?.username) return;
     navigate(`/messages/${user.username}`);
-    // setOpenMessageDialog(true);
+    // Or use the dialog: setOpenMessageDialog(true);
   };
 
   const handleSubmitMessage = async () => {
     try {
-      await submitUserMessage(userId, userMessage);
+      await submitUserMessage(userid_or_username, userMessage);
       setOpenMessageDialog(false);
       setUserMessage('');
       setSnackbarMessage('Message sent successfully');
@@ -211,83 +212,387 @@ const UserProfile = () => {
     }
   };
 
-  if (!user) return <Typography>Loading...</Typography>;
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  if (!user) return <Typography sx={{ p: 2 }}>User not found.</Typography>;
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Paper sx={{ p: 2, backgroundColor: '#EEEEFF', mb: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar
-            src={user.profilePic || user.avatar}
-            alt={user.username}
-            sx={{ width: 100, height: 100 }}
-          />
-          <Typography variant="h3" sx={{ mt: 2 }}>
-            {user.username}
-          </Typography>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1.5, sm: 2 } }}>
+      {/* Gradient Header */}
+      <Box sx={{ mb: 2, textAlign: 'center' }}>
+        <Typography
+          variant="h3"
+          component="h1"
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 0.5,
+          }}
+        >
+          {user.username}
+        </Typography>
+        <Typography variant="h6" color="text.secondary">
+          Member since {user.created_at || '—'}
+        </Typography>
+      </Box>
 
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 2 }}>
-          <div style={{ padding: 5, margin: "10px" }}>
-            <Typography variant="h4">Bio: {user.bio}</Typography>
-          </div>
-        </Box>
+      <Grid container spacing={2.5}>
+        {/* Left: Profile summary */}
+        <Grid item xs={12} md={4}>
+          <Paper sx={cardSx}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Avatar
+                src={user.profilePic || user.avatar}
+                alt={user.username}
+                sx={{
+                  width: 120,
+                  height: 120,
+                  mx: 'auto',
+                  mb: 1.5,
+                  border: '2px solid',
+                  borderColor: 'primary.light',
+                }}
+              />
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>Profile</Typography>
+              <Typography variant="body2" color="text.secondary">
+                @{user.username}
+              </Typography>
+            </Box>
 
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', my: 2 }}>
-          <Typography variant="h5">
-            Rating: {user.avgRating} <StarIcon sx={{ ml: 1 }} />
-          </Typography>
-          <Typography variant="h5">
-            Likes: {user.numberOfLikes} <ThumbUpRounded sx={{ ml: 1 }} />
-          </Typography>
-          <Typography variant="h5">
-            Posts: {user.numberOfPosts} <PictureInPicture sx={{ ml: 1 }} />
-          </Typography>
-          <Typography variant="h5">
-            Favorites: {user.numberOfFavorites} <FavoriteIcon sx={{ ml: 1 }} />
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', my: 2 }}>
-          <Button
-            variant="contained"
-            startIcon={<PictureIcon />}
-            onClick={handleViewingUserPosts}
-          >
-            <Typography sx={{ mt: 1 }}>View Posts</Typography>
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<SendIcon />}
-            onClick={handleSendMoney}
-          >
-            <Typography sx={{ mt: 1 }}>Send Coins</Typography>
-          </Button>
-          <Button
-            variant={isFavorite ? "contained" : "outlined"}
-            startIcon={<FavoriteIcon />}
-            onClick={handleToggleFavorite}
-          >
-            <Typography sx={{ mt: 1 }}>
-              {isFavorite ? "Remove Favorite" : "Add Favorite"}
+            <Divider sx={{ my: 1.5 }} />
+
+            {/* Stats */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 1 }}>
+              <Chip
+                icon={<StarIcon />}
+                label={`Rating: ${Number(user.avgRating || 0).toFixed(1)}`}
+                variant="outlined"
+              />
+              <Chip
+                icon={<ThumbUpRounded />}
+                label={`Likes Received: ${user.numberOfLikes ?? 0}`}
+                variant="outlined"
+              />
+              <Chip
+                icon={<PictureInPicture />}
+                label={`Posts Created: ${user.numberOfPosts ?? 0}`}
+                variant="outlined"
+              />
+              <Chip
+                icon={<FavoriteIcon />}
+                label={`Favorites Received: ${user.numberOfFavorites ?? 0}`}
+                variant="outlined"
+              />
+            </Box>
+
+            {user.bio && (
+              <>
+                <Divider sx={{ my: 1.5 }} />
+                <Typography variant="subtitle2" color="text.secondary">Bio</Typography>
+                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                  {user.bio}
+                </Typography>
+              </>
+            )}
+          </Paper>
+        </Grid>
+
+        {/* Right: Actions + details */}
+        <Grid item xs={12} md={8}>
+          {/* Actions */}
+          <Paper sx={{ ...cardSx, mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+              Quick Actions
             </Typography>
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<ReportIcon />}
-            onClick={handleReport}
-          >
-            <Typography sx={{ mt: 1 }}>Report</Typography>
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<MessageIcon />}
-            onClick={handleMessage}
-          >
-            <Typography sx={{ mt: 1 }}>Message</Typography>
-          </Button>
-        </Box>
-      </Paper>
+            <Grid container spacing={1.25}>
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  startIcon={<PictureIcon />}
+                  onClick={handleViewingUserPosts}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  View Posts
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  startIcon={<SendIcon />}
+                  onClick={handleSendMoney}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  Send Coins
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant={isFavorite ? 'contained' : 'outlined'}
+                  startIcon={<FavoriteIcon />}
+                  onClick={handleToggleFavorite}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<ReportIcon />}
+                  onClick={handleReport}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  Report
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<MessageIcon />}
+                  onClick={handleMessage}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  Message
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
 
+          {/* Users Stats block - Redesigned for clarity */}
+          <Paper sx={cardSx}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, textAlign: 'center' }}>
+              📊 Community Statistics
+            </Typography>
+
+            {/* Grid layout for better organization */}
+            <Grid container spacing={2}>
+              {/* Community Rating */}
+              <Grid item xs={12}>
+                <Box sx={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: 2,
+                  p: 2.5,
+                  color: 'white',
+                  textAlign: 'center',
+                  mb: 2
+                }}>
+                  <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>
+                    ⭐ Community Rating
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 1 }}>
+                    <Rating
+                      value={userRating}
+                      precision={0.5}
+                      readOnly
+                      sx={{
+                        '& .MuiRating-iconFilled': { color: '#ffd700' },
+                        '& .MuiRating-iconEmpty': { color: 'rgba(255,255,255,0.3)' }
+                      }}
+                    />
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', ml: 1 }}>
+                      {Number(user.avgRating || 0).toFixed(1)}/5
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                    Based on {user.numberOfRatings ?? 0} rating{(user.numberOfRatings || 0) === 1 ? '' : 's'}
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* Stats Grid */}
+              <Grid item xs={12} sm={6}>
+                <Box sx={{
+                  border: '2px solid #e3f2fd',
+                  borderRadius: 2,
+                  p: 2,
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
+                  height: '100%'
+                }}>
+                  <Typography variant="h5" sx={{
+                    fontSize: '2rem',
+                    mb: 1,
+                    background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontWeight: 'bold'
+                  }}>
+                    🔓
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: 'primary.main', mb: 0.5 }}>
+                    Unlocks
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'text.primary', mb: 0.5 }}>
+                    {Math.ceil(user.totalUnlocks ?? 0)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Avg: {Number((user.totalUnlocks / user.numberOfPosts) || 0).toFixed(1)} per post
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <Box sx={{
+                  border: '2px solid #f3e5f5',
+                  borderRadius: 2,
+                  p: 2,
+                  textAlign: 'center',
+                  background: 'linear-gradient(135deg, #f3e5f5 0%, #fce4ec 100%)',
+                  height: '100%'
+                }}>
+                  <Typography variant="h5" sx={{
+                    fontSize: '2rem',
+                    mb: 1,
+                    background: 'linear-gradient(45deg, #9c27b0 30%, #e91e63 90%)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontWeight: 'bold'
+                  }}>
+                    👁️
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: 'secondary.main', mb: 0.5 }}>
+                    Views
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'text.primary', mb: 0.5 }}>
+                    {Math.ceil(user.totalViews ?? 0)}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Avg: {Number((user.totalViews / user.numberOfPosts) || 0).toFixed(1)} per post
+                  </Typography>
+                </Box>
+              </Grid>
+
+              {/* Likes vs Dislikes - Full width comparison */}
+              <Grid item xs={12}>
+                <Box sx={{
+                  border: '2px solid #e8f5e8',
+                  borderRadius: 2,
+                  p: 2.5,
+                  background: 'linear-gradient(135deg, #e8f5e8 0%, #fff3e0 100%)'
+                }}>
+                  <Typography variant="h6" sx={{
+                    fontWeight: 700,
+                    textAlign: 'center',
+                    mb: 2,
+                    color: 'text.primary'
+                  }}>
+                    👍 Community Engagement
+                  </Typography>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                    {/* Likes */}
+                    <Box sx={{ textAlign: 'center', flex: 1 }}>
+                      <Box sx={{
+                        background: 'linear-gradient(135deg, #4caf50 0%, #81c784 100%)',
+                        borderRadius: '50%',
+                        width: 60,
+                        height: 60,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mx: 'auto',
+                        mb: 1,
+                        color: 'white'
+                      }}>
+                        <Typography variant="h5">👍</Typography>
+                      </Box>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'success.main' }}>
+                        {user.totalLikes ?? 0}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Likes
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                        Avg: {Number((user.totalLikes / user.numberOfPosts) || 0).toFixed(1)}
+                      </Typography>
+                    </Box>
+
+                    {/* VS Divider */}
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      mx: 2
+                    }}>
+                      <Typography variant="body2" sx={{
+                        fontWeight: 'bold',
+                        color: 'text.secondary',
+                        background: 'rgba(0,0,0,0.05)',
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1
+                      }}>
+                        VS
+                      </Typography>
+                    </Box>
+
+                    {/* Dislikes */}
+                    <Box sx={{ textAlign: 'center', flex: 1 }}>
+                      <Box sx={{
+                        background: 'linear-gradient(135deg, #f44336 0%, #ef5350 100%)',
+                        borderRadius: '50%',
+                        width: 60,
+                        height: 60,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mx: 'auto',
+                        mb: 1,
+                        color: 'white'
+                      }}>
+                        <Typography variant="h5">👎</Typography>
+                      </Box>
+                      <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'error.main' }}>
+                        {user.totalDislikes ?? 0}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Dislikes
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                        Avg: {Number((user.totalDislikes / user.numberOfPosts) || 0).toFixed(1)}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Engagement ratio */}
+                  <Box sx={{
+                    mt: 2,
+                    pt: 2,
+                    borderTop: '1px solid rgba(0,0,0,0.1)',
+                    textAlign: 'center'
+                  }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Engagement Ratio: {
+                        (user.totalLikes + user.totalDislikes) > 0
+                          ? `${Math.round((user.totalLikes / (user.totalLikes + user.totalDislikes)) * 100)}% positive`
+                          : 'No engagement yet'
+                      }
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+            </Grid>
+          </Paper>
+
+        </Grid>
+      </Grid>
+
+      {/* Snackbar */}
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={openSnackbar}
@@ -297,15 +602,13 @@ const UserProfile = () => {
       />
 
       {/* Report Dialog */}
-      <Dialog open={openReportDialog} onClose={() => setOpenReportDialog(false)}
-        sx={{
-          '& .MuiDialog-paper': {
-            width: '500px',
-            maxWidth: '90vw',
-            height: '270px',
-            maxHeight: '90vh'
-          }
-        }}>
+      <Dialog
+        open={openReportDialog}
+        onClose={() => setOpenReportDialog(false)}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{ sx: { borderRadius: 2 } }}
+      >
         <DialogTitle>Report User</DialogTitle>
         <DialogContent>
           <TextField
@@ -322,23 +625,17 @@ const UserProfile = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenReportDialog(false)}>Cancel</Button>
-          <Button onClick={handleSubmitReport}>Submit Report</Button>
+          <Button onClick={handleSubmitReport} variant="contained">Submit Report</Button>
         </DialogActions>
       </Dialog>
 
-      {/* Message Dialog */}
-      {/* Message Dialog */}
+      {/* Message Dialog (kept if you want modal messaging instead of redirect) */}
       <Dialog
         open={openMessageDialog}
         onClose={() => setOpenMessageDialog(false)}
-        sx={{
-          '& .MuiDialog-paper': {
-            width: '600px',
-            maxWidth: '90vw',
-            height: '300px',
-            maxHeight: '90vh'
-          }
-        }}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{ sx: { borderRadius: 2 } }}
       >
         <DialogTitle>Send a Message to {user.username}</DialogTitle>
         <DialogContent>
@@ -356,7 +653,9 @@ const UserProfile = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenMessageDialog(false)}>Cancel</Button>
-          <Button variant="contained" color="primary">Send</Button>
+          <Button onClick={handleSubmitMessage} variant="contained" color="primary">
+            Send
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

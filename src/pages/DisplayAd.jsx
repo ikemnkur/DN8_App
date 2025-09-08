@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Paper, Typography, Box, Snackbar, Alert } from '@mui/material';
 import AdObject from '../pages/AdObject'; // Adjust path as needed
 
 const ContentSection = () => {
+
+  const Ad_id = useParams().id || '-1';  // Changed from .username to .user
+  
   const [adError, setAdError] = useState(null);
   const [showAdSuccess, setShowAdSuccess] = useState(false);
   const [rewardEarned, setRewardEarned] = useState(0);
@@ -127,11 +131,12 @@ const ContentSection = () => {
           onRewardClaim={handleRewardClaim}
           RewardModal={SimpleRewardModal}
           showRewardProbability={0.3} // 30% chance to show reward button
-          filters={{ format: 'banner' }} // Only show banner ads for this placement
+          filters={{ format: 'video' }} // Only show banner ads for this placement
           style={{
             minHeight: '200px', // Ensure minimum height
             borderRadius: 0 // Remove border radius to fit Paper container
           }}
+          getAdById={Ad_id}
           className="banner-ad"
         />
       </Paper>

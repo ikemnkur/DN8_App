@@ -107,8 +107,8 @@ const fileToDataURL = (file) =>
 // Get auth token from localStorage if not provided as prop
 const token = localStorage.getItem('token');
 const authToken = localStorage.getItem('authToken') || token; // Use the token from localStorage if authToken prop is not provided
-console.log('Auth Token:', authToken);
-console.log('Token:', token);
+// console.log('Auth Token:', authToken);
+// console.log('Token:', token);
 
 
 

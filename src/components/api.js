@@ -759,10 +759,15 @@ export const fetchAds = async () => {
 //   }
 // };
 
-export const fetchDisplayAds = async (format, userId) => {
+export const fetchDisplayAds = async (format, userId, adId) => {
   try {
-    const response = await api.post('/ads/display', { format: format, excludeUserId: userId });
-    return response.data;
+    if (!adId || adId === -1) {
+      const response = await api.post('/ads/display', { format: format, excludeUserId: userId });
+      return response.data;
+    } else {
+      const response = await api.get(`/ads/display/${adId}`);
+      return response.data;
+    }
   } catch (error) {
     console.error('API - Error fetching ads to display:', error);
     throw error;
@@ -797,19 +802,6 @@ export const recordAdInteraction = async (adId, interactionType, creditsEarned =
     throw error;
   }
 };
-
-// export const recordAdInteractionGuest = async (adId, interactionType) => {
-//   try {
-//     console.log("Recording ad interaction:", { adId, interactionType });
-//     const response = await api.post(`/ads/guest-ad/${adId}/interactions`, {
-//       interactionType,
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error('API - Error recording guest ad interaction:', error);
-//     throw error;
-//   }
-// };
 
 export const trackAdView = async (adId, guest) => {
   return recordAdInteraction(adId, 'view', guest);

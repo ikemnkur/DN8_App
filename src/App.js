@@ -202,6 +202,7 @@ function App() {
             <Route path="/test-ad" element={
               <ProtectedRoute> <AdObject /> </ProtectedRoute>} />
             <Route path="/display-ad" element={<DisplayAd /> } />
+            <Route path="/display-adId/:id" element={<DisplayAd /> } />
 
 
           </Routes>

@@ -7,7 +7,6 @@ import {
   trackRewardClaim,
   fetchRandomQuizQuestion,
   submitQuizAnswer,
-  recordAdInteractionGuest
 } from '../components/api';
 
 const LiveAdvertisement = ({
@@ -19,7 +18,8 @@ const LiveAdvertisement = ({
   showRewardProbability = 0.2,
   style = {},
   className = '',
-  filters = {} // For filtering ads by format, etc.
+  filters = {}, // For filtering ads by format, etc.
+  getAdById = -1 // If provided, fetch and display this specific ad
 }) => {
   const [ad, setAd] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,16 +50,18 @@ const LiveAdvertisement = ({
         setError(null);
 
         const userdata = JSON.parse(localStorage.getItem('userdata')) || {};
-        console.log('Fetching ads with filters:', filters, 'User:', userdata.username || 'Guest');
+        console.log('Fetching ads with filters:', filters, 'User:', localStorage.getItem('token') ? userdata.username || 'Guest' : 'Guest');
 
-        const response = await fetchDisplayAds(filters.format, userdata.user_id || 0);
+        const response = await fetchDisplayAds(filters.format, userdata.user_id || 0, getAdById !== -1 ? getAdById : null);
 
-        console.log('Fetched Ads:', response.ads[0]);
+        // console.log('Fetched Ads:', response.ads[0]);
 
         if (!response.ads || response.ads.length === 0) {
           setAd(null);
           return;
         }
+
+        console.log("List of ads fetched:", response.ads);
 
         const adData = response.ads[0]; // Get first ad
         setAd(adData);
@@ -103,10 +105,7 @@ const LiveAdvertisement = ({
         guest = false;
       }
       await trackAdView(ad.id, guest);
-      // } else {
-      //   await recordAdInteractionGuest(ad.id, 'view');
-      //   console.log("User is a guest, not tracking ad view.");
-      // }
+
       setAdViewed(true);
 
       if (onAdView) {
@@ -119,10 +118,14 @@ const LiveAdvertisement = ({
 
   const handleFindOutMore = async () => {
     if (!ad?.findOutMoreLink) return;
-
+    let guest = true;
     try {
+      // check if user is logged or a guest
+      if (localStorage.getItem('token')) {
+        guest = false;
+      }
       // Track completion since user is engaging with the ad
-      await trackAdCompletion(ad.id);
+      await trackAdCompletion(ad.id, guest);
 
       if (onAdClick) {
         onAdClick(ad);
@@ -137,8 +140,13 @@ const LiveAdvertisement = ({
 
   const handleRewardClick = async () => {
     if (!ad) return;
-    console.log("Ad ID: ", ad )
+    console.log("Ad ID: ", ad)
+    let guest = true;
     try {
+      // check if user is logged or a guest
+      if (localStorage.getItem('token')) {
+        guest = false;
+      }
       // Fetch quiz question for this ad
       const quizResponse = await fetchRandomQuizQuestion(ad.id);
       setQuizQuestion(quizResponse.question);
@@ -182,7 +190,12 @@ const LiveAdvertisement = ({
   };
 
   const handleRewardEarned = async (amount) => {
+    let guest = true;
     try {
+      // check if user is logged or a guest
+      if (localStorage.getItem('token')) {
+        guest = false;
+      }
       await trackRewardClaim(ad.id, amount);
 
       if (onRewardClaim) {
@@ -498,7 +511,7 @@ const LiveAdvertisement = ({
         style={{
           background: 'white',
           // borderRadius: '12px',
-          padding: '8px',
+          padding: '3px',
           // boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
           // border: '1px solid rgba(0,0,0,0.04)',
           maxWidth: '100%',
@@ -507,11 +520,11 @@ const LiveAdvertisement = ({
         }}
       >
         {/* Ad Title */}
-        <h3
+        <p
           style={{
             fontSize: '1rem',
             fontWeight: 'bold',
-            marginBottom: '4px',
+            // marginBottom: '4px',
             color: 'rgba(0,0,0,0.85)',
             // lineHeight: 1.2,
             overflow: 'hidden',
@@ -520,7 +533,7 @@ const LiveAdvertisement = ({
           }}
         >
           {ad.title}
-        </h3>
+        </p>
 
         {/* Ad Description */}
         <p
@@ -543,19 +556,46 @@ const LiveAdvertisement = ({
             {ad.format === 'video' && (
               <video
                 controls
-                style={{ maxHeight: '120px', borderRadius: '8px' }}
+                autoPlay
+                style={{ maxHeight: '200px', borderRadius: '8px' }}
                 src={ad.media_url}
               />
             )}
             {ad.format === 'audio' && (
               <audio
                 controls
+                autoPlay
                 style={{ width: '100%' }}
                 src={ad.media_url}
               />
             )}
             {ad.format === 'banner' && (
               <img
+                src={ad.media_url}
+                alt={ad.title}
+                style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}
+              />
+            )}
+            {ad.format === 'modal' && (ad.media_url.includes("jpg") || ad.media_url.includes("gif") || ad.media_url.includes("jpeg") || ad.media_url.includes("png")) && (
+              <img
+                src={ad.media_url}
+                alt={ad.title}
+                style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}
+              />
+            )}
+            {ad.format === 'modal' && (ad.media_url.includes("mp4") || ad.media_url.includes("wmv")) && (
+              <video
+                controls
+                autoPlay
+                src={ad.media_url}
+                alt={ad.title}
+                style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}
+              />
+            )}
+            {ad.format === 'modal' && (ad.media_url.includes("mp3") || ad.media_url.includes("wav") || ad.media_url.includes("ogg")) && (
+              <audio
+                controls
+                autoPlay
                 src={ad.media_url}
                 alt={ad.title}
                 style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}

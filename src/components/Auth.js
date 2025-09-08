@@ -228,93 +228,99 @@ const Auth = ({ isLogin, onLoginSuccess }) => {
     >
 
 
-      {/* Add your coin animation just under the avatar, for example */}
-      <Box sx={{ mb: 2 }}>
-        <CoinAnimationCanvas />
-      </Box>
+      {/* /* Add your coin animation just under the avatar, for example */}
+        <Box sx={{ mb: 2 }}>
+          <CoinAnimationCanvas />
+        </Box>
 
 
-      <Card sx={{ maxWidth: 400, width: '100%' }} elevation={0}>
-        <Avatar sx={{ m: 1, margin: "10px auto", textAlign: 'center', bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <CardHeader
-          title={isLogin ? 'Login' : 'Sign Up'}
-          sx={{ textAlign: 'center' }}
-        />
-        <CardContent>
+        <Card sx={{ maxWidth: 400, width: '100%' }} elevation={0}>
+          <Avatar sx={{ m: 1, margin: "10px auto", textAlign: 'center', bgcolor: 'secondary.main' }}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <CardHeader
+            title={isLogin ? 'Login' : 'Sign Up'}
+            sx={{ textAlign: 'center' }}
+          />
+          <CardContent>
 
-          {!showCaptcha && (
-            <>
-              <form onSubmit={handleSubmit}>
-                {!isLogin && (
-                  <TextField
-                    label="Username"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                  />
-                )}
-                <TextField
-                  label="Email"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <TextField
-                  label="Password"
-                  variant="outlined"
-                  fullWidth
-                  margin="normal"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                {!isLogin && (
-                  <TextField
-                    label="Confirm Password"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                )}
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                >
-                  {isLogin ? 'Login' : 'Sign Up'}
-                </Button>
-              </form>
-              <Box sx={{ mt: 2, textAlign: 'center' }}>
-                {isLogin ? (
-                  <Link component={RouterLink} to="/register">
-                    Don't have an account? Sign Up
-                  </Link>
-                ) : (
-                  <Link component={RouterLink} to="/login">
-                    Already have an account? Login
-                  </Link>
-                )}
-              </Box>
-            </>
-          )}
+            {!showCaptcha && (
+          <>
+            <form onSubmit={handleSubmit}>
+              {!isLogin && (
+            <TextField
+              label="Username"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              value={username}
+              onChange={(e) => {
+                if (e.target.value.length <= 24) {
+              setUsername(e.target.value);
+                }
+              }}
+              required
+              inputProps={{ maxLength: 24 }}
+              helperText={username.length === 24 ? "Maximum 24 characters allowed" : ""}
+            />
+              )}
+              <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+              />
+              <TextField
+            label="Password"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+              />
+              {!isLogin && (
+            <TextField
+              label="Confirm Password"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+              )}
+              <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 2 }}
+              >
+            {isLogin ? 'Login' : 'Sign Up'}
+              </Button>
+            </form>
+            <Box sx={{ mt: 2, textAlign: 'center' }}>
+              {isLogin ? (
+            <Link component={RouterLink} to="/register">
+              Don't have an account? Sign Up
+            </Link>
+              ) : (
+            <Link component={RouterLink} to="/login">
+              Already have an account? Login
+            </Link>
+              )}
+            </Box>
+          </>
+            )}
 
-          {/* Show CAPTCHA only after submit is clicked and showCaptcha is true */}
+            {/* Show CAPTCHA only after submit is clicked and showCaptcha is true */}
           {showCaptcha && !captchaPassed && (
             <Box sx={{ mt: 2 }}>
               <DotCaptcha

@@ -196,7 +196,7 @@ const AccountPage = () => {
     formData.append('date', new Date().toISOString());
 
     try {
-      const response = await api.post('/upload-profile-picture', formData, {
+      const response = await api.post('/upload/profile-picture', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setUserData((prev) => ({ ...prev, profilePictureUrl: response.data.url || '' }));

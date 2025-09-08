@@ -31,7 +31,7 @@ const Notifications = () => {
     const fetchNotifications = async () => {
     // Check if notifications are already in localStorage
     const cachedNotifications = localStorage.getItem('CCC_notifications');
-    if (cachedNotifications) {
+    if (cachedNotifications && cachedNotifications !== '[]') {
       // if time since the last notification is more than 24 hours || Date.now() - cachedNotifications[0].created_at > 86400000
       // Example of format: cachedNotifications[0].created_at = '2025-06-11T11:23:06.000Z'
       // Parse and set notifications from cache

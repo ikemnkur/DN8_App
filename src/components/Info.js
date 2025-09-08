@@ -19,6 +19,9 @@ import {
 } from '@mui/material';
 import { fetchInfoData, fetchUserProfile } from './api';
 import Notifications from './Notifications';
+import { useParams } from 'react-router-dom';
+import { fetchDisplayAds } from './api';
+import AdObject from '../pages/AdObject'; // Adjust path as needed
 
 const Info = () => {
   const navigate = useNavigate();
@@ -44,6 +47,8 @@ const Info = () => {
   const [tier, setTier] = useState(true);
 
   // New state for modal and FAQ search
+  const [openPopupAdModal, setOpenPopupAdModal] = useState(false);
+  const [popupAdContent, setPopupAdContent] = useState(null);
   const [openSupportModal, setOpenSupportModal] = useState(false);
   const [supportUsername, setSupportUsername] = useState('');
   const [supportProblemType, setSupportProblemType] = useState('');
@@ -72,11 +77,11 @@ const Info = () => {
         console.error('Error fetching user profile:', err);
         setSnackbarMessage(
           err.response?.data?.message ||
-            'Failed to load user profile, please refresh or login again'
+          'Failed to load user profile, please refresh or login again'
         );
         setOpenSnackbar(true);
         // if (err.response?.status === 401) {
-          // setTimeout(() => navigate('/login'), 500);
+        // setTimeout(() => navigate('/login'), 500);
         // }
       }
     };
@@ -109,6 +114,24 @@ const Info = () => {
   // Modal open/close
   const handleOpenSupportModal = () => setOpenSupportModal(true);
   const handleCloseSupportModal = () => setOpenSupportModal(false);
+  const handleOpenPopupAdModal = () => setOpenPopupAdModal(true);
+  const handleClosePopupAdModal = () => setOpenPopupAdModal(false);
+
+  // Display and auto-close popup ad modal using useEffect
+  useEffect(() => {
+    const openTimer = setTimeout(() => {
+      handleOpenPopupAdModal();
+    }, 10000);
+
+    const closeTimer = setTimeout(() => {
+      setOpenPopupAdModal(false);
+    }, 20000);
+
+    return () => {
+      clearTimeout(openTimer);
+      clearTimeout(closeTimer);
+    };
+  }, []);
 
   // Submit support ticket form (placeholder)
   const handleSubmitSupportTicket = () => {
@@ -157,7 +180,7 @@ const Info = () => {
         gap: 4,
       }}
     >
-      
+
       <Typography variant="h4" align="center" gutterBottom>
         Welcome to Clout Coin Club
       </Typography>
@@ -287,176 +310,45 @@ const Info = () => {
         </Box>
       </Box>
 
-      {/* FAQ Section */}
-      {/* <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-          <TextField
-            label="Search FAQs"
-            variant="outlined"
-            value={faqSearch}
-            onChange={(e) => setFaqSearch(e.target.value)}
-            fullWidth
-          />
-          <Button variant="outlined" onClick={handleFaqSearch}>
-            Search
-          </Button>
+
+      {/* Advertisement Section */}
+      <Paper
+        elevation={1}
+        sx={{
+          p: 0, // Remove padding to let AdObject handle its own spacing
+          mt: 2,
+          overflow: 'hidden', // Prevent content overflow
+          borderRadius: 2
+        }}
+      >
+        <Box sx={{ p: 1, textAlign: 'center', backgroundColor: '#f5f5f5' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '10px' }}>
+            Advertisement
+          </Typography>
         </Box>
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            Rules, FAQs, and Comments!
-          </Typography>
-          <Typography variant="h6" gutterBottom>
-            • Account Tiers
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            Account Tiers help to allocate site and server resources for stable operation.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: What are the tiers and what features do they have?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            A: (Placeholder for tier details)
-          </Typography>
-          <Box sx={{ my: 2 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Tier</TableCell>
-                  <TableCell>Features</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Tier 1</TableCell>
-                  <TableCell>(Placeholder Features)</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Tier 2</TableCell>
-                  <TableCell>(Placeholder Features)</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Tier 3</TableCell>
-                  <TableCell>(Placeholder Features)</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Box>
-          <Typography variant="h6" gutterBottom>
-            • Account Limits
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            Q: Can I change the account limits I currently have?
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            A: Yes, you can upgrade or downgrade to a different tier. Daily fees apply.
-          </Typography>
-          <Box sx={{ my: 2 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Tier</TableCell>
-                  <TableCell>Limitations</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Tier 1</TableCell>
-                  <TableCell>(Placeholder Limit Info)</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Tier 2</TableCell>
-                  <TableCell>(Placeholder Limit Info)</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Tier 3</TableCell>
-                  <TableCell>(Placeholder Limit Info)</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </Box>
-          <Typography variant="h6" gutterBottom>
-            • Impersonation
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: Should you trust anyone on the site?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            A: No, always verify outside the app that the person is who they say they are.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: Will I be banned for impersonation?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            A: Only if you are reported frequently or have many bad ratings/reviews.
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            • Trick and Scams
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: How can I get scammed?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            A: Always verify outside the app that the person you are engaging with is real.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: What to do if tricked or scammed?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            A: Create a support ticket, include evidence of the scam so we can investigate.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: How can I get my money back?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            A: Possibly for large transactions. There may be a penalty for conflict resolution.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: Should I worry about fraudsters?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            A: This site is not intended for truly significant purchases; proceed with caution.
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            • Your Content
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Your content can be anything, but avoid breaking the rules.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            Q: If I delete content, does my rating change?
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            • Content Limitations
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: What can't you create?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            A: Anything illegal or that violates site policy, child content, extreme gore, etc.
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            • Bans and Account Restrictions
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: How can an account be deleted?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            A: Inactivity for 90 days, failing captchas, or causing a glitching event.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: How can you get banned?
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            A: Hacking, Scamming, Spamming, and Glitching.
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Q: How can your account be restricted?
-          </Typography>
-          <Typography variant="body2">
-            A: Accumulation of bad reviews or frequent reports.
-          </Typography>
-        </Paper>
-      </Box> */}
+
+        {/* AdObject Component */}
+        <AdObject
+          onAdView={(ad) => console.log('Ad viewed:', ad)}
+            onAdClick={(ad) => console.log('Ad clicked:', ad)}
+            onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+            onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+            RewardModal={({ onClose, onReward }) => (
+              <div style={{ /* simple modal styles */ }}>
+                <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                <button onClick={onClose}>Close</button>
+              </div>
+            )}
+          showRewardProbability={0.1} // 10% chance to show reward button
+          filters={{ format: 'video' }} // Only show video ads for this placement
+          style={{
+            minHeight: '200px', // Ensure minimum height
+            borderRadius: 0 // Remove border radius to fit Paper container
+          }}
+          getAdById={-1}
+          className="banner-ad"
+        />
+      </Paper>
 
       {/* Support Ticket Modal */}
       <Modal
@@ -537,6 +429,59 @@ const Info = () => {
           </Box>
         </Box>
       </Modal>
+
+      {/* Popup Ad Modal */}
+      <Modal
+        open={openPopupAdModal}
+        onClose={handleClosePopupAdModal}
+        aria-labelledby="popup-ad-modal-title"
+        aria-describedby="popup-ad-modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 2,
+            width: { xs: '90%', sm: '400px' },
+            borderRadius: 2,
+          }}
+        >
+          {/* <Typography id="popup-ad-modal-title" variant="h6" gutterBottom>
+            Popup Ad
+          </Typography> */}
+
+          <AdObject
+            onAdView={(ad) => console.log('Ad viewed:', ad)}
+            onAdClick={(ad) => console.log('Ad clicked:', ad)}
+            onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+            onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+            RewardModal={({ onClose, onReward }) => (
+              <div style={{ /* simple modal styles */ }}>
+                <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                <button onClick={onClose}>Close</button>
+              </div>
+            )}
+            // style={{ borderRadius: 0 }}
+            showRewardProbability={0.3} // 30% chance to show reward button
+            filters={{ format: 'modal' }} // Only show modal ads for this placement
+            style={{
+              minHeight: '200px', // Ensure minimum height
+              maxHeight: '300px', // Limit maximum height
+              borderRadius: 0 // Remove border radius to fit Paper container
+            }}
+            className="banner-ad"
+          />
+
+          <Typography id="popup-ad-modal-description" variant="body2">
+            This is a popup ad, it will close automatically after a few seconds.
+          </Typography>
+        </Box>
+      </Modal>
+
 
       {/* Snackbar for notifications */}
       <Snackbar

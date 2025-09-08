@@ -269,14 +269,7 @@ const YourStuff = () => {
           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}
         >
           <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Unlocked Content</Typography>
-         {/* Chip pinned to the top-right */}
-          <Chip
-            label={`${contentToDisplay.length} item${contentToDisplay.length === 1 ? '' : 's'}`}
-            variant="outlined"
-            color="primary"
-            sx={{ marginRight: "1%"}}
-            // sx={{ position: 'absolute', top: 8, right: 8 }}
-          />
+       
         </Box>
         
           <Box
@@ -350,14 +343,22 @@ const YourStuff = () => {
               <MenuItem value="asc">Ascending</MenuItem>
               <MenuItem value="desc">Descending</MenuItem>
             </Select>
+              {/* Chip pinned to the top-right */}
+          <Chip
+            label={`${contentToDisplay.length} item${contentToDisplay.length === 1 ? '' : 's'}`}
+            variant="outlined"
+            color="primary"
+            sx={{ marginRight: "1%"}}
+            // sx={{ position: 'absolute', top: 8, right: 8 }}
+          />
 
-            <Button
+            {/* <Button
               variant="text"
               sx={{ textTransform: 'none' }}
               onClick={() => { setSearchTermContent(''); setFilteredContent(contentList); }}
             >
               Reset
-            </Button>
+            </Button> */}
           </Box>
         </Box>
 

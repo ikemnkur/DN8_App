@@ -379,7 +379,7 @@ const AdServiceActivationPage = ({ authToken, onActivationComplete,  }) => {
                 <button
                   // onClick={() => onActivationComplete && onActivationComplete()}
                   onClick={() => {
-                    navigate('/ads-login');
+                     window.open('/ads-login', '_blank');
                   }}
                   style={{
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
