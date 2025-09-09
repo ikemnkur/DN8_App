@@ -306,43 +306,49 @@ const ManageContent = () => {
               variant="outlined"
               color="primary"
             />
-            <SortByAlpha fontSize="small" />
+            {/* <SortByAlpha fontSize="small" /> */}
             <Select value={sortBy} size="small" onChange={(e) => setSortBy(e.target.value)}>
               <MenuItem value="date">Date</MenuItem>
               <MenuItem value="cost">Cost</MenuItem>
               <MenuItem value="username">Username</MenuItem>
             </Select>
 
-            <SortTwoTone fontSize="small" />
+            {/* <SortTwoTone fontSize="small" /> */}
             <Select value={sortOrder} size="small" onChange={(e) => setSortOrder(e.target.value)}>
               <MenuItem value="asc">Ascending</MenuItem>
               <MenuItem value="desc">Descending</MenuItem>
             </Select>
 
-            {/* <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
-              Search
-            </Button> */}
-            <Button
-              variant="outlined"
-              sx={{ textTransform: 'none' }}
-              onClick={() => {
-                setSearchTerm('');
-                setFilteredContentList(contentList);
-              }}
-            >
-              Reset
-            </Button>
             {/* move to the right most  */}
-            <Button
-              variant="contained"
-              sx={{ textTransform: 'none', ml: 'auto', marginLeft: '50%' }}
-              onClick={() => {
-                setEditing(false);
-                setOpenDialog(true);
-              }}
-            >
-              Add Content
-            </Button>
+
+
+            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                sx={{ textTransform: 'none', ml: 'auto' }}
+                onClick={() => {
+                  setEditing(false);
+                  setOpenDialog(true);
+                }}
+              >
+                Create
+              </Button>
+              {/* <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
+                Search
+              </Button> */}
+              <Button
+                variant="outlined"
+                sx={{ textTransform: 'none' }}
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilteredContentList(contentList);
+                }}
+              >
+                Reset
+              </Button>
+
+            </Box>
+
           </Box>
         </Box>
 
@@ -509,7 +515,7 @@ const ManageContent = () => {
                 </>
               ) : (
                 <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
-                  Add Content
+                  Add New Content
                 </Button>
               )}
             </Box>

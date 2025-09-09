@@ -19,19 +19,76 @@ import {
   Chip,
   Tooltip,
   CircularProgress,
+  Modal, // Added Modal
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
 import { keyframes } from '@mui/system';
 import { fetchTransactionHistory, deleteTransaction } from './api';
 
-require('dotenv').config();
+// require('dotenv').config(); // This line is for backend code and unnecessary here.
 
 // marquee for long messages
 const marqueeAnimation = keyframes`
   0%   { transform: translateX(100%); }
   100% { transform: translateX(-100%); }
 `;
+
+// Helper component for the modal
+const DetailsModal = ({ transaction, open, handleClose }) => {
+  if (!transaction) return null;
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Paper sx={{
+        p: 4,
+        width: { xs: '90%', md: '500px' },
+        maxHeight: '80vh',
+        overflowY: 'auto',
+        position: 'relative',
+      }}>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        <Typography variant="h5" component="h2" mb={2}>
+          Transaction Details
+        </Typography>
+        <Typography variant="body1"><strong>ID:</strong> {transaction.id}</Typography>
+        <Typography variant="body1"><strong>Amount:</strong> ${parseFloat(transaction.amount).toFixed(2)}</Typography>
+        <Typography variant="body1"><strong>Type:</strong> {transaction.transaction_type}</Typography>
+        <Typography variant="body1"><strong>From:</strong> {transaction.sending_user}</Typography>
+        <Typography variant="body1"><strong>To:</strong> {transaction.receiving_user}</Typography>
+        <Typography variant="body1"><strong>Date:</strong> {new Date(transaction.created_at).toLocaleString()}</Typography>
+        <Typography variant="body1"><strong>Status:</strong> {transaction.status}</Typography>
+        <Typography variant="body1" mt={2}><strong>Message:</strong></Typography>
+        <Box sx={{
+          p: 1,
+          border: '1px solid #ddd',
+          borderRadius: 1,
+          mt: 1,
+        }}>
+          <Typography variant="body2">{transaction.message || 'No message provided.'}</Typography>
+        </Box>
+      </Paper>
+    </Modal>
+  );
+};
 
 const TransactionHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -42,6 +99,10 @@ const TransactionHistory = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // New state for modal
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   useEffect(() => {
     const loadTransactions = async () => {
@@ -159,6 +220,11 @@ const TransactionHistory = () => {
     }
   };
 
+  const handleRowClick = (transaction) => {
+    setSelectedTransaction(transaction);
+    setShowDetailsModal(true);
+  };
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
       {/* Header */}
@@ -252,103 +318,89 @@ const TransactionHistory = () => {
               startIcon={<DownloadIcon />}
               sx={{ textTransform: 'none' }}
             >
-              Export CSV
+              Export
             </Button>
           </Box>
         </Box>
 
-        {error && (
-          <Typography color="error" sx={{ mb: 1 }}>
-            {error}
-          </Typography>
-        )}
-
-        {/* Scrollable Table */}
-        <TableContainer
-          component={Paper}
-          sx={{
-            maxHeight: { xs: 360, md: 480 },
-            overflowY: 'auto',
-            borderRadius: 1,
-          }}
-        >
-          <Table stickyHeader>
-            <TableHead
-              sx={{
-                '& .MuiTableCell-stickyHeader': {
-                  backgroundColor: (theme) => theme.palette.background.paper + ' !important',
-                  fontWeight: 600,
-                },
-              }}
-            >
+        {/* Table */}
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label="transaction history table">
+            <TableHead>
               <TableRow>
                 <TableCell>Amount</TableCell>
-                <TableCell sx={{ width: { xs: 80, md: 140 } }}>From</TableCell>
-                <TableCell>To</TableCell>
-                <TableCell>Message</TableCell>
+                <TableCell>Transaction Party</TableCell>
                 <TableCell>Type</TableCell>
                 <TableCell>Date</TableCell>
-                <TableCell>Time</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell align="center">Action</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {loading && (
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
-                    <CircularProgress size={24} />
+                  <TableCell colSpan={5} align="center">
+                    <CircularProgress />
                   </TableCell>
                 </TableRow>
               )}
-
-              {!loading &&
-                transactionsToDisplay.map((t) => (
-                  <TableRow
-                    key={t.id}
-                    onClick={() => setSelectedRow(t.id)}
-                    sx={{
-                      cursor: 'pointer',
-                      backgroundColor:
-                        selectedRow === t.id ? 'rgba(33,150,243,0.06)' : 'inherit',
-                      '&:hover': { backgroundColor: 'rgba(33,150,243,0.04)' },
-                    }}
-                  >
-                    <TableCell>₡{t.amount}</TableCell>
-                    <TableCell sx={{ width: { xs: 80, md: 140 } }}>{t.sending_user}</TableCell>
-                    <TableCell>{t.receiving_user}</TableCell>
-                    <TableCell>
-                      <Box sx={{ overflow: 'hidden', whiteSpace: 'nowrap', width: { xs: 160, md: 260 } }}>
-                        <Box sx={{ display: 'inline-block', animation: `${marqueeAnimation} 20s linear infinite` }}>
-                          {t.message}
-                        </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell>{t.transaction_type}</TableCell>
-                    <TableCell>{t.created_at.slice(0, 10)}</TableCell>
-                    <TableCell>{t.created_at.slice(11, 19)}</TableCell>
-                    <TableCell>{t.status}</TableCell>
-                    <TableCell align="center" onClick={(e) => e.stopPropagation()}>
-                      <Tooltip title="Delete">
-                        <IconButton onClick={(e) => handleDelete(t.id, e)} size="small">
-                          <CloseIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-
+              {error && (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ color: 'red' }}>
+                    {error}
+                  </TableCell>
+                </TableRow>
+              )}
               {!loading && transactionsToDisplay.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} align="center">
-                    No transactions found.
-                  </TableCell>
+                  <TableCell colSpan={5} align="center">No transactions found.</TableCell>
                 </TableRow>
               )}
+              {transactionsToDisplay.map((t) => (
+                <TableRow
+                  key={t.id}
+                  hover
+                  onClick={() => handleRowClick(t)}
+                  sx={{ cursor: 'pointer', '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    ${parseFloat(t.amount).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                        From: {t.sending_user}
+                      </Typography>
+                      <Typography variant="body2">
+                        To: {t.receiving_user}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{t.transaction_type}</TableCell>
+                  <TableCell>{new Date(t.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell align="right">
+                    <Tooltip title="Delete Transaction">
+                      <IconButton
+                        color="error"
+                        onClick={(e) => handleDelete(t.id, e)}
+                        size="small"
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Paper>
+      
+      {/* Transaction Details Modal */}
+      <DetailsModal
+        transaction={selectedTransaction}
+        open={showDetailsModal}
+        handleClose={() => setShowDetailsModal(false)}
+      />
     </Box>
   );
 };
