@@ -39,7 +39,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import CategoryIcon from '@mui/icons-material/Category';
 import { fetchUserProfile } from './api';
 
-const drawerWidth = 190;
+const drawerWidth = 200;
 
 // Custom hook to track window size and aspect ratio
 const useIsMobilePortrait = () => {
@@ -197,7 +197,7 @@ const NavBar = ({ children }) => {
               aria-label="toggle drawer"
               onClick={() => setOpen(!open)}
               edge="start"
-              sx={{ mx: 1, p: 1, fontSize: 32 }}
+              sx={{ mx: 0.5, p: 1, fontSize: 32 }}
               size="large"
             >
               {open ? <ChevronLeftIcon fontSize="large" /> : <MenuIcon fontSize="large" />}
@@ -208,7 +208,7 @@ const NavBar = ({ children }) => {
             aria-label="toggle full screen"
             onClick={() => (isFullScreen ? exitFullScreen() : enterFullScreen())}
             edge="start"
-            sx={{ mx: 1, p: 1.5, fontSize: 32 }}
+            sx={{ mx: 1, p: 1, fontSize: 32 }}
             size="large"
           >
             {isFullScreen ? <FullscreenExitIcon fontSize="large" /> : <FullscreenIcon fontSize="large" />}
@@ -221,6 +221,30 @@ const NavBar = ({ children }) => {
           >
             Clout Coin
           </Typography>
+          <IconButton
+            color="inherit"
+            onClick={() => navigate('/settings')}
+            sx={{ mr: 2, p: 1.5, fontSize: 32 }}
+            size="large"
+          >
+            <SettingsIcon fontSize="large" />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={() => navigate('/account')}
+            sx={{ mr: 2, p: 1.5, fontSize: 32 }}
+            size="large"
+          >
+            <AccountCircle fontSize="large" />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            onClick={() => navigate('/login')}
+            sx={{ mr: 2, p: 1.5, fontSize: 32 }}
+            size="large"
+          >
+            <LogoutOutlined fontSize="large" />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -237,7 +261,7 @@ const NavBar = ({ children }) => {
                 duration: theme.transitions.duration.enteringScreen,
               }),
             '& .MuiDrawer-paper': {
-              width: open ? drawerWidth : 40,
+              width: open ? drawerWidth : 64,
               boxSizing: 'border-box',
               overflowX: 'hidden',
               transition: (theme) =>
@@ -245,7 +269,7 @@ const NavBar = ({ children }) => {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.enteringScreen,
                 }),
-              top: 64,
+              // top: 64,
             },
           }}
         >
@@ -374,3 +398,5 @@ const NavBar = ({ children }) => {
 };
 
 export default NavBar;
+
+
