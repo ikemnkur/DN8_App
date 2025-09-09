@@ -278,7 +278,7 @@ const ManageContent = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               size="small"
-              sx={{ flex: { xs: '1 1 100%', md: '0 1 340px' } }}
+              sx={{ flex: { xs: '1 1 100%', md: '0 1 680px' } }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -298,7 +298,7 @@ const ManageContent = () => {
               Search
             </Button> */}
           </Box>
-
+<br></br>
 
           <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
             <Chip
@@ -322,7 +322,10 @@ const ManageContent = () => {
             {/* move to the right most  */}
 
 
-            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+           
+          </Box> 
+
+          <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
               <Button
                 variant="contained"
                 sx={{ textTransform: 'none', ml: 'auto' }}
@@ -333,9 +336,7 @@ const ManageContent = () => {
               >
                 Create
               </Button>
-              {/* <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
-                Search
-              </Button> */}
+         
               <Button
                 variant="outlined"
                 sx={{ textTransform: 'none' }}
@@ -348,8 +349,6 @@ const ManageContent = () => {
               </Button>
 
             </Box>
-
-          </Box>
         </Box>
 
         {/* Scrollable Table */}

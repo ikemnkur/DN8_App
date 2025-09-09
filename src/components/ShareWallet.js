@@ -35,9 +35,15 @@ const ShareWallet = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Share Wallet</Typography>
+      {/* <Typography variant="h4" gutterBottom>Share Wallet</Typography> */}
       <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Box sx={{ mb: 2 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, }}>
+          Share Your Wallet
+        </Typography>
+        <Typography variant="h6" color="text.secondary">
+          Share your wallet link so others can send you coins easily!
+        </Typography>
+        <Box sx={{ mb: 2 , pt:2}}>
           <QRCode value={shareLink} size={200} />
         </Box>
         <TextField

@@ -510,6 +510,7 @@ const LiveAdvertisement = ({
       <div
         style={{
           background: 'white',
+          display: 'flex',
           // borderRadius: '12px',
           padding: '3px',
           // boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
@@ -519,36 +520,6 @@ const LiveAdvertisement = ({
           position: 'relative',
         }}
       >
-        {/* Ad Title */}
-        <p
-          style={{
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            // marginBottom: '4px',
-            color: 'rgba(0,0,0,0.85)',
-            // lineHeight: 1.2,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {ad.title}
-        </p>
-
-        {/* Ad Description */}
-        <p
-          style={{
-            color: 'rgba(0,0,0,0.65)',
-            marginBottom: '6px',
-            lineHeight: 1.2,
-            fontSize: '0.92rem',
-            maxHeight: '2.8em',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
-        >
-          {ad.description}
-        </p>
 
         {/* Ad Media (if applicable) */}
         {ad.media_url && (
@@ -573,14 +544,14 @@ const LiveAdvertisement = ({
               <img
                 src={ad.media_url}
                 alt={ad.title}
-                style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}
+                style={{ maxHeight: '180px', objectFit: 'cover', borderRadius: '8px' }}
               />
             )}
             {ad.format === 'modal' && (ad.media_url.includes("jpg") || ad.media_url.includes("gif") || ad.media_url.includes("jpeg") || ad.media_url.includes("png")) && (
               <img
                 src={ad.media_url}
                 alt={ad.title}
-                style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}
+                style={{ maxHeight: '180px', objectFit: 'cover', borderRadius: '8px' }}
               />
             )}
             {ad.format === 'modal' && (ad.media_url.includes("mp4") || ad.media_url.includes("wmv")) && (
@@ -589,7 +560,7 @@ const LiveAdvertisement = ({
                 autoPlay
                 src={ad.media_url}
                 alt={ad.title}
-                style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}
+                style={{ maxHeight: '180px', objectFit: 'cover', borderRadius: '8px' }}
               />
             )}
             {ad.format === 'modal' && (ad.media_url.includes("mp3") || ad.media_url.includes("wav") || ad.media_url.includes("ogg")) && (
@@ -598,141 +569,175 @@ const LiveAdvertisement = ({
                 autoPlay
                 src={ad.media_url}
                 alt={ad.title}
-                style={{ maxHeight: '120px', objectFit: 'cover', borderRadius: '8px' }}
+                style={{ maxHeight: '100px', objectFit: 'cover', borderRadius: '8px' }}
               />
             )}
           </div>
         )}
-
-        {/* Action Buttons */}
         <div
-          style={{
-            display: 'flex',
-            gap: '8px',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            marginTop: '4px',
-          }}
+          style={{ padding: '0 10px 4px 10px', minWidth: '260px', alignItems: 'center', display: 'flex', flexDirection: 'column' }}
         >
-          {/* Find Out More Button */}
-          {ad.findOutMoreLink && (
-            <button
-              onClick={handleFindOutMore}
-              style={{
-                padding: '8px 14px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.92rem',
-                fontWeight: 600,
-                color: 'white',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 2px 8px rgba(59,130,246,0.18)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-1px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(59,130,246,0.28)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 2px 8px rgba(59,130,246,0.18)';
-              }}
-            >
-              <span>🔗</span> More
-            </button>
-          )}
-
-          {/* Conditional Reward Button */}
-          {showRewardButton && (
-            <button
-              onClick={handleRewardClick}
-              style={{
-                padding: '8px 14px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '0.92rem',
-                fontWeight: 600,
-                color: 'white',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 2px 8px rgba(16,185,129,0.18)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                animation: 'pulse 2s infinite',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-1px) scale(1.04)';
-                e.target.style.boxShadow = '0 4px 12px rgba(16,185,129,0.28)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 2px 8px rgba(16,185,129,0.18)';
-              }}
-            >
-              <span>🎁</span> Reward
-            </button>
-          )}
-
-          {/* Skip Button */}
-          <button
-            onClick={handleSkip}
+          {/* Ad Title */}
+          <h6
             style={{
-              padding: '8px 14px',
-              border: '1px solid rgba(0,0,0,0.14)',
-              borderRadius: '8px',
+              fontSize: '0.98rem',
+              fontWeight: 'bold',
+              color: 'rgba(0,0,0,0.85)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              marginBottom: '2px',
+            }}
+          >
+            {ad.title}
+          </h6>
+
+          {/* Ad Description */}
+          <p
+            style={{
+              color: 'rgba(0,0,0,0.65)',
+              marginBottom: '6px',
+              lineHeight: 1.2,
               fontSize: '0.92rem',
-              fontWeight: 600,
-              color: 'rgba(0,0,0,0.7)',
-              backgroundColor: 'white',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'rgba(0,0,0,0.04)';
-              e.target.style.borderColor = 'rgba(0,0,0,0.22)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'white';
-              e.target.style.borderColor = 'rgba(0,0,0,0.14)';
+              maxHeight: '2.8em',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
             }}
           >
-            Skip
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent the ad click from triggering
-              goToAdWebSite(ad);
-            }}
-            style={{
-              padding: '12px 24px',
-              border: '2px solid rgba(0, 0, 0, 0.2)',
-              borderRadius: '12px',
-              fontSize: '14px',
-              fontWeight: 600,
-              color: 'rgba(0, 0, 0, 0.7)',
-              backgroundColor: 'transparent',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent';
-            }}
-          >
-            See
-          </button>
-        </div>
+            {ad.description}
+          </p>
 
-        {/* Sponsored Badge */}
-        {/* <div
+
+
+          {/* Action Buttons */}
+          <div
+            style={{
+              display: 'flex',
+
+              gap: '8px',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginTop: '4px',
+            }}
+          >
+            {/* Find Out More Button */}
+            {ad.findOutMoreLink && (
+              <button
+                onClick={handleFindOutMore}
+                style={{
+                  padding: '8px 14px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '0.92rem',
+                  fontWeight: 600,
+                  color: 'white',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(59,130,246,0.18)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(59,130,246,0.28)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(59,130,246,0.18)';
+                }}
+              >
+                <span>🔗</span> More
+              </button>
+            )}
+
+            {/* Conditional Reward Button */}
+            {showRewardButton && (
+              <button
+                onClick={handleRewardClick}
+                style={{
+                  padding: '8px 14px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '0.92rem',
+                  fontWeight: 600,
+                  color: 'white',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(16,185,129,0.18)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  animation: 'pulse 2s infinite',
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-1px) scale(1.04)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(16,185,129,0.28)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0) scale(1)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(16,185,129,0.18)';
+                }}
+              >
+                <span>🎁</span> Reward
+              </button>
+            )}
+
+            {/* Skip Button */}
+            <button
+              onClick={handleSkip}
+              style={{
+                padding: '8px 14px',
+                border: '1px solid rgba(0,0,0,0.14)',
+                borderRadius: '8px',
+                fontSize: '0.92rem',
+                fontWeight: 600,
+                color: 'rgba(0,0,0,0.7)',
+                backgroundColor: 'white',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(0,0,0,0.04)';
+                e.target.style.borderColor = 'rgba(0,0,0,0.22)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'white';
+                e.target.style.borderColor = 'rgba(0,0,0,0.14)';
+              }}
+            >
+              Skip
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent the ad click from triggering
+                goToAdWebSite(ad);
+              }}
+              style={{
+                padding: '12px 24px',
+                border: '2px solid rgba(0, 0, 0, 0.2)',
+                borderRadius: '12px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: 'rgba(0, 0, 0, 0.7)',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+              }}
+            >
+              See
+            </button>
+          </div>
+
+          {/* Sponsored Badge */}
+          {/* <div
           style={{
             position: 'absolute',
             top: '8px',
@@ -749,6 +754,8 @@ const LiveAdvertisement = ({
         >
           Sponsored
         </div> */}
+        </div>
+
       </div>
 
       {/* Reward Modal */}

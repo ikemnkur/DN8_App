@@ -19,6 +19,7 @@ import {
   LinearProgress
 } from '@mui/material';
 import { fetchWalletData } from './api';
+import ShareWallet from './ShareWallet';
 
 const Wallet = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -237,6 +238,10 @@ const Wallet = () => {
               </Grid>
             </Grid>
           </Paper>
+        </Grid>
+
+        <Grid item xs={12}>
+          <ShareWallet walletData={walletData} /> {/* ShareWallet component */}
         </Grid>
       </Grid>
 

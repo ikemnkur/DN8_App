@@ -624,11 +624,14 @@ export const updateAdroute = async (adData) => {
 // Move this function to ../components/api.js and update its signature to accept a user object
 export const fetchAdvertiserProfile = async (user) => {
   if (!user || !user.email || !user.token) {
+    console.error('Invalid user object:', user);
+    
     throw new Error('Invalid user object: missing email or token');
   }
 
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_SERVER_URL}/api/advertiser/profile`, {
+    // const response = await api.get(`/ads/advertiser/profile/${user.email}`);
+    const response = await fetch(`${process.env.REACT_APP_API_SERVER_URL}/api/ads/advertiser/profile/${user.email}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -671,7 +674,7 @@ export const activateAdvertiserProfile = async (user) => {
 
 export const createAdRoute = async (adData) => {
   try {
-    const response = await api.get(`/advertiser/profile/${user.email}`);
+    const response = await api.get(`/ads/advertiser/profile/${user.email}`);
     return response.data;
   } catch (error) {
     console.error('API - Error creating ad:', error);
@@ -742,7 +745,8 @@ export const uploadMediaFiles = async (formData) => {
 export const fetchAds = async () => {
   try {
     const response = await api.get('/ads/ad');
-    return response.data;
+    console.log("fetchAds response: ", response)
+    return response;
   } catch (error) {
     console.error('API - Error fetching ads:', error);
     throw error;

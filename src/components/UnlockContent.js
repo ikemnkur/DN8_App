@@ -684,6 +684,7 @@ const UnlockContent = () => {
         />
       </Paper>
       {/* Gradient Header to match SendMoney */}
+      <Divider sx={{ my: 2 }} />
       <Box sx={{ mb: 2, textAlign: 'center' }}>
         <Typography
           variant="h3"

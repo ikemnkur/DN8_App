@@ -11,6 +11,12 @@ import {
   InputLabel,
   Box,
   Snackbar,
+  chipClasses,
+
+  Chip
+} from '@mui/material';
+import {
+  Divider, CircularProgress
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { fetchUserProfile, fetchWalletData, walletWithdrawAction } from './api';
@@ -18,6 +24,24 @@ import { lightBlue } from '@mui/material/colors';
 
 
 const WithdrawWallet = () => {
+  // const [amount, setAmount] = useState('');
+  // const [withdrawMethod, setWithdrawMethod] = useState('XMR');
+  // const [extraFormData, setExtraFormData] = useState({});
+  // const [walletData, setWalletData] = useState(null);
+  // const [userData, setUserData] = useState(JSON.parse(localStorage.getItem('userdata')) || {});
+  // const [rates, setRates] = useState({});
+  // const [fees] = useState({ XMR: 0.02, BTC: 0.02, ETH: 0.02, LTC: 0.02, SOL: 0.02, Bank: 1.5, Paypal: 1.0, Sendwave: 1.0, Check: 2.0 }); // example; keep yours
+  // const [minWithdraw] = useState({ XMR: 1, BTC: 1, ETH: 1, LTC: 1, SOL: 1, Bank: 50, Paypal: 25, Sendwave: 25, Check: 100 }); // example; keep yours
+  // const [server_cost] = useState({ XMR: 0.0, BTC: 0.0, ETH: 0.0, LTC: 0.0, SOL: 0.0, Bank: 0.05, Paypal: 0.03, Sendwave: 0.03, Check: 0.08 }); // example; keep yours
+  // const [waitTimes] = useState({ XMR: '≈30–60 min', BTC: '≈30–60 min', ETH: '≈30–60 min', LTC: '≈15–45 min', SOL: '≈5–20 min', Bank: '1–3 business days', Paypal: 'Instant–24h', Sendwave: 'Instant–24h', Check: '5–10 business days' });
+  // const [methodNames] = useState({ XMR: 'Monero', BTC: 'Bitcoin', ETH: 'Ethereum', LTC: 'Litecoin', SOL: 'Solana', Bank: 'Bank Transfer', Paypal: 'PayPal', Sendwave: 'Sendwave', Check: 'Check' });
+
+  // const [openSnackbar, setOpenSnackbar] = useState(false);
+  // const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [isLoadingWallet, setIsLoadingWallet] = useState(true);
+  const [isLoadingRates, setIsLoadingRates] = useState(true);
+  // const navigate = useNavigate();
+
   const [amount, setAmount] = useState('');
   const [withdrawMethod, setWithdrawMethod] = useState('Bank');
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -124,36 +148,34 @@ const WithdrawWallet = () => {
     Bank: 'send coins via Bank',
   };
 
-  // Fetch crypto rates
+  // rates (kept from your file)
   const fetchCryptoRateData = async () => {
     try {
-      const response = await fetch(
-        'https://api.coingecko.com/api/v3/simple/price?ids=monero,litecoin,bitcoin,ethereum,solana&vs_currencies=usd'
-      );
+      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=monero,litecoin,bitcoin,ethereum,solana&vs_currencies=usd');
       const data = await response.json();
-
-      setRates((prevRates) => ({
-        ...prevRates,
+      setRates((prev) => ({
+        ...prev,
         XMR: data.monero.usd * 1000,
         LTC: data.litecoin.usd * 1000,
         BTC: data.bitcoin.usd * 1000,
         ETH: data.ethereum.usd * 1000,
         SOL: data.solana.usd * 1000,
       }));
-    } catch (error) {
-      console.error('Error fetching crypto rates:', error);
+    } catch (e) {
+      console.error('Error fetching crypto rates:', e);
+    } finally {
+      setIsLoadingRates(false);
     }
   };
 
-  useEffect(() => {
-    fetchCryptoRateData();
-  }, []);
-
+  useEffect(() => { fetchCryptoRateData(); }, []);
   // Derived values based on selected withdrawal method and amount
   const rate = rates[withdrawMethod] || 0;
-  const min = minWithdraw[withdrawMethod]*1000 || 0;
+  const min = minWithdraw[withdrawMethod] * 1000 || 0;
   const fee = fees[withdrawMethod] || 0;
   const serverCostPercentage = server_cost[withdrawMethod] || 0;
+  const feeFlat = fees[withdrawMethod] || 0;
+  const serverPct = server_cost[withdrawMethod] || 0;
   const time = waitTimes[withdrawMethod] || '';
   const amountNum = parseFloat(amount) || 0;
   const serverCost = serverCostPercentage * amountNum;
@@ -191,6 +213,7 @@ const WithdrawWallet = () => {
   const loadWalletData = async () => {
     try {
       setIsLoading(true);
+      setIsLoadingWallet(true);
       const data = await fetchWalletData();
       setWalletData(data);
     } catch (err) {
@@ -201,6 +224,7 @@ const WithdrawWallet = () => {
       setTimeout(() => navigate('/'), 1000);
     } finally {
       setIsLoading(false);
+      setIsLoadingWallet(false);
     }
   };
 
@@ -210,6 +234,8 @@ const WithdrawWallet = () => {
 
     loadWalletData();
   }, [navigate]);
+
+
 
   const createNotification = async (notificationData) => {
     try {
@@ -271,7 +297,7 @@ const WithdrawWallet = () => {
       await loadWalletData();
       const notif = {
         type: 'withdrawl-order',
-        recipient_user_id: userData.user_id, 
+        recipient_user_id: userData.user_id,
         message: `You have made withdraw order of ₡${amount} coins via ${withdrawMethod}.`,
         from_user: 0,
         date: new Date(),
@@ -279,7 +305,7 @@ const WithdrawWallet = () => {
       }
 
       // createNotification(notif)
-      
+
     } catch (err) {
       console.error('Error processing withdrawal:', err);
       setSnackbarMessage(
@@ -423,7 +449,7 @@ const WithdrawWallet = () => {
 
   return (
     <Box sx={{ maxWidth: 800, minWidth: 600, margin: 'auto', padding: 2 }}>
-      <Typography variant="h4" gutterBottom>
+      {/* <Typography variant="h4" gutterBottom>
         Redeem Clout Coins
       </Typography>
       {!isLoading && walletData && (
@@ -434,12 +460,45 @@ const WithdrawWallet = () => {
           <Typography variant="body1" gutterBottom>
             Account Tier: {userData.accountTier}
           </Typography>
-          {/* <Typography variant="body1" gutterBottom>
-            Wallet Size Limit: ₡{userData.accountTier}
-          </Typography> */}
+    
         </Box>
-      )}
-      <Paper sx={{ p: 2 }} style={{ backgroundColor: 'lightBlue' }}>
+      )} */}
+
+      <Box sx={{ textAlign: 'center', mb: 3 }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1
+          }}
+        >
+          Withdraw / Redeem
+        </Typography>
+        <Typography variant="h6" color="text.secondary">
+          Cash out your coins via your preferred method
+        </Typography>
+      </Box>
+      
+
+      {/* Balances */}
+      <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, border: '1px solid #e9ecef', backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+        {(isLoadingWallet || isLoadingRates) ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><CircularProgress size={24} /></Box>
+        ) : (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Chip label={`Redeemable: ₡${walletData?.redeemable ?? 0}`} />
+            <Chip variant="outlined" label={`Spendable: ₡${walletData?.spendable ?? 0}`} />
+            <Chip variant="outlined" label={`Tier: ${userData?.accountTier ?? '-'}`} />
+          </Box>
+        )}
+      </Paper>
+
+
+      <Paper sx={{ p: 2 }} style={{ backgroundColor: '#f1f3f5ff' }}>
         <Typography variant="h6" gutterBottom>
           Withdrawal: {amount}C ~ {(amount * 0.001).toFixed(2)} $USD{' '}
         </Typography>
@@ -495,6 +554,17 @@ const WithdrawWallet = () => {
 
 
           </Box>
+          {/* Cost + Info */}
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 2 }}>
+            <Chip variant="outlined" label={`Rate: ${rate ? `₡${rate}/$` : '—'}`} />
+            <Chip variant="outlined" label={`Flat Fee: ${feeFlat}`} />
+            <Chip variant="outlined" label={`Server: ${Math.round(serverPct * 100)}%`} />
+            <Chip color="warning" label={`Min: ₡${min}`} />
+            {time && <Chip label={`ETA: ${time}`} />}
+          </Box>
+
+          <Divider sx={{ my: 2 }} />
+
           <Box style={{ backgroundColor: "#EEEEFF", padding: "5px" }}>
 
             <Typography variant="h6" gutterBottom>
@@ -510,6 +580,7 @@ const WithdrawWallet = () => {
               Total Cost: {Math.round(totalCost)} Coins
             </Typography>
           </Box>
+
 
           <Button
             type="submit"

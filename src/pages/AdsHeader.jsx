@@ -18,10 +18,10 @@ const Ads = () => {
   const [ads, setAds] = useState([]); // Initialize with empty array
   const [editingAd, setEditingAd] = useState(null);
   const [user, setUser] = useState({
-    name: '',
-    email: '',
-    credits: 0,
-    profileImage: null,
+    name:  JSON.parse(localStorage.getItem('advertiserData')).name,
+    email: JSON.parse(localStorage.getItem('advertiserData')).email,
+    credits: JSON.parse(localStorage.getItem('advertiserData')).credits,
+    profileImage: JSON.parse(localStorage.getItem('userdata')).profileImage,
     token: localStorage.getItem('authToken') || '' // Get token from localStorage
   });
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,6 @@ const Ads = () => {
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'create', label: 'Create Ad', icon: '➕' },
-
     { id: 'analytics', label: 'Analytics', icon: '📈' },
     { id: 'manage', label: 'Manage Ads', icon: '⚙️' },
     { id: 'help', label: 'Help', icon: '❓' },
@@ -77,30 +76,33 @@ const Ads = () => {
 
     try {
       console.log("Fetching advertiser profile with these user details:", user);
+      // setUser(
+      //   us
+      // )
 
-      const response = await fetchAdvertiserProfile({
-        email: user.email,
-        token: user.token
-      });
+      // const response = await fetchAdvertiserProfile({
+      //   email: user.email,
+      //   token: user.token
+      // });
       // await fetchAds(user);
-      console.log('Fetch Advertiser Profile response:', response.user);
+      // console.log('Fetch Advertiser Profile response:', response.user);
       // const data = await response.json();
 
       // console.log("response ok status:", response.ok);
 
-      if (response) {
+      // if (response) {
         // Based on the commented API, the response structure is { user: userData }
         // setUser(prevUser => ({
         //   ...prevUser,
         //   ...response.user,
         //   token: prevUser.token // Keep the token
         // }));
-        setUser(response.user);
-        console.log('Advertiser profile fetched successfully:', response.user);
-      } else {
-        console.error('Failed to fetch advertiser profile:', response.user);
-        setError('Failed to fetch user profile');
-      }
+      //   setUser(response.user);
+      //   console.log('Advertiser profile fetched successfully:', response.user);
+      // } else {
+      //   console.error('Failed to fetch advertiser profile:', response.user);
+      //   setError('Failed to fetch user profile');
+      // }
 
       // if (!response.ok) {
       //   const errorData = await response.json();
@@ -131,11 +133,11 @@ const Ads = () => {
 
       // const data = await response.json();
 
-      console.log('Fetch Ads data:', response.ads);
+      console.log('Fetch Ads data:', response.data.ads);
 
       if (response) {
         // Transform server data to match expected format
-        const transformedAds = response.ads.map(ad => ({
+        const transformedAds = response.data.ads.map(ad => ({
           ...ad,
           views: parseInt(ad.views) || 0,
           completions: parseInt(ad.completions) || 0,
@@ -170,7 +172,15 @@ const Ads = () => {
     const loadData = async () => {
       setLoading(true);
       if (user.token) {
-        await ADS_fetchAdvertiserProfile();
+        // await ADS_fetchAdvertiserProfile();
+        setUser({
+          name:  JSON.parse(localStorage.getItem('advertiserData')).name,
+          email: JSON.parse(localStorage.getItem('advertiserData')).email,
+          credits: JSON.parse(localStorage.getItem('advertiserData')).credits,
+          profileImage: JSON.parse(localStorage.getItem('userdata')).profileImage,
+          token: localStorage.getItem('authToken') || '' // Get token from localStorage
+        });
+        
         await ADS_fetchAds();
       } else {
         setLoading(false);

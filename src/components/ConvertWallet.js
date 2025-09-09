@@ -1,16 +1,20 @@
 require('dotenv').config();
 import React, { useState, useEffect } from 'react';
-import { 
-  Typography, 
-  TextField, 
-  Button, 
-  Paper, 
-  FormControl, 
-  FormLabel, 
-  Box, 
-  Snackbar, 
-  IconButton 
+import {
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  FormControl,
+  FormLabel,
+  Box,
+  Snackbar,
+  IconButton,
+  Chip
 } from '@mui/material';
+import { CircularProgress } from '@mui/material';
+import { styled } from '@mui/system';
+import Icon from '@mui/material/Icon';
 import { Add, Remove } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { fetchWalletData, walletConvertAction } from './api';
@@ -87,7 +91,7 @@ const ConvertWallet = () => {
       alert("Minimum conversion amount is 250 Coins");
       return;
     }
-    
+
     convertCoins();
     // Optionally reset amount if you want:
     setAmount('');
@@ -105,104 +109,142 @@ const ConvertWallet = () => {
   return (
     <Box
       sx={{
-        display: 'flex',
+        // display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        background: '#f4f6f8',
+        // background: '#f4f6f8',
         p: 2,
       }}
     >
-      <Paper sx={{ p: 4, maxWidth: 600, width: '100%', borderRadius: 2, boxShadow: 3 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          Convert Coin Balance
+      <Box sx={{ textAlign: 'center', mb: 3 }}>
+        <Typography
+          variant="h3"
+          sx={{
+            fontWeight: 700,
+            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            mb: 1
+          }}
+        >
+          Convert Coins
         </Typography>
-        <form onSubmit={handleSubmit}>
-          {!isLoading && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h6">
-                Current Balance: ₡{walletData?.balance}
-              </Typography>
-              <Typography variant="body1">
-                Spendable: ₡{walletData?.spendable}
-              </Typography>
-              <Typography variant="body1">
-                Redeemable: ₡{walletData?.redeemable}
+        <Typography variant="h6" color="text.secondary">
+          Move coins between Spendable and Redeemable
+        </Typography>
+      </Box>
+
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <Paper sx={{ p: 4, maxWidth: 600, width: '100%', borderRadius: 2, boxShadow: 3, }}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Convert Coin Balance
+          </Typography>
+          <form onSubmit={handleSubmit}>
+            {/* {!isLoading && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6">
+                  Current Balance: ₡{walletData?.balance}
+                </Typography>
+                <Typography variant="body1">
+                  Spendable: ₡{walletData?.spendable}
+                </Typography>
+                <Typography variant="body1">
+                  Redeemable: ₡{walletData?.redeemable}
+                </Typography>
+              </Box>
+            )} */}
+
+            {/* Summary */}
+            <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, border: '1px solid #e9ecef', backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+              {isLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <Chip label={`Total Balance: ₡${(walletData?.spendable ?? 0) + (walletData?.redeemable ?? 0)}`} />
+                  <Chip color="primary" variant="outlined" label={`Spendable: ₡${walletData?.spendable ?? 0}`} />
+                  <Chip color="secondary" variant="outlined" label={`Redeemable: ₡${walletData?.redeemable ?? 0}`} />
+                </Box>
+              )}
+            </Paper>
+
+            {/* Conversion Method */}
+            <FormControl fullWidth sx={{ mb: 3 }}>
+              <FormLabel>
+                <Typography variant="h6" textAlign={'center'} sx={{ mb: 1 }}>
+                  Conversion Method: {convertMethod.charAt(0).toUpperCase() + convertMethod.slice(1)}
+                </Typography>
+              </FormLabel>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                <Button
+                  variant={convertMethod === 'redeem' ? 'contained' : 'outlined'}
+                  onClick={() => {
+                    setConvertMethod("redeem");
+                    setOtherMethod("spend");
+                  }}
+                  sx={{ flex: 1, mx: 0.5 }}
+                >
+                  Spendable ➜ Redeemable
+                </Button>
+                <Button
+                  variant={convertMethod === 'spend' ? 'contained' : 'outlined'}
+                  onClick={() => {
+                    setConvertMethod("spend");
+                    setOtherMethod("redeem");
+                  }}
+                  sx={{ flex: 1, mx: 0.5 }}
+                >
+                  Redeemable ➜ Spendable
+                </Button>
+              </Box>
+            </FormControl>
+
+            {/* Amount Selection */}
+            <Box sx={{ mb: 3 }}>
+              <FormLabel>
+                <Typography variant="subtitle1" textAlign={'center'}>
+                  Amount of {otherMethod}able coins to convert to {convertMethod}able coins:
+                </Typography>
+              </FormLabel>
+              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                <IconButton
+                  onClick={handleDecrement}
+                  sx={{ border: '1px solid #ccc' }}
+                >
+                  <Remove />
+                </IconButton>
+                <TextField
+                  label="Amount"
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  required
+                  inputProps={{ min: '5', step: '0.5', style: { textAlign: 'center' } }}
+                  sx={{ mx: 1, flex: 1 }}
+                />
+                <IconButton
+                  onClick={handleIncrement}
+                  sx={{ border: '1px solid #ccc' }}
+                >
+                  <Add />
+                </IconButton>
+              </Box>
+              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                Fee (Coins): ₡{fee}
               </Typography>
             </Box>
-          )}
 
-          {/* Conversion Method */}
-          <FormControl fullWidth sx={{ mb: 3 }}>
-            <FormLabel>
-              <Typography variant="h6">
-                Conversion Method: {convertMethod.charAt(0).toUpperCase() + convertMethod.slice(1)}
-              </Typography>
-            </FormLabel>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-              <Button
-                variant={convertMethod === 'redeem' ? 'contained' : 'outlined'}
-                onClick={() => {
-                  setConvertMethod("redeem");
-                  setOtherMethod("spend");
-                }}
-                sx={{ flex: 1, mx: 0.5 }}
-              >
-                Spendable ➜ Redeemable
-              </Button>
-              <Button
-                variant={convertMethod === 'spend' ? 'contained' : 'outlined'}
-                onClick={() => {
-                  setConvertMethod("spend");
-                  setOtherMethod("redeem");
-                }}
-                sx={{ flex: 1, mx: 0.5 }}
-              >
-                Redeemable ➜ Spendable
-              </Button>
-            </Box>
-          </FormControl>
+            <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5 }}>
+              Convert Coins
+            </Button>
+          </form>
+        </Paper>
+      </Box>
 
-          {/* Amount Selection */}
-          <Box sx={{ mb: 3 }}>
-            <FormLabel>
-              <Typography variant="subtitle1">
-                Amount of {otherMethod}able coins to convert to {convertMethod}able coins:
-              </Typography>
-            </FormLabel>
-            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-              <IconButton 
-                onClick={handleDecrement} 
-                sx={{ border: '1px solid #ccc' }}
-              >
-                <Remove />
-              </IconButton>
-              <TextField
-                label="Amount"
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                inputProps={{ min: '5', step: '0.5', style: { textAlign: 'center' } }}
-                sx={{ mx: 1, flex: 1 }}
-              />
-              <IconButton 
-                onClick={handleIncrement} 
-                sx={{ border: '1px solid #ccc' }}
-              >
-                <Add />
-              </IconButton>
-            </Box>
-            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-              Fee (Coins): ₡{fee}
-            </Typography>
-          </Box>
-
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ py: 1.5 }}>
-            Convert Coins
-          </Button>
-        </form>
-      </Paper>
 
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
