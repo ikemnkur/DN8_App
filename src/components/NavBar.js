@@ -39,7 +39,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import CategoryIcon from '@mui/icons-material/Category';
 import { fetchUserProfile } from './api';
 
-const drawerWidth = 200;
+const drawerWidth = 180;
 
 // Custom hook to track window size and aspect ratio
 const useIsMobilePortrait = () => {
@@ -48,7 +48,7 @@ const useIsMobilePortrait = () => {
   useEffect(() => {
     const handleResize = () => {
       const { innerWidth: width, innerHeight: height } = window;
-      setIsMobilePortrait(height / width >= 16 / 9);
+      setIsMobilePortrait(height / width >= 16 / 10);
     };
 
     handleResize();
@@ -68,6 +68,7 @@ const NavBar = ({ children }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const isMobilePortrait = useIsMobilePortrait();
   const [mobileNavHeight, setMobileNavHeight] = useState(0);
+  const [mobileNavWidth, setMobileNavWidth] = useState(64);
 
   // Callback ref to measure mobile nav height
   const mobileNavRef = useCallback((node) => {
@@ -277,29 +278,73 @@ const NavBar = ({ children }) => {
           <Box sx={{ overflow: 'auto' }}>
             <List>
               {menuItems.map((item) => (
-                <ListItem
+                <Tooltip title={open ? '' : item.text} placement="right" key={item.text}>
+                  {/* <ListItem
                   button
-                  key={item.text}
                   component={RouterLink}
                   to={item.path}
                   sx={{
                     justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
+                    px: '5px',
                   }}
                 >
-                  <Tooltip title={!open ? item.text : ''} placement="right">
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? '5px' : 'auto',
+                      justifyContent: 'center',
+                      px: '5px',
+                      fontSize: "48px",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={open ? item.text : ''}
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      px: '05px 10px 10px 0px',
+                    }}
+                    style={{ paddingTop: 5 }}
+                  />
+                </ListItem> */}
+                  <ListItem
+                    button
+                    component={RouterLink}
+                    to={item.path}
+                    sx={{
+                      alignItems: 'center',
+                      justifyContent: open ? 'center' : 'center', // center row when open too
+                      px: 1,
+                    }}
+                  >
                     <ListItemIcon
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : 'auto',
+                        minWidth: open ? 32 : 0,      // give the icon cell some width when open
+                        mr: open ? 1 : 'auto',
+                        display: 'flex',
+                        alignItems: 'center',
                         justifyContent: 'center',
+                        px: 0.5,
                       }}
                     >
-                      {item.icon}
+                      {React.isValidElement(item.icon)
+                        ? React.cloneElement(item.icon, {
+                          sx: { fontSize: open ? 30 : 30 }, // <- size the actual icon
+                        })
+                        : item.icon}
                     </ListItemIcon>
-                  </Tooltip>
-                  <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
-                </ListItem>
+
+                    <ListItemText
+                      primary={open ? item.text : ''}
+                      sx={{
+                        opacity: open ? 1 : 0,
+                        transition: 'opacity 150ms',
+                        ml: open ? 0.5 : 0,
+                      }}
+                    />
+                  </ListItem>
+                </Tooltip>
               ))}
             </List>
           </Box>
@@ -338,7 +383,7 @@ const NavBar = ({ children }) => {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  minWidth: 70,
+                  minWidth: 100,
                 }}
               >
                 <ListItem
@@ -388,6 +433,7 @@ const NavBar = ({ children }) => {
           flexGrow: 1,
           p: 3,
           mb: isMobilePortrait ? `${mobileNavHeight}px` : 0,
+          ml: (!isMobilePortrait && !open) ? `${mobileNavWidth}px` : 0,
         }}
       >
         {!isMobilePortrait && <Toolbar />}
