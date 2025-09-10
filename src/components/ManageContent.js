@@ -322,7 +322,7 @@ const ManageContent = () => {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               size="small"
-              sx={{ minWidth: 140 }}
+              sx={{ minWidth: 100 }}
             >
               <MenuItem value="date">Date</MenuItem>
               <MenuItem value="amount">Amount</MenuItem>
@@ -333,7 +333,7 @@ const ManageContent = () => {
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
               size="small"
-              sx={{ minWidth: 140 }}
+              sx={{ minWidth: 100 }}
             >
               <MenuItem value="asc">Ascending</MenuItem>
               <MenuItem value="desc">Descending</MenuItem>
@@ -357,7 +357,7 @@ const ManageContent = () => {
             >
               Create
             </Button>
-
+{/* 
             <Button
               variant="outlined"
               sx={{ textTransform: 'none' }}
@@ -367,7 +367,7 @@ const ManageContent = () => {
               }}
             >
               Reset
-            </Button>
+            </Button> */}
 
           </Box>
 

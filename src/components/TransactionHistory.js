@@ -260,13 +260,15 @@ const TransactionHistory = () => {
           onSubmit={handleSearch}
           sx={{
             display: 'flex',
-            flexWrap: 'wrap',
-            gap: 1.5,
+            // flexWrap: 'wrap',
+            flexWrap: { xs: 'wrap', sm: 'nowrap' },
+            gap: 1,
             alignItems: 'center',
             mb: 2,
           }}
-        >
-          <TextField
+        > 
+        {/* Row 1: Search input + Search button */}
+          {/* <TextField
             label="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -279,47 +281,94 @@ const TransactionHistory = () => {
                 </InputAdornment>
               ),
             }}
-          />
-          <Chip
-            label={`${transactionsToDisplay.length} result${transactionsToDisplay.length === 1 ? '' : 's'}`}
-            variant="outlined"
-            color="primary"
-          />
-          <Select
-            value={sortOrder}
+          /> */}
+         
+      
+          <TextField
+            label="Search content"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             size="small"
-            onChange={(e) => setSortOrder(e.target.value)}
-          >
-            <MenuItem value="asc">Ascending</MenuItem>
-            <MenuItem value="desc">Descending</MenuItem>
-          </Select>
-          <Select
-            value={sortBy}
-            size="small"
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <MenuItem value="date">Date</MenuItem>
-            <MenuItem value="amount">Amount</MenuItem>
-            <MenuItem value="username">Username</MenuItem>
-            <MenuItem value="type">Type</MenuItem>
-            <MenuItem value="status">Status</MenuItem>
-          </Select>
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start"><SearchIcon /></InputAdornment>
+              ),
+            }}
+          />
 
-          <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-            <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
-              Search
-            </Button>
-            <Button onClick={handleReset} variant="text" sx={{ textTransform: 'none' }}>
-              Reset
-            </Button>
-            <Button
-              onClick={exportToCSV}
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              sx={{ textTransform: 'none' }}
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ textTransform: 'none', flexShrink: 0 }}
+          >
+            Search
+          </Button>
+          
+
+         
+           {/* Row 2: Filters + Reset */}
+           <Box
+            sx={{
+              mt: 1.5,
+              display: 'flex',
+              gap: 1,
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <Box
+              sx={{
+                mt: 1.5,
+                display: 'flex',
+                gap: 1,
+                alignItems: 'center',
+                flexWrap: 'wrap',
+              }}
             >
-              Export
-            </Button>
+              <Chip
+                label={`${transactionsToDisplay.length} result${transactionsToDisplay.length === 1 ? '' : 's'}`}
+                variant="outlined"
+                color="primary"
+              />
+
+              <Select
+                value={sortOrder}
+                size="small"
+                onChange={(e) => setSortOrder(e.target.value)}
+              >
+                <MenuItem value="asc">Ascending</MenuItem>
+                <MenuItem value="desc">Descending</MenuItem>
+              </Select>
+              <Select
+                value={sortBy}
+                size="small"
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <MenuItem value="date">Date</MenuItem>
+                <MenuItem value="amount">Amount</MenuItem>
+                <MenuItem value="username">Username</MenuItem>
+                <MenuItem value="type">Type</MenuItem>
+                <MenuItem value="status">Status</MenuItem>
+              </Select>
+            </Box>
+
+            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+              <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
+                Search
+              </Button>
+              {/* <Button onClick={handleReset} variant="text" sx={{ textTransform: 'none' }}>
+                Reset
+              </Button> */}
+              <Button
+                onClick={exportToCSV}
+                variant="outlined"
+                startIcon={<DownloadIcon />}
+                sx={{ textTransform: 'none' }}
+              >
+                Export
+              </Button>
+            </Box>
           </Box>
         </Box>
 
