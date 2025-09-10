@@ -259,31 +259,43 @@ const ManageContent = () => {
           borderRadius: 2,
         }}
       >
-        {/* Controls */}
+
+        <Box
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Unlocked Content</Typography>
+
+        </Box>
+
         <Box
           component="form"
           onSubmit={handleSearch}
           sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 1.5,
-            alignItems: 'center',
+            position: 'relative',
             mb: 2,
-            justifyContent: 'space-between',
+            p: { xs: 0.5, sm: 1 }, // tiny padding so the top-right chip has some breathing room
           }}
         >
-          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+
+
+          {/* Row 1: Search input + Search button */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              flexWrap: { xs: 'wrap', sm: 'nowrap' },
+              alignItems: 'center',
+            }}
+          >
             <TextField
               label="Search content"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               size="small"
-              sx={{ flex: { xs: '1 1 100%', md: '0 1 680px' } }}
+              fullWidth
               InputProps={{
                 startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
+                  <InputAdornment position="start"><SearchIcon /></InputAdornment>
                 ),
               }}
             />
@@ -294,62 +306,76 @@ const ManageContent = () => {
             >
               Search
             </Button>
-            {/* <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
-              Search
-            </Button> */}
           </Box>
-<br></br>
 
-          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-            <Chip
-              label={`${filteredContentList.length} item${filteredContentList.length === 1 ? '' : 's'}`}
-              variant="outlined"
-              color="primary"
-            />
-            {/* <SortByAlpha fontSize="small" /> */}
-            <Select value={sortBy} size="small" onChange={(e) => setSortBy(e.target.value)}>
+          {/* Row 2: Filters + Reset */}
+          <Box
+            sx={{
+              mt: 1.5,
+              display: 'flex',
+              gap: 1,
+              alignItems: 'center',
+              flexWrap: 'wrap',
+            }}
+          >
+            <Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              size="small"
+              sx={{ minWidth: 140 }}
+            >
               <MenuItem value="date">Date</MenuItem>
-              <MenuItem value="cost">Cost</MenuItem>
+              <MenuItem value="amount">Amount</MenuItem>
               <MenuItem value="username">Username</MenuItem>
             </Select>
 
-            {/* <SortTwoTone fontSize="small" /> */}
-            <Select value={sortOrder} size="small" onChange={(e) => setSortOrder(e.target.value)}>
+            <Select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              size="small"
+              sx={{ minWidth: 140 }}
+            >
               <MenuItem value="asc">Ascending</MenuItem>
               <MenuItem value="desc">Descending</MenuItem>
             </Select>
+            {/* Chip pinned to the top-right */}
+             <Chip
+              label={`${filteredContentList.length} item${filteredContentList.length === 1 ? '' : 's'}`}
+              variant="outlined"
+              color="primary" 
+              sx={{ marginRight: "1%" }}
+            />
+            
+              <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+            <Button
+              variant="contained"
+              sx={{ textTransform: 'none', ml: 'auto' }}
+              onClick={() => {
+                setEditing(false);
+                setOpenDialog(true);
+              }}
+            >
+              Create
+            </Button>
 
-            {/* move to the right most  */}
+            <Button
+              variant="outlined"
+              sx={{ textTransform: 'none' }}
+              onClick={() => {
+                setSearchTerm('');
+                setFilteredContentList(contentList);
+              }}
+            >
+              Reset
+            </Button>
 
+          </Box>
 
-           
-          </Box> 
-
-          <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{ textTransform: 'none', ml: 'auto' }}
-                onClick={() => {
-                  setEditing(false);
-                  setOpenDialog(true);
-                }}
-              >
-                Create
-              </Button>
-         
-              <Button
-                variant="outlined"
-                sx={{ textTransform: 'none' }}
-                onClick={() => {
-                  setSearchTerm('');
-                  setFilteredContentList(contentList);
-                }}
-              >
-                Reset
-              </Button>
-
-            </Box>
+          </Box>
+          
         </Box>
+
+        
 
         {/* Scrollable Table */}
         <TableContainer
