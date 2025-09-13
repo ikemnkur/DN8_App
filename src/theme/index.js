@@ -40,8 +40,9 @@ const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        padding: '0px', // Optional: remove default body padding
         body: {
-          zoom: '90%',  // Optional: scales your UI to 80%
+          zoom: '85%',  // Optional: scales your UI to 80%
           // Any other global body-level styles (e.g., fonts, etc.)
         },
       },

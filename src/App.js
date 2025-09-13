@@ -59,6 +59,7 @@ import AdObject from "./pages/AdObject";
 import DisplayAd from "./pages/DisplayAd.jsx";
 import AdsHeader from "./pages/AdsHeader.jsx";
 import AdsActivatePage from "./pages/AdsActivatePage.jsx";
+import { Padding } from "@mui/icons-material";
 // import AdHomepage from "./pages/AdHomepage.jsx";
 
 
@@ -96,7 +97,7 @@ function App() {
       <CssBaseline />
       <Router>
         <NavBar>
-          <Routes>
+          <Routes style={{ padding: '-24px' }}>
             {/* Public Routes */}
             <Route path="/login" element={<Auth isLogin={true} />} />
             {/* <Route path="/" element={<Auth isLogin={true} />} /> */}

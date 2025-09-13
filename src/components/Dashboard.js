@@ -191,7 +191,7 @@ const Dashboard = () => {
               <Button
                 fullWidth
                 variant="contained"
-                onClick={() => navigate('/send-money')}
+                onClick={() => navigate('/send')}
                 sx={{ textTransform: 'none', fontWeight: 600 }}
               >
                 Send Coins
@@ -199,11 +199,19 @@ const Dashboard = () => {
               <Button
                 fullWidth
                 variant="outlined"
+                onClick={() => navigate('/reload')}
+                sx={{ textTransform: 'none', fontWeight: 600 }}
+              >
+                Get Coins
+              </Button>
+              {/* <Button
+                fullWidth
+                variant="outlined"
                 onClick={() => navigate(`/user/${userData?.username || ''}`)}
                 sx={{ textTransform: 'none', fontWeight: 600 }}
               >
                 View Profile
-              </Button>
+              </Button> */}
             </Box>
           </Paper>
         </Grid>
@@ -232,12 +240,12 @@ const Dashboard = () => {
               value={safeRatio(recvTimes, dailyTxLimit)}
               sx={{ height: 8, borderRadius: 1 }}
             />
-             <br />
-          <Alert severity="info" sx={{ bgcolor: '#e7f3fe', borderColor: '#b3d4fc' }}>
-            Note: Transaction and coin limits reset every 24 hours. Upgrade your account tier for higher limits.
-          </Alert>
+            <br />
+            <Alert severity="info" sx={{ bgcolor: '#e7f3fe', borderColor: '#b3d4fc' }}>
+              Note: Transaction and coin limits reset every 24 hours. Upgrade your account tier for higher limits.
+            </Alert>
           </Paper>
-         
+
         </Grid>
 
         {/* Last 24h Summary */}
@@ -278,32 +286,33 @@ const Dashboard = () => {
             />
           </Paper>
         </Grid>
+        {userData.accountTier < 4 && (
+          <Grid item xs={12}>
 
-        <Grid item xs={12}>
-          
 
-           <AdVideoObject
-                  onAdView={(ad) => console.log('Ad viewed:', ad)}
-                  onAdClick={(ad) => console.log('Ad clicked:', ad)}
-                  onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-                  onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-                  RewardModal={({ onClose, onReward }) => (
-                    <div style={{ /* simple modal styles */ }}>
-                      <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-                      <button onClick={onClose}>Close</button>
-                    </div>
-                  )}
-                  // style={{ borderRadius: 0 }}
-                  showRewardProbability={0.3} // 30% chance to show reward button
-                  filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
-                  style={{
-                    minHeight: '240px', // Ensure minimum height
-                    maxHeight: '400px', // Limit maximum height
-                    borderRadius: 0 // Remove border radius to fit Paper container
-                  }}
-                  className="modal-ad"
-                />
-        </Grid>
+            <AdVideoObject
+              onAdView={(ad) => console.log('Ad viewed:', ad)}
+              onAdClick={(ad) => console.log('Ad clicked:', ad)}
+              onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+              onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+              RewardModal={({ onClose, onReward }) => (
+                <div style={{ /* simple modal styles */ }}>
+                  <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                  <button onClick={onClose}>Close</button>
+                </div>
+              )}
+              // style={{ borderRadius: 0 }}
+              showRewardProbability={0.3} // 30% chance to show reward button
+              filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
+              style={{
+                minHeight: '240px', // Ensure minimum height
+                maxHeight: '400px', // Limit maximum height
+                borderRadius: 0 // Remove border radius to fit Paper container
+              }}
+              className="modal-ad"
+            />
+          </Grid>
+        )}
       </Grid>
 
       {/* Notifications below the cards */}

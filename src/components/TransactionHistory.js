@@ -19,7 +19,8 @@ import {
   Chip,
   Tooltip,
   CircularProgress,
-  Modal, // Added Modal
+  Modal,
+  Divider, // Added Modal
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
@@ -226,7 +227,7 @@ const TransactionHistory = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
       {/* Header */}
       <Box sx={{ mb: 3, textAlign: 'center' }}>
         <Typography
@@ -255,7 +256,7 @@ const TransactionHistory = () => {
         }}
       >
         {/* Controls */}
-       // Replace your controls Box section with this updated version:
+       {/* // Replace your controls Box section with this updated version: */}
         <Box
           component="form"
           onSubmit={handleSearch}
@@ -327,7 +328,7 @@ const TransactionHistory = () => {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 size="small"
-                sx={{ minWidth: 140 }}
+                sx={{ minWidth: 100 }}
               >
                 <MenuItem value="date">Date</MenuItem>
                 <MenuItem value="amount">Amount</MenuItem>
@@ -338,7 +339,7 @@ const TransactionHistory = () => {
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
                 size="small"
-                sx={{ minWidth: 140 }}
+                sx={{ minWidth: 100 }}
               >
                 <MenuItem value="asc">Ascending</MenuItem>
                 <MenuItem value="desc">Descending</MenuItem>
@@ -361,19 +362,7 @@ const TransactionHistory = () => {
       </Button> */}
             </Box>
 
-            {/* Right side: Export button */}
-            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                onClick={exportToCSV}
-                sx={{
-                  textTransform: 'none',
-                  flexShrink: 0
-                }}
-              >
-                Export CSV
-              </Button>
-            </Box>
+            
           </Box>
         </Box>
 
@@ -476,7 +465,7 @@ const TransactionHistory = () => {
                       fontSize: { xs: '0.75rem', sm: '0.875rem' }
                     }}
                   >
-                    ${parseFloat(t.amount).toFixed(2)}
+                    {parseFloat(t.amount).toFixed(0)}
                   </TableCell>
                   <TableCell>
                     <Box>
@@ -581,6 +570,20 @@ const TransactionHistory = () => {
             Tap any row to view details and actions
           </Typography>
         </Box>
+        <Divider sx={{ my: 2 }} />
+        {/* Right side: Export button */}
+            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                onClick={exportToCSV}
+                sx={{
+                  textTransform: 'none',
+                  flexShrink: 0
+                }}
+              >
+                Export CSV
+              </Button>
+            </Box>
 
         {/* <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="transaction history table">

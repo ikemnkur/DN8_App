@@ -24,6 +24,7 @@ import {
   Snackbar,
   InputAdornment,
   Chip,
+  Divider,
   Tooltip,
   CircularProgress
 } from '@mui/material';
@@ -40,6 +41,7 @@ import QRCode from 'qrcode.react';
 import Clipboard from './Clipboard.js';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { Divide } from 'lucide-react';
 
 const ManageContent = () => {
   const navigate = useNavigate();
@@ -247,7 +249,7 @@ const ManageContent = () => {
 
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
       {/* Header */}
       <Box sx={{ mb: 3, textAlign: 'center' }}>
         <Typography
@@ -300,16 +302,18 @@ const ManageContent = () => {
             sx={{
               display: 'flex',
               gap: 1,
-              flexWrap: { xs: 'wrap', sm: 'nowrap' },
               alignItems: 'center',
+              flexWrap: 'nowrap',
+              width: '100%',
+              mb: 1,
             }}
           >
             <TextField
-              label="Search content"
+              label="Search transactions"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               size="small"
-              fullWidth
+              sx={{ flexBasis: '85%', flexGrow: 1 }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start"><SearchIcon /></InputAdornment>
@@ -319,7 +323,14 @@ const ManageContent = () => {
             <Button
               type="submit"
               variant="contained"
-              sx={{ textTransform: 'none', flexShrink: 0 }}
+              sx={{
+                textTransform: 'none',
+                flexBasis: '15%',
+                minWidth: 0,
+                px: 2,
+                flexShrink: 0,
+                whiteSpace: 'nowrap'
+              }}
             >
               Search
             </Button>
@@ -363,36 +374,13 @@ const ManageContent = () => {
               sx={{ marginRight: "1%" }}
             />
 
-            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                sx={{ textTransform: 'none', ml: 'auto' }}
-                onClick={() => {
-                  setEditing(false);
-                  setOpenDialog(true);
-                }}
-              >
-                Create
-              </Button>
-              {/* 
-            <Button
-              variant="outlined"
-              sx={{ textTransform: 'none' }}
-              onClick={() => {
-                setSearchTerm('');
-                setFilteredContentList(contentList);
-              }}
-            >
-              Reset
-            </Button> */}
 
-            </Box>
 
           </Box>
 
         </Box>
 
-{/* // Replace your TableContainer section with this updated version: */}
+        {/* // Replace your TableContainer section with this updated version: */}
         <TableContainer
           component={Paper}
           sx={{ maxHeight: { xs: 360, md: 500 }, overflowY: 'auto', borderRadius: 1 }}
@@ -679,6 +667,34 @@ const ManageContent = () => {
           </DialogActions>
         </Dialog>
 
+        <Divider sx={{ my: 2 }} />
+
+
+        <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+          <Button
+            variant="contained"
+            sx={{ textTransform: 'none', ml: 'auto' }}
+            onClick={() => {
+              setEditing(false);
+              setOpenDialog(true);
+            }}
+          >
+            Create
+          </Button>
+          {/* 
+            <Button
+              variant="outlined"
+              sx={{ textTransform: 'none' }}
+              onClick={() => {
+                setSearchTerm('');
+                setFilteredContentList(contentList);
+              }}
+            >
+              Reset
+            </Button> */}
+
+        </Box>
+
         {/* Scrollable Table */}
         {/* <TableContainer
           component={Paper}
@@ -756,6 +772,8 @@ const ManageContent = () => {
           </Table>
         </TableContainer> */}
       </Paper>
+
+
 
       {/* Add/Edit Content */}
       <Dialog

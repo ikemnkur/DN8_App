@@ -242,7 +242,7 @@ const YourStuff = () => {
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
       {/* Header */}
       <Box sx={{ textAlign: 'center', mb: 3 }}>
         <Typography
@@ -269,30 +269,33 @@ const YourStuff = () => {
           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}
         >
           <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Unlocked Content</Typography>
-       
+
         </Box>
-        
-          <Box
+
+      
+
+
+        <Box
           component="form"
           onSubmit={handleSearchContent}
           sx={{
             position: 'relative',
             mb: 2,
-            p: { xs: 0.5, sm: 1 }, // tiny padding so the top-right chip has some breathing room
+            p: { xs: 0.5, sm: 1 },
           }}
         >
-         
-
           {/* Row 1: Search input + Search button */}
           <Box
             sx={{
               display: 'flex',
               gap: 1,
-              flexWrap: { xs: 'wrap', sm: 'nowrap' },
               alignItems: 'center',
+              flexWrap: 'nowrap',
+              width: '100%',
+              mb: 1,
             }}
           >
-            <TextField
+             <TextField
               label="Search content"
               value={searchTermContent}
               onChange={(e) => setSearchTermContent(e.target.value)}
@@ -307,13 +310,18 @@ const YourStuff = () => {
             <Button
               type="submit"
               variant="contained"
-              sx={{ textTransform: 'none', flexShrink: 0 }}
+              sx={{
+                textTransform: 'none',
+                flexBasis: '15%',
+                minWidth: 0,
+                px: 2,
+                flexShrink: 0,
+                whiteSpace: 'nowrap'
+              }}
             >
               Search
             </Button>
           </Box>
-
-          {/* Row 2: Filters + Reset */}
           <Box
             sx={{
               mt: 1.5,
@@ -321,44 +329,61 @@ const YourStuff = () => {
               gap: 1,
               alignItems: 'center',
               flexWrap: 'wrap',
+              justifyContent: 'space-between'
             }}
           >
-            <Select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              size="small"
-              sx={{ minWidth: 140 }}
+            {/* Left side: Filters + Item count */}
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 1,
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                flex: 1
+              }}
             >
-              <MenuItem value="date">Date</MenuItem>
-              <MenuItem value="amount">Amount</MenuItem>
-              <MenuItem value="username">Username</MenuItem>
-            </Select>
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                size="small"
+                sx={{ minWidth: 100 }}
+              >
+                <MenuItem value="date">Date</MenuItem>
+                <MenuItem value="amount">Amount</MenuItem>
+                <MenuItem value="username">Username</MenuItem>
+              </Select>
 
-            <Select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              size="small"
-              sx={{ minWidth: 140 }}
-            >
-              <MenuItem value="asc">Ascending</MenuItem>
-              <MenuItem value="desc">Descending</MenuItem>
-            </Select>
+              <Select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                size="small"
+                sx={{ minWidth: 100 }}
+              >
+                <MenuItem value="asc">Ascending</MenuItem>
+                <MenuItem value="desc">Descending</MenuItem>
+              </Select>
+
               {/* Chip pinned to the top-right */}
-          <Chip
-            label={`${contentToDisplay.length} item${contentToDisplay.length === 1 ? '' : 's'}`}
-            variant="outlined"
-            color="primary"
-            sx={{ marginRight: "1%"}}
-            // sx={{ position: 'absolute', top: 8, right: 8 }}
-          />
+              <Chip
+                label={`${contentToDisplay.length} item${contentToDisplay.length === 1 ? '' : 's'}`}
+                variant="outlined"
+                color="primary"
+                sx={{ marginRight: "1%" }}
+              // sx={{ position: 'absolute', top: 8, right: 8 }}
+              />
 
-            {/* <Button
-              variant="text"
-              sx={{ textTransform: 'none' }}
-              onClick={() => { setSearchTermContent(''); setFilteredContent(contentList); }}
-            >
-              Reset
-            </Button> */}
+
+              {/* Reset button (commented out like in your example) */}
+              {/* <Button
+                variant="text"
+                sx={{ textTransform: 'none' }}
+                onClick={handleReset}
+              >
+                Reset
+              </Button> */}
+            </Box>
+
+
           </Box>
         </Box>
 

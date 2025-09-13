@@ -28,7 +28,7 @@ const Wallet = () => {
   const [walletData, setWalletData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [thisUser] = useState(JSON.parse(localStorage.getItem('userdata')));
+  const [userData] = useState(JSON.parse(localStorage.getItem('userdata')));
   const navigate = useNavigate();
 
   const tiers = [
@@ -105,7 +105,7 @@ const Wallet = () => {
   const spendable = Number(walletData?.spendable ?? 0);
   const redeemable = Number(walletData?.redeemable ?? 0);
   const total = spendable + redeemable;
-  const tierIdx = (thisUser?.accountTier || 1) - 1;
+  const tierIdx = (userData?.accountTier || 1) - 1;
   const tierName = tiers[tierIdx]?.name || 'Basic';
 
   const spendablePct = total > 0 ? Math.min(100, Math.max(0, (spendable / total) * 100)) : 0;
@@ -241,39 +241,66 @@ const Wallet = () => {
           </Paper>
         </Grid>
 
-       
-        <Grid item xs={12}> 
-          <Divider sx={{ my: 4 }} />
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-            Earn More Coins
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-            Listen/Watch ads to earn additional coins for your wallet
-          </Typography>
+        {userData.accountTier < 4 && (
+          <Grid item xs={12}>
+            <Divider sx={{ my: 4 }} />
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+              Earn More Coins
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+              Listen/Watch ads to earn additional coins for your wallet
+            </Typography>
 
-          <AdAudioObject
-            onAdView={(ad) => console.log('Ad viewed:', ad)}
-            onAdClick={(ad) => console.log('Ad clicked:', ad)}
-            onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-            onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-            RewardModal={({ onClose, onReward }) => (
-              <div style={{ /* simple modal styles */ }}>
-                <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-                <button onClick={onClose}>Close</button>
-              </div>
+            {userData.accountTier > 2 && (
+              <AdAudioObject
+                onAdView={(ad) => console.log('Ad viewed:', ad)}
+                onAdClick={(ad) => console.log('Ad clicked:', ad)}
+                onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+                onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+                RewardModal={({ onClose, onReward }) => (
+                  <div style={{ /* simple modal styles */ }}>
+                    <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                    <button onClick={onClose}>Close</button>
+                  </div>
+                )}
+                // style={{ borderRadius: 0 }}
+                showRewardProbability={0.3} // 30% chance to show reward button
+                filters={{ format: 'banner', mediaFormat: "audio" }} // Only show modal ads for this placement
+                style={{
+
+                  maxHeight: '400px', // Limit maximum height
+                  borderRadius: 0 // Remove border radius to fit Paper container
+                }}
+                className="modal-ad"
+              />
             )}
-            // style={{ borderRadius: 0 }}
-            showRewardProbability={0.3} // 30% chance to show reward button
-            filters={{ format: 'banner', mediaFormat: "audio" }} // Only show modal ads for this placement
-            style={{
-              
-              maxHeight: '400px', // Limit maximum height
-              borderRadius: 0 // Remove border radius to fit Paper container
-            }}
-            className="modal-ad"
-          />
 
-        </Grid>
+            {userData.accountTier > 2 && (
+              <AdVideoObject
+                onAdView={(ad) => console.log('Ad viewed:', ad)}
+                onAdClick={(ad) => console.log('Ad clicked:', ad)}
+                onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+                onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+                RewardModal={({ onClose, onReward }) => (
+                  <div style={{ /* simple modal styles */ }}>
+                    <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                    <button onClick={onClose}>Close</button>
+                  </div>
+                )}
+                // style={{ borderRadius: 0 }}
+                showRewardProbability={0.3} // 30% chance to show reward button
+                filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
+                style={{
+                  minHeight: '240px', // Ensure minimum height
+                  maxHeight: '400px', // Limit maximum height
+                  borderRadius: 0 // Remove border radius to fit Paper container
+                }}
+                className="modal-ad"
+              />
+            )}
+
+          </Grid>
+        )}
 
         <Grid item xs={12}>
           <ShareWallet walletData={walletData} /> {/* ShareWallet component */}

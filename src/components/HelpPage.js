@@ -256,7 +256,8 @@ const HelpPage = () => {
       </Box>
 
       {/* Quick Actions */}
-      <Card sx={{ mb: 4, background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
+      {/* <Card sx={{ mb: 4, background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>  */}
+      <Card sx={{ mb: 4 }}>
         <CardContent>
           <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
             Need Immediate Help?

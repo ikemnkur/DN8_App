@@ -938,7 +938,7 @@ const Messages = () => {
 
       <Divider sx={{ my: 4 }} />
 
-       <AdImageObject
+      {1 && (<AdImageObject
         onAdView={(ad) => console.log('Ad viewed:', ad)}
         onAdClick={(ad) => console.log('Ad clicked:', ad)}
         onAdSkip={(ad) => console.log('Ad skipped:', ad)}
@@ -959,6 +959,9 @@ const Messages = () => {
         }}
         className="modal-ad"
       />
+
+      )}
+
 
       {/* Snackbar */}
       <Snackbar
