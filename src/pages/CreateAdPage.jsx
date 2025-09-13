@@ -124,6 +124,7 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     description: '',
     link: '',
     format: 'regular',
+    mediaType: 'image',      // <-- Add this line to initialize mediaType
     mediaFile: null,         // File kept in memory until submit
     mediaFileLink: "",       // Filled *after* we upload on submit
     mediaDataUrl: '',        // Data URL for preview tab
@@ -193,9 +194,15 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     { value: 'banner', label: 'Banner', icon: '🏷️', description: 'Wide banner display' },
     { value: 'popup', label: 'Popup', icon: '⬆️', description: 'Popup overlay' },
     { value: 'modal', label: 'Modal', icon: '🖼️', description: 'Modal dialog' },
+
+  ];
+
+  const mediaTypeOptions = [
+    { value: 'image', label: 'Image', icon: '🖼️', description: 'Image content' },
     { value: 'video', label: 'Video', icon: '🎥', description: 'Video content' },
     { value: 'audio', label: 'Audio', icon: '🎵', description: 'Audio content' }
   ];
+
 
   const frequencyOptions = [
     { value: 'low', label: 'Low', icon: '🐌', description: 'Shown rarely' },
@@ -660,53 +667,6 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     // }
   };
 
-  // const handlePreviewAd = async () => {
-  //   if (!validateForm()) {
-  //     setNotification({
-  //       open: true,
-  //       message: 'Please fix the errors in the form',
-  //       severity: 'error'
-  //     });
-  //     return;
-  //   }
-
-  //   if (!token) {
-  //     setNotification({
-  //       open: true,
-  //       message: 'Authentication required. Please log in.',
-  //       severity: 'error'
-  //     });
-  //     return;
-  //   }
-
-  //   setLoading(true);
-
-  //   try {
-  //     let result;
-
-  //     localStorage.setItem('previewAdData', JSON.stringify(formData));
-  //     // navigate(`/preview/pending-ad/?ad_uuid=${formData.ad_uuid}&title=${encodeURIComponent(formData.title)}&description=${encodeURIComponent(formData.description)}&link=${encodeURIComponent(formData.link)}&format=${formData.format}&budget=${formData.budget}&reward=${formData.reward}&frequency=${formData.frequency}&quiz=${encodeURIComponent(JSON.stringify(formData.quiz))}`);
-  //     // navigate(`/preview/pending-ad/`);
-
-  //     goToAdPreview(formData);
-
-  //     // Call parent onSave if provided
-  //     if (onSave) {
-  //       onSave(result);
-  //     }
-
-  //   } catch (error) {
-  //     console.error('Error saving ad:', error);
-  //     setNotification({
-  //       open: true,
-  //       message: error.message || 'Failed to save advertisement',
-  //       severity: 'error'
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handlePreviewAd = async () => {
     if (!validateForm()) {
       setNotification({ open: true, message: 'Please fix the errors in the form', severity: 'error' });
@@ -902,9 +862,28 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
               ))}
             </Grid>
 
+
+
             <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold' }}>
               Media Upload
             </Typography>
+            {/* wide banner  */}
+            <Grid container spacing={2} sx={{ mb: 2, alignContent: 'center', textAlign: 'center' }}>
+              {mediaTypeOptions.map((option) => (
+                <Grid item xs={6} sm={2} md={2} key={option.value} alignContent={'center'} textAlign={'center'}>
+                  <FormatCard selected={formData.mediaType === option.value}>
+                    <CardContent
+                      sx={{ textAlign: 'center', p: 2, cursor: loading ? 'not-allowed' : 'pointer' }}
+                      onClick={() => !loading && handleInputChange('mediaType', option.value)}
+                    >
+                      <Typography variant="h4" sx={{ mb: 1 }}>{option.icon}</Typography>
+                      <Typography variant="body2" fontWeight="bold">{option.label}</Typography>
+                      <Typography variant="caption" color="text.secondary">{option.description}</Typography>
+                    </CardContent>
+                  </FormatCard>
+                </Grid>
+              ))}
+            </Grid>
             <UploadZone
               onDrop={loading ? undefined : handleFileDrop}
               onDragOver={loading ? undefined : (e) => { e.preventDefault(); setDragOver(true); }}
@@ -1225,62 +1204,6 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
             </StyledPaper>
           </Box>
 
-          {/* <Box sx={{ position: 'sticky', gap: 10, bottom: 16, zIndex: 10 }}>
-            <StyledPaper>
-              <Button
-                style={{ marginBottom: '10px' }}
-                fullWidth
-                variant="contained"
-                size="large"
-                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-                onClick={handlePreviewAd}
-                disabled={loading}
-                sx={{
-                  py: 2,
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  background: loading ? 'rgba(25, 118, 210, 0.5)' : 'linear-gradient(135deg, #1976d2, #42a5f5)',
-                  '&:hover': {
-                    background: loading ? 'rgba(25, 118, 210, 0.5)' : 'linear-gradient(135deg, #1565c0, #1976d2)',
-                    transform: loading ? 'none' : 'translateY(-2px)',
-                    boxShadow: loading ? 'none' : 4
-                  },
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                {loading
-                  ? (editingAd ? 'Updating Advertisement...' : 'Creating Advertisement...')
-                  : (editingAd ? 'Preview Update Advertisement' : 'Preview New Ad')
-                }
-              </Button> */}
-          {/* <br>2</br> */}
-          {/* <Button
-                fullWidth
-                variant="contained"
-                size="large"
-                startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />}
-                onClick={handleSubmit}
-                disabled={loading}
-                sx={{
-                  py: 2,
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  background: loading ? 'rgba(62, 210, 25, 0.5)' : 'linear-gradient(135deg, #4ad219ff, #42f57eff)',
-                  '&:hover': {
-                    background: loading ? 'rgba(62, 210, 25, 0.5)' : 'linear-gradient(135deg, #1dc015ff, #2fd219ff)',
-                    transform: loading ? 'none' : 'translateY(-2px)',
-                    boxShadow: loading ? 'none' : 4
-                  },
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                {loading
-                  ? (editingAd ? 'Updating Advertisement...' : 'Creating Advertisement...')
-                  : (editingAd ? 'Update Advertisement' : 'Create Advertisement')
-                }
-              </Button> */}
-          {/* </StyledPaper> */}
-          {/* </Box> */}
         </Stack>
 
         {/* Notification Snackbar */}

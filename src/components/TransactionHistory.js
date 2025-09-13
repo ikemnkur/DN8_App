@@ -99,7 +99,7 @@ const TransactionHistory = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // New state for modal
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -255,125 +255,334 @@ const TransactionHistory = () => {
         }}
       >
         {/* Controls */}
+       // Replace your controls Box section with this updated version:
         <Box
           component="form"
           onSubmit={handleSearch}
           sx={{
-            display: 'flex',
-            // flexWrap: 'wrap',
-            flexWrap: { xs: 'wrap', sm: 'nowrap' },
-            gap: 1,
-            alignItems: 'center',
+            position: 'relative',
             mb: 2,
+            p: { xs: 0.5, sm: 1 },
           }}
-        > 
-        {/* Row 1: Search input + Search button */}
-          {/* <TextField
-            label="Search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            size="small"
-            sx={{ flex: { xs: '1 1 100%', md: '0 1 320px' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
+        >
+          {/* Row 1: Search input + Search button */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1,
+              alignItems: 'center',
+              flexWrap: 'nowrap',
+              width: '100%',
+              mb: 1,
             }}
-          /> */}
-         
-      
-          <TextField
-            label="Search content"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            size="small"
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start"><SearchIcon /></InputAdornment>
-              ),
-            }}
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ textTransform: 'none', flexShrink: 0 }}
           >
-            Search
-          </Button>
-          
-
-         
-           {/* Row 2: Filters + Reset */}
-           <Box
+            <TextField
+              label="Search transactions"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+              sx={{ flexBasis: '85%', flexGrow: 1 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start"><SearchIcon /></InputAdornment>
+                ),
+              }}
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                textTransform: 'none',
+                flexBasis: '15%',
+                minWidth: 0,
+                px: 2,
+                flexShrink: 0,
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Search
+            </Button>
+          </Box>
+          <Box
             sx={{
               mt: 1.5,
               display: 'flex',
               gap: 1,
               alignItems: 'center',
               flexWrap: 'wrap',
+              justifyContent: 'space-between'
             }}
           >
+            {/* Left side: Filters + Item count */}
             <Box
               sx={{
-                mt: 1.5,
                 display: 'flex',
                 gap: 1,
                 alignItems: 'center',
                 flexWrap: 'wrap',
+                flex: 1
               }}
             >
-              <Chip
-                label={`${transactionsToDisplay.length} result${transactionsToDisplay.length === 1 ? '' : 's'}`}
-                variant="outlined"
-                color="primary"
-              />
-
-              <Select
-                value={sortOrder}
-                size="small"
-                onChange={(e) => setSortOrder(e.target.value)}
-              >
-                <MenuItem value="asc">Ascending</MenuItem>
-                <MenuItem value="desc">Descending</MenuItem>
-              </Select>
               <Select
                 value={sortBy}
-                size="small"
                 onChange={(e) => setSortBy(e.target.value)}
+                size="small"
+                sx={{ minWidth: 140 }}
               >
                 <MenuItem value="date">Date</MenuItem>
                 <MenuItem value="amount">Amount</MenuItem>
                 <MenuItem value="username">Username</MenuItem>
-                <MenuItem value="type">Type</MenuItem>
-                <MenuItem value="status">Status</MenuItem>
               </Select>
+
+              <Select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                size="small"
+                sx={{ minWidth: 140 }}
+              >
+                <MenuItem value="asc">Ascending</MenuItem>
+                <MenuItem value="desc">Descending</MenuItem>
+              </Select>
+
+              <Chip
+                label={`${transactionsToDisplay.length} transaction${transactionsToDisplay.length === 1 ? '' : 's'}`}
+                variant="outlined"
+                color="primary"
+                sx={{ marginRight: "1%" }}
+              />
+
+              {/* Reset button (commented out like in your example) */}
+              {/* <Button
+        variant="text"
+        sx={{ textTransform: 'none' }}
+        onClick={handleReset}
+      >
+        Reset
+      </Button> */}
             </Box>
 
+            {/* Right side: Export button */}
             <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-              <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
-                Search
-              </Button>
-              {/* <Button onClick={handleReset} variant="text" sx={{ textTransform: 'none' }}>
-                Reset
-              </Button> */}
               <Button
+                variant="contained"
                 onClick={exportToCSV}
-                variant="outlined"
-                startIcon={<DownloadIcon />}
-                sx={{ textTransform: 'none' }}
+                sx={{
+                  textTransform: 'none',
+                  flexShrink: 0
+                }}
               >
-                Export
+                Export CSV
               </Button>
             </Box>
           </Box>
         </Box>
 
         {/* Table */}
-        <TableContainer component={Paper}>
+
+                {/* // Replace your Table section with this optimized version: */}
+        <TableContainer
+          component={Paper}
+          sx={{
+            maxHeight: { xs: 400, md: 500 },
+            overflowY: 'auto',
+            overflowX: 'auto', // Allow horizontal scroll as fallback
+            borderRadius: 1
+          }}
+        >
+          <Table
+            sx={{
+              minWidth: { xs: 320, sm: 500 }, // Reduced min width for mobile
+              '& .MuiTableCell-root': {
+                // Reduce padding for all cells
+                px: { xs: 0.5, sm: 2 },
+                py: { xs: 1, sm: 1.5 },
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              },
+              '& .MuiTableHead-root .MuiTableCell-root': {
+                // Header specific styling
+                fontWeight: 600,
+                fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                px: { xs: 0.5, sm: 2 },
+              }
+            }}
+            aria-label="transaction history table"
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ width: { xs: '20%', sm: 'auto' } }}>
+                  Amount
+                </TableCell>
+                <TableCell sx={{ width: { xs: '35%', sm: 'auto' } }}>
+                  <Box sx={{ display: { xs: 'none', sm: 'block' } }}>Transaction Party</Box>
+                  <Box sx={{ display: { xs: 'block', sm: 'none' } }}>Party</Box>
+                </TableCell>
+                <TableCell sx={{ width: { xs: '20%', sm: 'auto' } }}>
+                  Type
+                </TableCell>
+                <TableCell sx={{ width: { xs: '15%', sm: 'auto' } }}>
+                  Date
+                </TableCell>
+                <TableCell
+                  align="right"
+                  sx={{
+                    width: { xs: '10%', sm: 'auto' },
+                    display: { xs: 'none', sm: 'table-cell' } // Hide actions on mobile
+                  }}
+                >
+                  Actions
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {loading && (
+                <TableRow>
+                  <TableCell colSpan={{ xs: 4, sm: 5 }} align="center">
+                    <CircularProgress />
+                  </TableCell>
+                </TableRow>
+              )}
+              {error && (
+                <TableRow>
+                  <TableCell colSpan={{ xs: 4, sm: 5 }} align="center" sx={{ color: 'red' }}>
+                    {error}
+                  </TableCell>
+                </TableRow>
+              )}
+              {!loading && transactionsToDisplay.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={{ xs: 4, sm: 5 }} align="center">
+                    No transactions found.
+                  </TableCell>
+                </TableRow>
+              )}
+              {transactionsToDisplay.map((t) => (
+                <TableRow
+                  key={t.id}
+                  hover
+                  onClick={() => handleRowClick(t)}
+                  sx={{
+                    cursor: 'pointer',
+                    '&:last-child td, &:last-child th': { border: 0 },
+                    '&:hover': {
+                      backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                    }
+                  }}
+                >
+                  <TableCell
+                    component="th"
+                    scope="row"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    }}
+                  >
+                    ${parseFloat(t.amount).toFixed(2)}
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      {/* Desktop view - show both From and To */}
+                      <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: '0.75rem' }}>
+                          From: {t.sending_user}
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontSize: '0.75rem' }}>
+                          To: {t.receiving_user}
+                        </Typography>
+                      </Box>
+
+                      {/* Mobile view - show more compact format */}
+                      <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 'bold',
+                            fontSize: '0.65rem',
+                            lineHeight: 1.2,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {t.sending_user} → {t.receiving_user}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={t.transaction_type}
+                      size="small"
+                      variant="outlined"
+                      sx={{
+                        fontSize: { xs: '0.6rem', sm: '0.75rem' },
+                        height: { xs: 20, sm: 24 },
+                        '& .MuiChip-label': {
+                          px: { xs: 0.5, sm: 1 }
+                        }
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      {/* Desktop view - full date */}
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          display: { xs: 'none', sm: 'block' },
+                          fontSize: '0.75rem'
+                        }}
+                      >
+                        {new Date(t.created_at).toLocaleDateString()}
+                      </Typography>
+
+                      {/* Mobile view - short date */}
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          display: { xs: 'block', sm: 'none' },
+                          fontSize: '0.65rem',
+                          lineHeight: 1.2
+                        }}
+                      >
+                        {new Date(t.created_at).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{ display: { xs: 'none', sm: 'table-cell' } }} // Hide on mobile
+                  >
+                    <Tooltip title="Delete Transaction">
+                      <IconButton
+                        color="error"
+                        onClick={(e) => handleDelete(t.id, e)}
+                        size="small"
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Add a mobile action hint */}
+        <Box sx={{
+          display: { xs: 'block', sm: 'none' },
+          mt: 1,
+          textAlign: 'center'
+        }}>
+          <Typography variant="caption" color="text.secondary">
+            Tap any row to view details and actions
+          </Typography>
+        </Box>
+
+        {/* <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="transaction history table">
             <TableHead>
               <TableRow>
@@ -441,9 +650,9 @@ const TransactionHistory = () => {
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
+        </TableContainer> */}
       </Paper>
-      
+
       {/* Transaction Details Modal */}
       <DetailsModal
         transaction={selectedTransaction}

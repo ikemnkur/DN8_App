@@ -68,7 +68,7 @@ const NavBar = ({ children }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const isMobilePortrait = useIsMobilePortrait();
   const [mobileNavHeight, setMobileNavHeight] = useState(0);
-  const [mobileNavWidth, setMobileNavWidth] = useState(64);
+  const [mobileNavWidth, setMobileNavWidth] = useState(48);
 
   // Callback ref to measure mobile nav height
   const mobileNavRef = useCallback((node) => {
@@ -262,7 +262,7 @@ const NavBar = ({ children }) => {
                 duration: theme.transitions.duration.enteringScreen,
               }),
             '& .MuiDrawer-paper': {
-              width: open ? drawerWidth : 64,
+              width: open ? drawerWidth : 48,
               boxSizing: 'border-box',
               overflowX: 'hidden',
               transition: (theme) =>
@@ -278,54 +278,57 @@ const NavBar = ({ children }) => {
           <Box sx={{ overflow: 'auto' }}>
             <List>
               {menuItems.map((item) => (
-                <Tooltip title={open ? '' : item.text} placement="right" key={item.text}>
-                  {/* <ListItem
+                //   <Tooltip
+                //   title={open ? '' : item.text}
+                //   placement="right"
+                //   key={item.text}
+                //   PopperProps={{
+                //   modifiers: [
+                //     {
+                //     name: 'offset',
+                //     options: {
+                //       offset: [0, -4], // Remove vertical offset
+                //     },
+                //     },
+                //   ],
+                //   }}
+                // >
+
+                <ListItem
                   button
                   component={RouterLink}
                   to={item.path}
                   sx={{
-                    justifyContent: open ? 'initial' : 'center',
-                    px: '5px',
+                    alignItems: 'center',
+                    justifyContent: open ? 'center' : 'center', // center row when open too
+                    px: 1,
                   }}
                 >
-                  <ListItemIcon
-                    sx={{
-                      minWidth: 0,
-                      mr: open ? '5px' : 'auto',
-                      justifyContent: 'center',
-                      px: '5px',
-                      fontSize: "48px",
-                    }}
-                  >
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={open ? item.text : ''}
-                    sx={{
-                      opacity: open ? 1 : 0,
-                      px: '05px 10px 10px 0px',
-                    }}
-                    style={{ paddingTop: 5 }}
-                  />
-                </ListItem> */}
-                  <ListItem
-                    button
-                    component={RouterLink}
-                    to={item.path}
-                    sx={{
-                      alignItems: 'center',
-                      justifyContent: open ? 'center' : 'center', // center row when open too
-                      px: 1,
+                  <Tooltip
+                    title={open ? '' : item.text}
+                    placement="right"
+                    key={item.text}
+                    PopperProps={{
+                      modifiers: [
+                        {
+                          name: 'offset',
+                          options: {
+                            // progressively shift the tooltip up a bit each tip instance
+                            offset: [ 8 + 4 * (menuItems.indexOf(item) + 1), 12],
+                          },
+                        },
+                      ],
                     }}
                   >
                     <ListItemIcon
                       sx={{
-                        minWidth: open ? 32 : 0,      // give the icon cell some width when open
+                        minWidth: open ? 30 : 0,      // give the icon cell some width when open
+                        maxHeight: 48,
                         mr: open ? 1 : 'auto',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        px: 0.5,
+                        // px: 0.5,
                       }}
                     >
                       {React.isValidElement(item.icon)
@@ -335,16 +338,18 @@ const NavBar = ({ children }) => {
                         : item.icon}
                     </ListItemIcon>
 
-                    <ListItemText
-                      primary={open ? item.text : ''}
-                      sx={{
-                        opacity: open ? 1 : 0,
-                        transition: 'opacity 150ms',
-                        ml: open ? 0.5 : 0,
-                      }}
-                    />
-                  </ListItem>
-                </Tooltip>
+                  </Tooltip>
+
+                  <ListItemText
+                    primary={open ? item.text : ''}
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      transition: 'opacity 150ms',
+                      ml: open ? 0.5 : 0,
+                    }}
+                  />
+                </ListItem>
+                // </Tooltip>
               ))}
             </List>
           </Box>

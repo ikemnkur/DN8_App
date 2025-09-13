@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { fetchWalletData } from './api';
 import ShareWallet from './ShareWallet';
+import AdAudioObject from '../pages/AdAudioObject';
 
 const Wallet = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -238,6 +239,40 @@ const Wallet = () => {
               </Grid>
             </Grid>
           </Paper>
+        </Grid>
+
+       
+        <Grid item xs={12}> 
+          <Divider sx={{ my: 4 }} />
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+            Earn More Coins
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+            Listen/Watch ads to earn additional coins for your wallet
+          </Typography>
+
+          <AdAudioObject
+            onAdView={(ad) => console.log('Ad viewed:', ad)}
+            onAdClick={(ad) => console.log('Ad clicked:', ad)}
+            onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+            onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+            RewardModal={({ onClose, onReward }) => (
+              <div style={{ /* simple modal styles */ }}>
+                <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                <button onClick={onClose}>Close</button>
+              </div>
+            )}
+            // style={{ borderRadius: 0 }}
+            showRewardProbability={0.3} // 30% chance to show reward button
+            filters={{ format: 'banner', mediaFormat: "audio" }} // Only show modal ads for this placement
+            style={{
+              
+              maxHeight: '400px', // Limit maximum height
+              borderRadius: 0 // Remove border radius to fit Paper container
+            }}
+            className="modal-ad"
+          />
+
         </Grid>
 
         <Grid item xs={12}>

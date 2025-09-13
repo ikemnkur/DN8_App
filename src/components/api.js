@@ -642,6 +642,7 @@ export const fetchAdvertiserProfile = async (user) => {
 
     if (!response.ok) {
       const errorData = await response.json();
+      navigate("/login");
       throw new Error(errorData.error || 'Failed to fetch advertiser profile');
     }
 
@@ -763,10 +764,10 @@ export const fetchAds = async () => {
 //   }
 // };
 
-export const fetchDisplayAds = async (format, userId, adId) => {
+export const fetchDisplayAds = async (format, mediaFormat, userId, adId) => {
   try {
     if (!adId || adId === -1) {
-      const response = await api.post('/ads/display', { format: format, excludeUserId: userId });
+      const response = await api.post('/ads/display', { format: format, mediaFormat: mediaFormat, excludeUserId: userId });
       return response.data;
     } else {
       const response = await api.get(`/ads/display/${adId}`);

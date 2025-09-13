@@ -22,6 +22,7 @@ import Notifications from './Notifications';
 import { useParams } from 'react-router-dom';
 import { fetchDisplayAds } from './api';
 import AdObject from '../pages/AdObject'; // Adjust path as needed
+import AdVideoObject from '../pages/AdVideoObject'; // Adjust path as needed
 
 const Info = () => {
   const navigate = useNavigate();
@@ -330,17 +331,17 @@ const Info = () => {
         {/* AdObject Component */}
         <AdObject
           onAdView={(ad) => console.log('Ad viewed:', ad)}
-            onAdClick={(ad) => console.log('Ad clicked:', ad)}
-            onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-            onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-            RewardModal={({ onClose, onReward }) => (
-              <div style={{ /* simple modal styles */ }}>
-                <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-                <button onClick={onClose}>Close</button>
-              </div>
-            )}
+          onAdClick={(ad) => console.log('Ad clicked:', ad)}
+          onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+          onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+          RewardModal={({ onClose, onReward }) => (
+            <div style={{ /* simple modal styles */ }}>
+              <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+              <button onClick={onClose}>Close</button>
+            </div>
+          )}
           showRewardProbability={0.1} // 10% chance to show reward button
-          filters={{ format: 'video' }} // Only show video ads for this placement
+          filters={{ format: 'video', mediaFormat: 'regular' }} // Only show video ads for this placement
           style={{
             minHeight: '200px', // Ensure minimum height
             borderRadius: 0 // Remove border radius to fit Paper container
@@ -430,8 +431,34 @@ const Info = () => {
         </Box>
       </Modal>
 
+
+      <AdVideoObject
+        onAdView={(ad) => console.log('Ad viewed:', ad)}
+        onAdClick={(ad) => console.log('Ad clicked:', ad)}
+        onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+        onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+        RewardModal={({ onClose, onReward }) => (
+          <div style={{ /* simple modal styles */ }}>
+            <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+            <button onClick={onClose}>Close</button>
+          </div>
+        )}
+        // style={{ borderRadius: 0 }}
+        showRewardProbability={0.3} // 30% chance to show reward button
+        filters={{ format: 'video', mediaFormat: 'regular' }} // Only show modal ads for this placement
+        style={{
+          minHeight: '240px', // Ensure minimum height
+          maxHeight: '400px', // Limit maximum height
+          borderRadius: 0 // Remove border radius to fit Paper container
+        }}
+        className="modal-ad"
+      />
+
+
       {/* Popup Ad Modal */}
       <Modal
+        // prevent closing by clicking outside
+        disableBackdropClick
         open={openPopupAdModal}
         onClose={handleClosePopupAdModal}
         aria-labelledby="popup-ad-modal-title"
@@ -467,13 +494,13 @@ const Info = () => {
             )}
             // style={{ borderRadius: 0 }}
             showRewardProbability={0.3} // 30% chance to show reward button
-            filters={{ format: 'modal' }} // Only show modal ads for this placement
+            filters={{ format: 'modal', mediaFormat: 'regular' }} // Only show modal ads for this placement
             style={{
-              minHeight: '200px', // Ensure minimum height
-              maxHeight: '300px', // Limit maximum height
+              minHeight: '240px', // Ensure minimum height
+              maxHeight: '400px', // Limit maximum height
               borderRadius: 0 // Remove border radius to fit Paper container
             }}
-            className="banner-ad"
+            className="modal-ad"
           />
 
           <Typography id="popup-ad-modal-description" variant="body2">
@@ -481,6 +508,7 @@ const Info = () => {
           </Typography>
         </Box>
       </Modal>
+
 
 
       {/* Snackbar for notifications */}

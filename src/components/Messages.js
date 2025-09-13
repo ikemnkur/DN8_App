@@ -18,6 +18,7 @@ import {
 
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import AdImageObject from '../pages/AdImageObject';
 
 const Messages = () => {
   const [conversations, setConversations] = useState([]);
@@ -934,6 +935,30 @@ const Messages = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Divider sx={{ my: 4 }} />
+
+       <AdImageObject
+        onAdView={(ad) => console.log('Ad viewed:', ad)}
+        onAdClick={(ad) => console.log('Ad clicked:', ad)}
+        onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+        onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+        RewardModal={({ onClose, onReward }) => (
+          <div style={{ /* simple modal styles */ }}>
+            <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+            <button onClick={onClose}>Close</button>
+          </div>
+        )}
+        // style={{ borderRadius: 0 }}
+        showRewardProbability={0.3} // 30% chance to show reward button
+        filters={{ format: 'banner', mediaFormat: "image" }} // Only show modal ads for this placement
+        style={{
+          minHeight: '240px', // Ensure minimum height
+          maxHeight: '400px', // Limit maximum height
+          borderRadius: 0 // Remove border radius to fit Paper container
+        }}
+        className="modal-ad"
+      />
 
       {/* Snackbar */}
       <Snackbar

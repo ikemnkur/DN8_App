@@ -229,6 +229,23 @@ const ManageContent = () => {
     setOpenShareDialog(true);
   };
 
+  // Add this new state near the top with your other state declarations
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [openActionModal, setOpenActionModal] = useState(false);
+
+  // Add this function to handle row clicks
+  const handleRowClick = (item) => {
+    setSelectedItem(item);
+    setOpenActionModal(true);
+  };
+
+  // Add this function to handle action modal close
+  const handleActionModalClose = () => {
+    setSelectedItem(null);
+    setOpenActionModal(false);
+  };
+
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: 2 }}>
       {/* Header */}
@@ -263,7 +280,7 @@ const ManageContent = () => {
         <Box
           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Unlocked Content</Typography>
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Published Content</Typography>
 
         </Box>
 
@@ -339,25 +356,25 @@ const ManageContent = () => {
               <MenuItem value="desc">Descending</MenuItem>
             </Select>
             {/* Chip pinned to the top-right */}
-             <Chip
+            <Chip
               label={`${filteredContentList.length} item${filteredContentList.length === 1 ? '' : 's'}`}
               variant="outlined"
-              color="primary" 
+              color="primary"
               sx={{ marginRight: "1%" }}
             />
-            
-              <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-            <Button
-              variant="contained"
-              sx={{ textTransform: 'none', ml: 'auto' }}
-              onClick={() => {
-                setEditing(false);
-                setOpenDialog(true);
-              }}
-            >
-              Create
-            </Button>
-{/* 
+
+            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                sx={{ textTransform: 'none', ml: 'auto' }}
+                onClick={() => {
+                  setEditing(false);
+                  setOpenDialog(true);
+                }}
+              >
+                Create
+              </Button>
+              {/* 
             <Button
               variant="outlined"
               sx={{ textTransform: 'none' }}
@@ -369,16 +386,301 @@ const ManageContent = () => {
               Reset
             </Button> */}
 
-          </Box>
+            </Box>
 
           </Box>
-          
+
         </Box>
 
-        
+{/* // Replace your TableContainer section with this updated version: */}
+        <TableContainer
+          component={Paper}
+          sx={{ maxHeight: { xs: 360, md: 500 }, overflowY: 'auto', borderRadius: 1 }}
+        >
+          <Table stickyHeader>
+            <TableHead
+              sx={{
+                '& .MuiTableCell-stickyHeader': {
+                  backgroundColor: (t) => t.palette.background.paper + ' !important',
+                  fontWeight: 600,
+                },
+              }}
+            >
+              <TableRow>
+                <TableCell>Title</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Date</TableCell>
+                <TableCell>Type</TableCell>
+                <TableCell>Price</TableCell>
+                {/* Removed Action column */}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {!loading &&
+                filteredContentList.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    hover
+                    onClick={() => handleRowClick(item)}
+                    sx={{
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                        transform: 'scale(1.01)',
+                        transition: 'all 0.2s ease-in-out'
+                      }
+                    }}
+                  >
+                    <TableCell sx={{ fontWeight: 500 }}>{item.title}</TableCell>
+                    <TableCell sx={{
+                      maxWidth: 240,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {item.description}
+                    </TableCell>
+                    <TableCell>{item.created_at.slice(0, 10)}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={item.type}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>₡{item.cost}</TableCell>
+                    {/* Removed Action column content */}
+                  </TableRow>
+                ))}
+
+              {!loading && filteredContentList.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    No content found.
+                  </TableCell>
+                </TableRow>
+              )}
+              {loading && (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <CircularProgress size={24} />
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        {/* Add this new Action Modal after your existing dialogs */}
+        <Dialog
+          open={openActionModal}
+          onClose={handleActionModalClose}
+          fullWidth
+          maxWidth="sm"
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white'
+            },
+          }}
+        >
+          <DialogTitle sx={{
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: '1.5rem',
+            pb: 1
+          }}>
+            {selectedItem?.title}
+          </DialogTitle>
+
+          <DialogContent sx={{ px: 3, pb: 2 }}>
+            {selectedItem && (
+              <Box>
+                {/* Item Details Card */}
+                <Paper sx={{
+                  p: 2,
+                  mb: 3,
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  borderRadius: 2
+                }}>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>
+                    <strong>Description:</strong>
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 2, color: 'text.primary' }}>
+                    {selectedItem.description || 'No description available'}
+                  </Typography>
+
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, mb: 2 }}>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        <strong>Type:</strong>
+                      </Typography>
+                      <Chip
+                        label={selectedItem.type}
+                        size="small"
+                        color="primary"
+                        sx={{ mt: 0.5 }}
+                      />
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        <strong>Price:</strong>
+                      </Typography>
+                      <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                        ₡{selectedItem.cost}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="body2" color="text.secondary">
+                    <strong>Created:</strong> {selectedItem.created_at.slice(0, 10)}
+                  </Typography>
+                </Paper>
+
+                {/* Action Buttons */}
+                <Typography variant="h6" sx={{
+                  mb: 2,
+                  textAlign: 'center',
+                  fontWeight: 600,
+                  color: 'white'
+                }}>
+                  Choose an Action
+                </Typography>
+
+                <Box sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 2
+                }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<Visibility />}
+                    onClick={() => {
+                      navigate(`/unlock/${selectedItem.reference_id}`);
+                      handleActionModalClose();
+                    }}
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                      },
+                      transition: 'all 0.3s ease',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      py: 1.5
+                    }}
+                    fullWidth
+                  >
+                    Preview
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<ShareIcon />}
+                    onClick={() => {
+                      handleShare(selectedItem);
+                      handleActionModalClose();
+                    }}
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                      },
+                      transition: 'all 0.3s ease',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      py: 1.5
+                    }}
+                    fullWidth
+                  >
+                    Share
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<EditNoteIcon />}
+                    onClick={() => {
+                      handleEdit(selectedItem);
+                      handleActionModalClose();
+                    }}
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                      },
+                      transition: 'all 0.3s ease',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      py: 1.5
+                    }}
+                    fullWidth
+                  >
+                    Edit
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => {
+                      handleDelete(selectedItem.id);
+                      handleActionModalClose();
+                    }}
+                    sx={{
+                      backgroundColor: 'rgba(244, 67, 54, 0.8)',
+                      color: 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgba(244, 67, 54, 1)',
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(244, 67, 54, 0.4)'
+                      },
+                      transition: 'all 0.3s ease',
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      py: 1.5
+                    }}
+                    fullWidth
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </DialogContent>
+
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Button
+              onClick={handleActionModalClose}
+              variant="outlined"
+              sx={{
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                '&:hover': {
+                  borderColor: 'white',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                },
+                textTransform: 'none',
+                fontWeight: 600,
+                px: 3
+              }}
+            >
+              Close
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         {/* Scrollable Table */}
-        <TableContainer
+        {/* <TableContainer
           component={Paper}
           sx={{ maxHeight: { xs: 360, md: 500 }, overflowY: 'auto', borderRadius: 1 }}
         >
@@ -452,7 +754,7 @@ const ManageContent = () => {
               )}
             </TableBody>
           </Table>
-        </TableContainer>
+        </TableContainer> */}
       </Paper>
 
       {/* Add/Edit Content */}

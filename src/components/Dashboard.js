@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import { fetchDashboardData, fetchUserProfile } from './api';
 import Notifications from './Notifications';
+import AdVideoObject from '../pages/AdVideoObject';
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -50,6 +51,8 @@ const Dashboard = () => {
     const r = Math.min(100, Math.max(0, (n / d) * 100));
     return r;
   };
+
+
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -229,7 +232,12 @@ const Dashboard = () => {
               value={safeRatio(recvTimes, dailyTxLimit)}
               sx={{ height: 8, borderRadius: 1 }}
             />
+             <br />
+          <Alert severity="info" sx={{ bgcolor: '#e7f3fe', borderColor: '#b3d4fc' }}>
+            Note: Transaction and coin limits reset every 24 hours. Upgrade your account tier for higher limits.
+          </Alert>
           </Paper>
+         
         </Grid>
 
         {/* Last 24h Summary */}
@@ -269,6 +277,32 @@ const Dashboard = () => {
               sx={{ height: 8, borderRadius: 1 }}
             />
           </Paper>
+        </Grid>
+
+        <Grid item xs={12}>
+          
+
+           <AdVideoObject
+                  onAdView={(ad) => console.log('Ad viewed:', ad)}
+                  onAdClick={(ad) => console.log('Ad clicked:', ad)}
+                  onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+                  onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+                  RewardModal={({ onClose, onReward }) => (
+                    <div style={{ /* simple modal styles */ }}>
+                      <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                      <button onClick={onClose}>Close</button>
+                    </div>
+                  )}
+                  // style={{ borderRadius: 0 }}
+                  showRewardProbability={0.3} // 30% chance to show reward button
+                  filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
+                  style={{
+                    minHeight: '240px', // Ensure minimum height
+                    maxHeight: '400px', // Limit maximum height
+                    borderRadius: 0 // Remove border radius to fit Paper container
+                  }}
+                  className="modal-ad"
+                />
         </Grid>
       </Grid>
 

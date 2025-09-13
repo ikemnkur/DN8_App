@@ -9,6 +9,24 @@ import {
   submitQuizAnswer,
 } from '../components/api';
 
+import {
+  Typography,
+  Paper,
+  Box,
+  CircularProgress,
+  Snackbar,
+  Button,
+  Modal,
+  TextField,
+  Select,
+  MenuItem,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody
+} from '@mui/material';
+
 const LiveAdvertisement = ({
   onAdView,
   onAdClick,
@@ -50,7 +68,7 @@ const LiveAdvertisement = ({
         setError(null);
 
         const userdata = JSON.parse(localStorage.getItem('userdata')) || {};
-        console.log('Fetching ads with filters:', filters, 'User:', localStorage.getItem('token') ? userdata.username || 'Guest' : 'Guest');
+        console.log('Fetching ads with filters:', filters,"and media format:", filters.mediaFormat, ' for User:', localStorage.getItem('token') ? userdata.username || 'Guest' : 'Guest');
 
         const response = await fetchDisplayAds(filters.format, filters.mediaFormat, userdata.user_id || 0, getAdById !== -1 ? getAdById : null);
 
@@ -494,27 +512,33 @@ const LiveAdvertisement = ({
     <div
       style={{
         background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)',
-        // borderRadius: '12px',
-        // padding: '5px',
+        borderRadius: '12px',
+        padding: '5px',
         position: 'relative',
-        maxWidth: '540px',
+        maxWidth: '95%',
         minWidth: '260px',
         width: '100%',
         boxSizing: 'border-box',
         margin: '0 auto',
-        ...style
+        // ...style
       }}
       className={className}
     >
+      <Box sx={{ p: 1, textAlign: 'center', backgroundColor: '#f5f5f5' , borderRadius: '12px 12px 0 0' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '10px' }}>
+          Advertisement
+        </Typography>
+      </Box>
+
       {/* Ad Content */}
       <div
         style={{
           background: 'white',
           display: 'flex',
-          // borderRadius: '12px',
+          borderRadius: '0 0 12px 12px',
           padding: '3px',
-          // boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-          // border: '1px solid rgba(0,0,0,0.04)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+          border: '1px solid rgba(0,0,0,0.04)',
           maxWidth: '100%',
           textAlign: 'center',
           position: 'relative',
@@ -524,68 +548,20 @@ const LiveAdvertisement = ({
         {/* Ad Media (if applicable) */}
         {ad.media_url && (
           <div style={{ marginBottom: '4px' }}>
-            {ad.format === 'video' && (
-              <video
-                controls
-                autoPlay
-                style={{ maxHeight: '200px', borderRadius: '8px' }}
-                src={ad.media_url}
-              />
-            )}
-            {ad.format === 'audio' && (
-              <audio
-                controls
-                autoPlay
-                style={{ width: '100%' }}
-                src={ad.media_url}
-              />
-            )}
-            {ad.format === 'banner' && (
+             {/* {(ad.format === 'gif' || ad.format === 'image') && ( */}
               <img
                 src={ad.media_url}
                 alt={ad.title}
                 style={{ maxHeight: '180px', objectFit: 'cover', borderRadius: '8px' }}
               />
-            )}
-             {(ad.format === 'gif' || ad.format === 'image') && (
-              <img
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ minHeight: '180px', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-            {ad.format === 'modal' && (ad.media_url.includes("jpg") || ad.media_url.includes("gif") || ad.media_url.includes("jpeg") || ad.media_url.includes("png")) && (
-              <img
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ maxHeight: '300px', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-            {ad.format === 'modal' && (ad.media_url.includes("mp4") || ad.media_url.includes("wmv")) && (
-              <video
-                controls
-                autoPlay
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ maxHeight: '400px', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-            {ad.format === 'modal' && (ad.media_url.includes("mp3") || ad.media_url.includes("wav") || ad.media_url.includes("ogg")) && (
-              <audio
-                controls
-                autoPlay
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ maxHeight: '180', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
+            {/* )} */}
           </div>
         )}
         <div
-          style={{ padding: '0 10px 4px 10px', minWidth: '260px', alignItems: 'center', display: 'flex', flexDirection: 'column' }}
+          style={{ padding: '0 10px 4px 10px', margin: 'auto auto', alignItems: 'center', display: 'flex', flexDirection: 'column' }}
         >
           {/* Ad Title */}
-          <h6
+          <strong
             style={{
               fontSize: '0.98rem',
               fontWeight: 'bold',
@@ -596,7 +572,7 @@ const LiveAdvertisement = ({
             }}
           >
             {ad.title}
-          </h6>
+          </strong>
 
           {/* Ad Description */}
           <p
@@ -604,7 +580,7 @@ const LiveAdvertisement = ({
               color: 'rgba(0,0,0,0.65)',
               marginBottom: '6px',
               lineHeight: 1.2,
-              fontSize: '0.92rem',
+              fontSize: '0.75rem',
               maxHeight: '2.8em',
               overflow: 'hidden',
               textOverflow: 'ellipsis',

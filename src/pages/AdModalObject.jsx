@@ -32,6 +32,7 @@ const LiveAdvertisement = ({
   const [selectedOption, setSelectedOption] = useState('');
   const [quizResult, setQuizResult] = useState(null);
   const [adViewed, setAdViewed] = useState(false);
+  const [AdSkipWaitTimer, setAdSkipWaitTimer] = useState(8); // seconds user has to wait before skipping
 
   // if user is not logged dont show reward button
   useEffect(() => {
@@ -208,21 +209,21 @@ const LiveAdvertisement = ({
     }
   };
 
-  // const handleSkip = async () => {
-  //   if (!ad) return;
+  const handleSkip = async () => {
+    if (!ad) return;
 
-  //   try {
-  //     await trackAdSkip(ad.id);
+    try {
+      await trackAdSkip(ad.id);
 
-  //     if (onAdSkip) {
-  //       onAdSkip(ad);
-  //     }
+      if (onAdSkip) {
+        onAdSkip(ad);
+      }
 
-  //     setAd(null);
-  //   } catch (error) {
-  //     console.error('Error tracking ad skip:', error);
-  //   }
-  // };
+      setAd(null);
+    } catch (error) {
+      console.error('Error tracking ad skip:', error);
+    }
+  };
 
   const handleClose = () => {
     if (window.parent !== window) {
@@ -490,7 +491,9 @@ const LiveAdvertisement = ({
     );
   }
   // Main ad display (compact, max 25% of screen)
+
   return (
+
     <div
       style={{
         background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)',
@@ -520,249 +523,212 @@ const LiveAdvertisement = ({
           position: 'relative',
         }}
       >
-
-        {/* Ad Media (if applicable) */}
-        {ad.media_url && (
-          <div style={{ marginBottom: '4px' }}>
-            {ad.format === 'video' && (
-              <video
-                controls
-                autoPlay
-                style={{ maxHeight: '200px', borderRadius: '8px' }}
-                src={ad.media_url}
-              />
-            )}
-            {ad.format === 'audio' && (
-              <audio
-                controls
-                autoPlay
-                style={{ width: '100%' }}
-                src={ad.media_url}
-              />
-            )}
-            {ad.format === 'banner' && (
-              <img
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ maxHeight: '180px', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-             {(ad.format === 'gif' || ad.format === 'image') && (
-              <img
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ minHeight: '180px', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-            {ad.format === 'modal' && (ad.media_url.includes("jpg") || ad.media_url.includes("gif") || ad.media_url.includes("jpeg") || ad.media_url.includes("png")) && (
-              <img
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ maxHeight: '300px', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-            {ad.format === 'modal' && (ad.media_url.includes("mp4") || ad.media_url.includes("wmv")) && (
-              <video
-                controls
-                autoPlay
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ maxHeight: '400px', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-            {ad.format === 'modal' && (ad.media_url.includes("mp3") || ad.media_url.includes("wav") || ad.media_url.includes("ogg")) && (
-              <audio
-                controls
-                autoPlay
-                src={ad.media_url}
-                alt={ad.title}
-                style={{ maxHeight: '180', objectFit: 'cover', borderRadius: '8px' }}
-              />
-            )}
-          </div>
-        )}
-        <div
-          style={{ padding: '0 10px 4px 10px', minWidth: '260px', alignItems: 'center', display: 'flex', flexDirection: 'column' }}
+        {/* Popup Ad Modal */}
+        <Modal
+          // prevent closing by clicking outside
+          disableBackdropClick
+          open={openPopupAdModal}
+          onClose={handleClosePopupAdModal}
+          aria-labelledby="popup-ad-modal-title"
+          aria-describedby="popup-ad-modal-description"
         >
-          {/* Ad Title */}
-          <h6
-            style={{
-              fontSize: '0.98rem',
-              fontWeight: 'bold',
-              color: 'rgba(0,0,0,0.85)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              marginBottom: '2px',
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              bgcolor: 'background.paper',
+              boxShadow: 24,
+              p: 2,
+              width: { xs: '90%', sm: '400px' },
+              borderRadius: 2,
             }}
           >
-            {ad.title}
-          </h6>
-
-          {/* Ad Description */}
-          <p
-            style={{
-              color: 'rgba(0,0,0,0.65)',
-              marginBottom: '6px',
-              lineHeight: 1.2,
-              fontSize: '0.92rem',
-              maxHeight: '2.8em',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            {ad.description}
-          </p>
-
-
-
-          {/* Action Buttons */}
-          <div
-            style={{
-              display: 'flex',
-
-              gap: '8px',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              marginTop: '4px',
-            }}
-          >
-            {/* Find Out More Button */}
-            {ad.findOutMoreLink && (
-              <button
-                onClick={handleFindOutMore}
+            <div
+              style={{ padding: '0 10px 4px 10px', minWidth: '260px', alignItems: 'center', display: 'flex', flexDirection: 'column' }}
+            >
+              {/* Ad Title */}
+              <h6
                 style={{
-                  padding: '8px 14px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '0.92rem',
-                  fontWeight: 600,
-                  color: 'white',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 2px 8px rgba(59,130,246,0.18)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(59,130,246,0.28)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 2px 8px rgba(59,130,246,0.18)';
+                  fontSize: '0.98rem',
+                  fontWeight: 'bold',
+                  color: 'rgba(0,0,0,0.85)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  marginBottom: '2px',
                 }}
               >
-                <span>🔗</span> More
-              </button>
-            )}
+                {ad.title}
+              </h6>
 
-            {/* Conditional Reward Button */}
-            {showRewardButton && (
-              <button
-                onClick={handleRewardClick}
+              {/* Ad Description */}
+              <p
                 style={{
-                  padding: '8px 14px',
-                  border: 'none',
-                  borderRadius: '8px',
+                  color: 'rgba(0,0,0,0.65)',
+                  marginBottom: '6px',
+                  lineHeight: 1.2,
                   fontSize: '0.92rem',
-                  fontWeight: 600,
-                  color: 'white',
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 2px 8px rgba(16,185,129,0.18)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  animation: 'pulse 2s infinite',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px) scale(1.04)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(16,185,129,0.28)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 2px 8px rgba(16,185,129,0.18)';
+                  maxHeight: '2.8em',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
                 }}
               >
-                <span>🎁</span> Reward
-              </button>
-            )}
+                {ad.description}
+              </p>
 
-            {/* Skip Button */}
-            {/* <button
-              onClick={handleSkip}
-              style={{
-                padding: '8px 14px',
-                border: '1px solid rgba(0,0,0,0.14)',
-                borderRadius: '8px',
-                fontSize: '0.92rem',
-                fontWeight: 600,
-                color: 'rgba(0,0,0,0.7)',
-                backgroundColor: 'white',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'rgba(0,0,0,0.04)';
-                e.target.style.borderColor = 'rgba(0,0,0,0.22)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'white';
-                e.target.style.borderColor = 'rgba(0,0,0,0.14)';
-              }}
-            >
-              Skip
-            </button> */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent the ad click from triggering
-                goToAdWebSite(ad);
-              }}
-              style={{
-                padding: '12px 24px',
-                border: '2px solid rgba(0, 0, 0, 0.2)',
-                borderRadius: '12px',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: 'rgba(0, 0, 0, 0.7)',
-                backgroundColor: 'transparent',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                onHover: { backgroundColor: 'rgba(156, 255, 138, 0.36)' }
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-              }}
-            >
-              Learn More
-            </button>
-          </div>
 
-          {/* Sponsored Badge */}
-          {/* <div
-          style={{
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            background: 'rgba(0,0,0,0.04)',
-            color: 'rgba(0,0,0,0.5)',
-            padding: '3px 8px',
-            borderRadius: '10px',
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-          }}
-        >
-          Sponsored
-        </div> */}
-        </div>
+
+              {/* Action Buttons */}
+              <div
+                style={{
+                  display: 'flex',
+
+                  gap: '8px',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  marginTop: '4px',
+                }}
+              >
+                {/* Find Out More Button */}
+                {ad.findOutMoreLink && (
+                  <button
+                    onClick={handleFindOutMore}
+                    style={{
+                      padding: '8px 14px',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '0.92rem',
+                      fontWeight: 600,
+                      color: 'white',
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 2px 8px rgba(59,130,246,0.18)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-1px)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(59,130,246,0.28)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 2px 8px rgba(59,130,246,0.18)';
+                    }}
+                  >
+                    <span>🔗</span> More
+                  </button>
+                )}
+
+                {/* Conditional Reward Button */}
+                {showRewardButton && (
+                  <button
+                    onClick={handleRewardClick}
+                    style={{
+                      padding: '8px 14px',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '0.92rem',
+                      fontWeight: 600,
+                      color: 'white',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      boxShadow: '0 2px 8px rgba(16,185,129,0.18)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      animation: 'pulse 2s infinite',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-1px) scale(1.04)';
+                      e.target.style.boxShadow = '0 4px 12px rgba(16,185,129,0.28)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0) scale(1)';
+                      e.target.style.boxShadow = '0 2px 8px rgba(16,185,129,0.18)';
+                    }}
+                  >
+                    <span>🎁</span> Reward
+                  </button>
+                )}
+
+                {/* Skip Button */}
+                <button
+                  onLoad={() => {
+                    const timer = setInterval(() => {
+                      setAdSkipWaitTimer((prev) => {
+                        if (prev > 0) return prev - 1;
+                        clearInterval(timer);
+                        return 0;
+                      });
+                    }, 1000);
+                    return () => clearInterval(timer);
+                  }}
+                  disabled={AdSkipWaitTimer > 0}
+                  title={AdSkipWaitTimer > 0 ? `You can skip this ad in ${AdSkipWaitTimer} seconds` : 'Skip this ad'}
+                  onClick={() => setTimeout(handleSkip, 5000)}
+                  style={{
+                    padding: '8px 14px',
+                    border: '1px solid rgba(0,0,0,0.14)',
+                    borderRadius: '8px',
+                    fontSize: '0.92rem',
+                    fontWeight: 600,
+                    color: 'rgba(0,0,0,0.7)',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = 'rgba(0,0,0,0.04)';
+                    e.target.style.borderColor = 'rgba(0,0,0,0.22)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'white';
+                    e.target.style.borderColor = 'rgba(0,0,0,0.14)';
+                  }}
+
+                >
+                  Skip Ad <><span>⏭️ ${AdSkipWaitTimer}</span></>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the ad click from triggering
+                    goToAdWebSite(ad);
+                  }}
+                  style={{
+                    padding: '12px 24px',
+                    border: '2px solid rgba(0, 0, 0, 0.2)',
+                    borderRadius: '12px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: 'rgba(0, 0, 0, 0.7)',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    onHover: { backgroundColor: 'rgba(156, 255, 138, 0.36)' }
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  Learn More
+                </button>
+              </div> 
+            </div>
+
+
+            <Typography id="popup-ad-modal-description" variant="body2">
+              This is a popup ad, it will close automatically after a few seconds.
+            </Typography>
+          </Box>
+        </Modal>
+
 
       </div>
 

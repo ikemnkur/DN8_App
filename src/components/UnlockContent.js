@@ -15,6 +15,7 @@ import {
   SendOutlined
 } from '@mui/icons-material';
 import AdObject from '../pages/AdObject'; // Assuming you have an AdObject component
+import AdAudioObject from '../pages/AdAudioObject'; // Assuming you have an AdAudioObject component
 
 
 import { fetchUserProfile } from './api';
@@ -661,7 +662,7 @@ const UnlockContent = () => {
           }}
           className="banner-ad"
         /> */}
-        <AdObject
+        <AdAudioObject
           onAdView={(ad) => console.log('Ad viewed:', ad)}
           onAdClick={(ad) => console.log('Ad clicked:', ad)}
           onAdSkip={(ad) => console.log('Ad skipped:', ad)}
@@ -674,10 +675,10 @@ const UnlockContent = () => {
           )}
           // style={{ borderRadius: 0 }}
           showRewardProbability={0.3} // 30% chance to show reward button
-          filters={{ format: 'banner' }} // Only show banner ads for this placement
+          filters={{ format: 'banner', mediaFormat: 'audio' }} // Only show banner ads for this placement
           style={{
-            minHeight: '200px', // Ensure minimum height
-            maxHeight: '300px', // Limit maximum height
+            minHeight: '75px', // Ensure minimum height
+            maxHeight: '150px', // Limit maximum height
             borderRadius: 0 // Remove border radius to fit Paper container
           }}
           className="banner-ad"
