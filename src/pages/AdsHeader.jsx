@@ -18,6 +18,7 @@ const Ads = () => {
   const [ads, setAds] = useState([]); // Initialize with empty array
   const [editingAd, setEditingAd] = useState(null);
   const [user, setUser] = useState({
+    user_id: JSON.parse(localStorage.getItem('userdata')).id,
     name:  JSON.parse(localStorage.getItem('advertiserData')).name,
     email: JSON.parse(localStorage.getItem('advertiserData')).email,
     credits: JSON.parse(localStorage.getItem('advertiserData')).credits,
@@ -127,7 +128,7 @@ const Ads = () => {
 
     try {
 
-      const response = await fetchAds(user);
+      const response = await fetchAds(user.email, user.user_id, user.name, user.token );
 
       // console.log('Fetch Ads response:', response);
 
@@ -196,8 +197,8 @@ const Ads = () => {
       console.log('Saving ad data (handleSaveAd - AdsHeader.jsx):', adData);
       const method = editingAd ? 'PUT' : 'POST';
       const url = editingAd
-        ? `${API_BASE_URL}/ads/ad/${editingAd.id}`
-        : `${API_BASE_URL}/ads/ad`;
+        ? `${API_BASE_URL}/ads/update-ad/${editingAd.id}`
+        : `${API_BASE_URL}/ads/create-ad`;
 
       const response = await fetch(url, {
         method,
@@ -393,7 +394,7 @@ const Ads = () => {
       case 'create':
         return (
           <CreateAdPage
-            onSave={handleSaveAd}
+            // onSave={handleSaveAd}
             editingAd={editingAd}
           />
         );
@@ -430,7 +431,7 @@ const Ads = () => {
       default:
         return (
           <CreateAdPage
-            onSave={handleSaveAd}
+            // onSave={handleSaveAd}
             editingAd={editingAd}
           />
         );

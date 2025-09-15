@@ -8,6 +8,7 @@ import {
   fetchRandomQuizQuestion,
   submitQuizAnswer,
 } from '../components/api';
+import { Modal, Box, Typography } from '@mui/material';
 
 const LiveAdvertisement = ({
   onAdView,
@@ -33,6 +34,40 @@ const LiveAdvertisement = ({
   const [quizResult, setQuizResult] = useState(null);
   const [adViewed, setAdViewed] = useState(false);
   const [AdSkipWaitTimer, setAdSkipWaitTimer] = useState(8); // seconds user has to wait before skipping
+
+  const [openPopupAdModal, setOpenPopupAdModal] = useState(false);
+  const [popupAdContent, setPopupAdContent] = useState(null);
+
+
+  // Modal open/close
+  const handleOpenPopupAdModal = () => setOpenPopupAdModal(true);
+  const handleClosePopupAdModal = () => setOpenPopupAdModal(false);
+
+  // Display and auto-close popup ad modal using useEffect
+  useEffect(() => {
+    const openTimer = setTimeout(() => {
+      handleOpenPopupAdModal();
+
+      const timer = setInterval(() => {
+        setAdSkipWaitTimer((prev) => {
+          if (prev > 0) return prev - 1;
+          clearInterval(timer);
+          return 0;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+
+    }, 10000);
+
+    const closeTimer = setTimeout(() => {
+      setOpenPopupAdModal(false);
+    }, 25000);
+
+    return () => {
+      clearTimeout(openTimer);
+      clearTimeout(closeTimer);
+    };
+  }, []);
 
   // if user is not logged dont show reward button
   useEffect(() => {
@@ -496,31 +531,31 @@ const LiveAdvertisement = ({
 
     <div
       style={{
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)',
+        // background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)',
         // borderRadius: '12px',
         // padding: '5px',
         position: 'relative',
-        maxWidth: '540px',
-        minWidth: '260px',
-        width: '100%',
-        boxSizing: 'border-box',
+        // maxWidth: '540px',
+        // minWidth: '260px',
+        // width: '100%',
+        // boxSizing: 'border-box',
         margin: '0 auto',
-        ...style
+
       }}
       className={className}
     >
       {/* Ad Content */}
       <div
         style={{
-          background: 'white',
-          display: 'flex',
-          // borderRadius: '12px',
-          padding: '3px',
-          // boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-          // border: '1px solid rgba(0,0,0,0.04)',
-          maxWidth: '100%',
-          textAlign: 'center',
-          position: 'relative',
+          // background: 'white',
+          // display: 'flex',
+          // // borderRadius: '12px',
+          // padding: '3px',
+          // // boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+          // // border: '1px solid rgba(0,0,0,0.04)',
+          // maxWidth: '100%',
+          // textAlign: 'center',
+          // position: 'relative',
         }}
       >
         {/* Popup Ad Modal */}
@@ -541,7 +576,7 @@ const LiveAdvertisement = ({
               bgcolor: 'background.paper',
               boxShadow: 24,
               p: 2,
-              width: { xs: '90%', sm: '400px' },
+              width: { xs: '90%', sm: '500px' },
               borderRadius: 2,
             }}
           >
@@ -691,7 +726,7 @@ const LiveAdvertisement = ({
                   }}
 
                 >
-                  Skip Ad <><span>⏭️ ${AdSkipWaitTimer}</span></>
+                  ⏭️ Skip Ad (<span>{AdSkipWaitTimer}</span>)
                 </button>
                 <button
                   onClick={(e) => {
@@ -719,7 +754,7 @@ const LiveAdvertisement = ({
                 >
                   Learn More
                 </button>
-              </div> 
+              </div>
             </div>
 
 

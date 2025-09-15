@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { buyCredits } from '../components/api'; // Adjust the import path as necessary
 
 const AdAccountPage = () => {
   const [activeSection, setActiveSection] = useState('credits');
@@ -17,6 +18,8 @@ const AdAccountPage = () => {
   const [isEditing, setIsEditing] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: 'success' });
+
+
 
   const API_BASE_URL = process.env.REACT_APP_API_SERVER_URL + "/api" || 'http://localhost:5001/api';
   const navigate = useNavigate();
@@ -57,12 +60,12 @@ const AdAccountPage = () => {
     try {
       // API call would go here
       await new Promise(resolve => setTimeout(resolve, 1000)); // Mock API call
-      
+
       // Update localStorage
       const currentData = JSON.parse(localStorage.getItem('advertiserData') || '{}');
       const updatedData = { ...currentData, ...userData };
       localStorage.setItem('advertiserData', JSON.stringify(updatedData));
-      
+
       setIsEditing(prev => ({ ...prev, [section]: false }));
       setNotification({
         show: true,
@@ -80,17 +83,23 @@ const AdAccountPage = () => {
     }
   };
 
-  const handleBuyCredits = (amount) => {
-    // Mock credit purchase
-    setUserData(prev => ({
-      ...prev,
-      credits: prev.credits + amount
-    }));
-    setNotification({
-      show: true,
-      message: `Successfully purchased ${amount} credits!`,
-      type: 'success'
-    });
+  const handleBuyCredits = async (amount) => {
+    if (userData)
+    if (confirm('Are you sure you want to purchase ' + amount + ' credits?')) {
+      // Mock credit purchase
+      const response = await buyCredits(amount, userData.email, userData.user_id, localStorage.getItem('token'));
+      console.log('Buy credits response:', response);
+
+      setUserData(prev => ({
+        ...prev,
+        credits: prev.credits + amount
+      }));
+      setNotification({
+        show: true,
+        message: `Successfully purchased ${amount} credits!`,
+        type: 'success'
+      });
+    }
   };
 
   const sections = {
@@ -152,10 +161,10 @@ const AdAccountPage = () => {
             gap: '20px'
           }}>
             {[
-              { amount: 5000, price: '$25', popular: false },
-              { amount: 12000, price: '$50', popular: true },
-              { amount: 25000, price: '$100', popular: false },
-              { amount: 55000, price: '$200', popular: false }
+              { amount: 5000, price: 5000, priceLabel: '5000 Coins', popular: false },
+              { amount: 12500, price: 11000, priceLabel: '11000 Coins', popular: true },
+              { amount: 25000, price: 24000, priceLabel: '24000 Coins', popular: false },
+              { amount: 55000, price: 53000, priceLabel: '53000 Coins', popular: false }
             ].map((package_, index) => (
               <div
                 key={index}
@@ -178,7 +187,7 @@ const AdAccountPage = () => {
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
-                onClick={() => handleBuyCredits(package_.amount)}
+                onClick={() => handleBuyCredits(package_.amount, package_.price)}
               >
                 {package_.popular && (
                   <div style={{
@@ -215,7 +224,7 @@ const AdAccountPage = () => {
                   fontWeight: 'bold',
                   marginBottom: '16px'
                 }}>
-                  {package_.price}
+                  {package_.priceLabel}
                 </div>
                 <button style={{
                   width: '100%',
@@ -229,8 +238,8 @@ const AdAccountPage = () => {
                   cursor: 'pointer',
                   transition: 'opacity 0.3s ease'
                 }}
-                onMouseEnter={(e) => e.target.style.opacity = '0.8'}
-                onMouseLeave={(e) => e.target.style.opacity = '1'}
+                  onMouseEnter={(e) => e.target.style.opacity = '0.8'}
+                  onMouseLeave={(e) => e.target.style.opacity = '1'}
                 >
                   Purchase Now
                 </button>
@@ -695,8 +704,8 @@ const AdAccountPage = () => {
   }, [notification.show]);
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
+    <div style={{
+      minHeight: '100vh',
       background: 'linear-gradient(135deg,rgb(210, 216, 247) 0%,rgb(187, 167, 208) 100%)',
       padding: '24px'
     }}>
@@ -721,10 +730,10 @@ const AdAccountPage = () => {
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ 
-            width: '80px', 
-            height: '80px', 
-            margin: '0 auto 16px', 
+          <div style={{
+            width: '80px',
+            height: '80px',
+            margin: '0 auto 16px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             display: 'flex',
@@ -736,7 +745,7 @@ const AdAccountPage = () => {
           }}>
             ⚙️
           </div>
-          <h1 style={{ 
+          <h1 style={{
             fontSize: '2.5rem',
             fontWeight: 800,
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -748,10 +757,10 @@ const AdAccountPage = () => {
           }}>
             Account Settings
           </h1>
-          <p style={{ 
-            color: 'rgba(255, 255, 255, 0.9)', 
+          <p style={{
+            color: 'rgba(255, 255, 255, 0.9)',
             fontSize: '1.25rem',
-            maxWidth: '600px', 
+            maxWidth: '600px',
             margin: '0 auto',
             fontWeight: 400,
             textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
@@ -760,8 +769,8 @@ const AdAccountPage = () => {
           </p>
         </div>
 
-        <div style={{ 
-          display: 'grid', 
+        <div style={{
+          display: 'grid',
           gridTemplateColumns: '300px 1fr',
           gap: '24px',
           '@media (max-width: 768px)': {
@@ -779,9 +788,9 @@ const AdAccountPage = () => {
             position: 'sticky',
             top: '24px'
           }}>
-            <h2 style={{ 
+            <h2 style={{
               fontSize: '18px',
-              fontWeight: 'bold', 
+              fontWeight: 'bold',
               marginBottom: '24px',
               color: 'rgba(0, 0, 0, 0.8)',
               display: 'flex',
@@ -847,15 +856,15 @@ const AdAccountPage = () => {
               gap: '12px'
             }}>
               <span style={{ fontSize: '24px' }}>{sections[activeSection].icon}</span>
-              <h2 style={{ 
-                fontSize: '1.5rem', 
-                fontWeight: 'bold', 
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
                 margin: 0
               }}>
                 {sections[activeSection].title}
               </h2>
             </div>
-            
+
             <div style={{ padding: '32px' }}>
               {sections[activeSection].content}
             </div>

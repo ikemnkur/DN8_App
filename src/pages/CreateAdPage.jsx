@@ -118,6 +118,7 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
   const [dragOver, setDragOver] = useState(false);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+  const advertiserData = JSON.parse(localStorage.getItem('advertiserData')) || {};
   const [formData, setFormData] = useState({
     ad_uuid: ad_uuid,
     title: '',
@@ -130,12 +131,16 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     mediaDataUrl: '',        // Data URL for preview tab
     mediaMimeType: '',       // Optional, handy for preview
     mediaName: '',           // Optional
-    budget: 2000,
+    budget: 1000,
     reward: 0,
     frequency: 'moderate',
     quiz: [
       { question: '', type: 'multiple', options: ['', '', '', ''], correct: 0, answer: '' }
-    ]
+    ],
+    mediaFormat: 'image',    // <-- Add this line to initialize mediaFormat
+    email: advertiserData.email || '',               // <-- Add this line to initialize email
+    name: advertiserData.name || ''                 // <-- Add this line to initialize name
+
   });
 
   const navigate = useNavigate();
@@ -179,12 +184,16 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
         link: editingAd.link || '',
         format: editingAd.format || 'regular',
         mediaFile: null,
-        budget: editingAd.budget || 2000,
+        budget: editingAd.budget || 1000,
         reward: editingAd.reward || 0,
         frequency: editingAd.frequency || 'moderate',
         quiz: editingAd.quiz || [
           { question: '', type: 'multiple', options: ['', '', '', ''], correct: 0, answer: '' }
-        ]
+        ],
+        mediaType: editingAd.mediaType || 'image',
+        mediaFormat: editingAd.mediaFormat || 'image',
+        email: advertiserData.email || '',
+        name: advertiserData.name || ''
       });
     }
   }, [editingAd]);
@@ -384,98 +393,6 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // const createAd = async (adData) => {
-  //   const formDataToSend = new FormData();
-
-  //   // Add text fields
-  //   formDataToSend.append('ad_uuid', adData.ad_uuid);
-  //   formDataToSend.append('title', adData.title);
-  //   formDataToSend.append('description', adData.description);
-  //   formDataToSend.append('link', adData.link);
-  //   formDataToSend.append('mediaLink', adData.mediaLink);
-  //   formDataToSend.append('format', adData.format);
-  //   formDataToSend.append('budget', adData.budget.toString());
-  //   formDataToSend.append('reward', adData.reward.toString());
-  //   formDataToSend.append('frequency', adData.frequency);
-
-  //   // Add quiz data as JSON string
-  //   formDataToSend.append('quiz', JSON.stringify(adData.quiz));
-
-  //   // Add media file if present
-  //   if (adData.mediaFile) {
-  //     formDataToSend.append('media', adData.mediaFile);
-  //   }
-
-  //   const response = await createAdroute(formDataToSend);
-  //   console.log('Ad created response:', response);
-  //   // const response = await fetch(`${API_BASE_URL}/api/ads/ad`, {
-  //   //   method: 'POST',
-  //   //   // headers: {
-  //   //   //   'Authorization': `Bearer ${token}`
-  //   //   // },
-  //   //   body: formDataToSend
-  //   // });
-
-  //   // if (!response.ok) {
-  //   //   const errorData = await response.json();
-  //   //   throw new Error(errorData.error || 'Failed to create ad');
-  //   // }
-
-  //   setTimeout(() => {
-  //     navigate(`/preview-ad/ad/${ad_uuid}`);
-  //     return response;
-  //   }, 1000);
-
-  // };
-
-  // const updateAd = async (adId, adData) => {
-  //   const formDataToSend = new FormData();
-
-  //   // Add text fields
-  //   formDataToSend.append('ad_uuid', adData.ad_uuid);
-  //   formDataToSend.append('title', adData.title);
-  //   formDataToSend.append('description', adData.description);
-  //   formDataToSend.append('link', adData.link);
-  //   formDataToSend.append('format', adData.format);
-  //   formDataToSend.append('budget', adData.budget.toString());
-  //   formDataToSend.append('reward', adData.reward.toString());
-  //   formDataToSend.append('frequency', adData.frequency);
-
-  //   // Add quiz data as JSON string
-  //   formDataToSend.append('quiz', JSON.stringify(adData.quiz));
-
-  //   // Add media file if present
-  //   if (adData.mediaFile) {
-  //     formDataToSend.append('media', adData.mediaFile);
-  //   }
-
-  //   const response = await updateAdroute(formDataToSend);
-  //   console.log('Ad updated response:', response);
-
-  //   // const response = await fetch(`${API_BASE_URL}/api/ads/ad/${adId}`, {
-  //   //   method: 'PUT',
-  //   //   headers: {
-  //   //     'Authorization': `Bearer ${token}`
-  //   //   },
-  //   //   body: formDataToSend
-  //   // });
-
-  //   if (!response.ok) {
-  //     const errorData = await response.json();
-  //     throw new Error(errorData.error || 'Failed to update ad');
-  //   }
-
-  //   // setTimeout(() => {
-  //   if (confirm("Do you want a preview of the updated AD?")) {
-  //     navigate(`/preview-ad/ad/${ad_uuid}`);
-  //     return response;
-  //   }
-
-  //   // }, 1000);
-
-  //   // return response.json();
-  // };
-
   const createAd = async (adData) => {
     const formDataToSend = new FormData();
     formDataToSend.append('ad_uuid', adData.ad_uuid);
@@ -488,6 +405,9 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     formDataToSend.append('reward', String(adData.reward));
     formDataToSend.append('frequency', adData.frequency);
     formDataToSend.append('quiz', JSON.stringify(adData.quiz));
+    formDataToSend.append('email', adData.email || ''); // <-- Add email
+    formDataToSend.append('name', adData.name || ''); // <-- Add name
+    formDataToSend.append('mediaFormat', adData.mediaFormat || ''); // <-- Add mediaFormat
 
     const response = await createAdroute(formDataToSend);
     console.log('Ad created response:', response);
@@ -508,84 +428,15 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     formDataToSend.append('reward', String(adData.reward));
     formDataToSend.append('frequency', adData.frequency);
     formDataToSend.append('quiz', JSON.stringify(adData.quiz));
+    formDataToSend.append('email', adData.email || ''); // <-- Add email
+    formDataToSend.append('name', adData.name || ''); // <-- Add name
+    formDataToSend.append('mediaFormat', adData.mediaFormat || ''); // <-- Add mediaFormat
 
-    const response = await updateAdroute(formDataToSend);
+    const response = await updateAdroute(formDataToSend, adId);
     console.log('Ad updated response:', response);
     return response;
   };
 
-
-  // const handleSubmit = async () => {
-  //   if (!validateForm()) {
-  //     setNotification({
-  //       open: true,
-  //       message: 'Please fix the errors in the form',
-  //       severity: 'error'
-  //     });
-  //     return;
-  //   }
-
-  //   if (!token) {
-  //     setNotification({
-  //       open: true,
-  //       message: 'Authentication required. Please log in.',
-  //       severity: 'error'
-  //     });
-  //     return;
-  //   }
-
-  //   setLoading(true);
-
-  //   try {
-  //     let result;
-  //     if (editingAd) {
-  //       result = await updateAd(editingAd.id, formData);
-  //       setNotification({
-  //         open: true,
-  //         message: 'Advertisement updated successfully!',
-  //         severity: 'success'
-  //       });
-  //     } else {
-  //       result = await createAd(formData);
-  //       setNotification({
-  //         open: true,
-  //         message: 'Advertisement created successfully!',
-  //         severity: 'success'
-  //       });
-
-  //       // Reset form after successful creation
-  //       setFormData({
-  //         ad_uuid: setAD_uuid(uuidv4()),
-  //         title: '',
-  //         description: '',
-  //         link: '',
-  //         format: 'regular',
-  //         mediaFile: null,
-  //         budget: 2000,
-  //         reward: 0,
-  //         frequency: 'moderate',
-  //         quiz: [
-  //           { question: '', type: 'multiple', options: ['', '', '', ''], correct: 0, answer: '' }
-  //         ]
-  //       });
-  //     }
-
-  //     // Call parent onSave if provided
-  //     if (onSave) {
-  //       onSave(result);
-  //     }
-
-  //   } catch (error) {
-  //     console.error('Error saving ad:', error);
-  //     setNotification({
-  //       open: true,
-  //       message: error.message || 'Failed to save advertisement',
-  //       severity: 'error'
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -612,6 +463,7 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
         ...formData,
         mediaLink,
       };
+
       delete adPayload.mediaFile; // don't send the file; upload already done
       delete adPayload.mediaDataUrl; // preview only
       delete adPayload.mediaMimeType;
@@ -624,33 +476,41 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
       } else {
         result = await createAd(adPayload);
         setNotification({ open: true, message: 'Advertisement created successfully!', severity: 'success' });
+      }
 
-        // Reset ad_uuid and form (fixing the setAD_uuid() misuse)
+      if (onSave) onSave(result);
+
+      
+
+      // Optional: navigate to preview of the created ad
+      setTimeout(() => {
+        // open new tab with preview
+        window.open(`/preview-ad/${ad_uuid}`, '_blank');
+
+        // generate new UUID for the next ad
         const newUuid = uuidv4();
         setAD_uuid(newUuid);
+        // reset form for next ad
         setFormData({
-          ad_uuid: newUuid,
+          ad_uuid: ad_uuid || newUuid,
           title: '',
           description: '',
           link: '',
           format: 'regular',
+
           mediaFile: null,
           mediaFileLink: '',
           mediaDataUrl: '',
           mediaMimeType: '',
           mediaName: '',
-          budget: 2000,
+          budget: 1000,
           reward: 0,
           frequency: 'moderate',
-          quiz: [{ question: '', type: 'multiple', options: ['', '', '', ''], correct: 0, answer: '' }]
+          quiz: [{ question: '', type: 'multiple', options: ['', '', '', ''], correct: 0, answer: '' }],
+          mediaFormat: 'image', // reset mediaFormat too
+          email: advertiserData.email || '',               // reset email too
+          name: advertiserData.name || ''
         });
-      }
-
-      if (onSave) onSave(result);
-
-      // Optional: navigate to preview of the created ad
-      setTimeout(() => {
-        navigate(`/preview-ad/${ad_uuid}`);
       }, 500);
     } catch (error) {
       console.error('Error saving ad:', error);

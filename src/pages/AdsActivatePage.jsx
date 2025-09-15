@@ -449,7 +449,7 @@ const AdServiceActivationPage = ({ authToken, onActivationComplete,  }) => {
             Join Our Advertiser Network
           </h1>
           <p style={{ 
-            color: 'rgba(255, 255, 255, 0.9)', 
+            color: 'rgba(23, 3, 60, 0.69)', 
             fontSize: '1.25rem',
             maxWidth: '600px', 
             margin: '0 auto',

@@ -18,10 +18,10 @@ import {
   Chip,
   CircularProgress,
 } from '@mui/material';
-import { 
-  PhotoCamera, 
-  ArrowUpward, 
-  ArrowDownward 
+import {
+  PhotoCamera,
+  ArrowUpward,
+  ArrowDownward
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { fetchUserProfile, updateUserProfile, fetchWalletData } from './api';
@@ -29,6 +29,8 @@ import { useAuthCheck } from './useAuthCheck';
 import axios from 'axios';
 import { Autocomplete } from '@mui/material';
 import moment from 'moment-timezone';
+// import AdVideoObject from '../pages/AdVideoComponent';
+import AdVideoObject from '../pages/AdVideoObject';
 
 const API_URL = process.env.REACT_APP_API_SERVER_URL + '/api';
 
@@ -586,6 +588,33 @@ const AccountPage = () => {
           </Paper>
         </Grid>
       </Grid>
+
+      <Divider sx={{ my: 4 }} />
+
+      {/* <Box sx={{ mt: 4 }}> */}
+        <AdVideoObject
+          onAdView={(ad) => console.log('Ad viewed:', ad)}
+          onAdClick={(ad) => console.log('Ad clicked:', ad)}
+          onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+          onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+          RewardModal={({ onClose, onReward }) => (
+            <div style={{ /* simple modal styles */ }}>
+              <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+              <button onClick={onClose}>Close</button>
+            </div>
+          )}
+          // style={{ borderRadius: 0 }}
+          showRewardProbability={0.3} // 30% chance to show reward button
+          filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
+          style={{
+            minHeight: '240px', // Ensure minimum height
+            maxHeight: '400px', // Limit maximum height
+            borderRadius: 0 // Remove border radius to fit Paper container
+          }}
+          className="modal-ad"
+        />
+      {/* </Box> */}
+
 
       {/* Snackbar */}
       <Snackbar

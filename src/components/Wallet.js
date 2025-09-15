@@ -21,6 +21,7 @@ import {
 import { fetchWalletData } from './api';
 import ShareWallet from './ShareWallet';
 import AdAudioObject from '../pages/AdAudioObject';
+import AdVideoObject from '../pages/AdVideoObject';
 
 const Wallet = () => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -241,7 +242,7 @@ const Wallet = () => {
           </Paper>
         </Grid>
 
-        {userData.accountTier < 4 && (
+        {userData.accountTier <= 4 && (
           <Grid item xs={12}>
             <Divider sx={{ my: 4 }} />
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
@@ -275,7 +276,7 @@ const Wallet = () => {
               />
             )}
 
-            {userData.accountTier > 2 && (
+            {userData.accountTier <= 2 && (
               <AdVideoObject
                 onAdView={(ad) => console.log('Ad viewed:', ad)}
                 onAdClick={(ad) => console.log('Ad clicked:', ad)}
@@ -297,7 +298,7 @@ const Wallet = () => {
                 }}
                 className="modal-ad"
               />
-            )}
+            )} 
 
           </Grid>
         )}

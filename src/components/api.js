@@ -499,7 +499,7 @@ export const handleDeleteUserSubscription = async (contentId) => {
 
 export const createAdroute = async (adData) => {
   try {
-    const response = await api.post(`/ads/ad/`, adData);
+    const response = await api.post(`/ads/create-ad/`, adData);
     return response.data;
   } catch (error) {
     console.error('API - Error creating ad:', error);
@@ -507,27 +507,15 @@ export const createAdroute = async (adData) => {
   }
 };
 
-export const updateAdroute = async (adData) => {
+export const updateAdroute = async (adData, adId) => {
   try {
-    const response = await api.put(`/ads/ad/`, adData);
+    const response = await api.put(`/ads/update-ad/${adId}`, adData);
     return response.data;
   } catch (error) {
-    console.error('API - Error creating ad:', error);
+    console.error('API - Error updating ad:', error);
     throw error;
   }
 };
-
-
-// export const AdInteraction = async (ad) => {
-//   try {
-//     const response = await api.get(`/ads/ad/${ad.id}/interactions`, ad );
-//     return response.data;
-//   } catch (error) {
-//     console.error('API - Error fetching ads to display: ', error);
-//     throw error;
-//   }
-// };
-
 
 
 // =================
@@ -571,55 +559,6 @@ export const updateAdroute = async (adData) => {
 // ADVERTISER PROFILE MANAGEMENT
 // =================
 
-// // Get user profile
-// app.get('/advertiser/profile/:email', authenticateToken, async (req, res) => {
-//   let email = req.params.email;
-//   try {
-//     console.log("Get advertiser profile for user ID:", req.user.user_id);
-//     const advertisers = await executeQuery(
-//       'SELECT id, name, email, credits, created_at FROM advertisers WHERE user_id = ?',
-//       [req.user.user_id]
-//     );
-//     console.log("Authenticated user email:", req.user);
-//     const advertisers2 = await executeQuery(
-//       'SELECT id, name, email, credits, created_at FROM advertisers WHERE email = ?',
-//       [email]
-//     );
-//     if (advertisers.length === 0 && advertisers2.length === 0) {
-
-
-//       console.log("No advertiser found");
-//       return res.status(404).json({ error: 'User not found' });
-//     }
-
-//     console.log("advertisers profile:", advertisers);
-//     // res.json({ ads });
-//     res.json({ user: advertisers[0] });
-//   } catch (error) {
-//     console.error('Get profile error:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
-// /**
-//  * Fetches the advertiser profile for a user.
-//  * @param {Object} user - The user object.
-//  * @param {string} user.email - The email of the user (required).
-//  * @returns {Promise<Object>} The advertiser profile data.
-//  */
-// export const fetchAdvertiserProfile = async (user) => {
-//   try {
-//     if (!user || !user.email) {
-//       throw new Error('Invalid user object: missing email');
-//     }
-//     console.log("Fetching advertiser profile for user email: ", user.email);
-//     const response = await api.get(`/ads/advertiser/profile/${user.email}`);
-//     return response.data;
-//   } catch (error) {
-//     console.error('API - Error fetching advertiser profile:', error);
-//     throw error;
-//   }
-// };
 
 // Move this function to ../components/api.js and update its signature to accept a user object
 export const fetchAdvertiserProfile = async (user) => {
@@ -630,23 +569,17 @@ export const fetchAdvertiserProfile = async (user) => {
   }
 
   try {
-    // const response = await api.get(`/ads/advertiser/profile/${user.email}`);
-    const response = await fetch(`${process.env.REACT_APP_API_SERVER_URL}/api/ads/advertiser/profile/${user.email}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
-      },
-      body: JSON.stringify({ email: user.email })
-    });
+    const response = await api.post(`/ads/advertiser/profile/${user.email}`,{ userdata: user, email: user.email, user_id: user.user_id});
+    console.log ("Fetch Advertiser Profile Res: ", response)
 
-    if (!response.ok) {
-      const errorData = await response.json();
+    if (!response.data || response.data.error) {
+      const errorData = response.data || { error: 'Unknown error' };
+      console.error('API - Error fetching advertiser profile:', errorData);
       navigate("/login");
-      throw new Error(errorData.error || 'Failed to fetch advertiser profile');
-    }
+      throw new Error(errorData || 'Failed to fetch advertiser profile');
+     }
 
-    const data = await response.json();
+    const data = await response.data;
     return data; // { user: ... }
   } catch (error) {
     throw error;
@@ -673,9 +606,19 @@ export const activateAdvertiserProfile = async (user) => {
 // ADS MANAGEMENT
 // =================
 
-export const createAdRoute = async (adData) => {
+// export const createAdRoute = async (adData) => {
+//   try {
+//     const response = await api.get(`/ads/advertiser/profile/${user.email}`);
+//     return response.data;
+//   } catch (error) {
+//     console.error('API - Error creating ad:', error);
+//     throw error;
+//   }
+// };
+
+export const buyCredits = async (amount, email, user_id, token) => {
   try {
-    const response = await api.get(`/ads/advertiser/profile/${user.email}`);
+    const response = await api.post(`/ads/buy-credits/`, { amount, email, user_id, token });
     return response.data;
   } catch (error) {
     console.error('API - Error creating ad:', error);
@@ -743,9 +686,11 @@ export const uploadMediaFiles = async (formData) => {
   return res.data;
 };
 
-export const fetchAds = async () => {
+export const fetchAds = async (email, user_id, name, token) => {
   try {
-    const response = await api.get('/ads/ad');
+    // const response = await api.get('/ads/ad');
+     const response = await api.post('/ads/get-user-ads', { email: email, name: name, user_id: user_id, token: token });
+
     console.log("fetchAds response: ", response)
     return response;
   } catch (error) {

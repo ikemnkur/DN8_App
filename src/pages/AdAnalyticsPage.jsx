@@ -12,36 +12,6 @@ const AdAnalyticsPage = ({ ads = [], onEditAd }) => {
   const totalCompletions = ads.reduce((sum, ad) => sum + ad.completions, 0);
   const activeAds = ads.filter(ad => ad.active).length;
 
-  // const summaryCards = [
-  //   {
-  //     title: 'Total Spent',
-  //     value: totalSpent,
-  //     icon: '💰',
-  //     color: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-  //     bgColor: 'rgba(239, 68, 68, 0.1)'
-  //   },
-  //   {
-  //     title: 'Total Views',
-  //     value: totalViews,
-  //     icon: '👁️',
-  //     color: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-  //     bgColor: 'rgba(59, 130, 246, 0.1)'
-  //   },
-  //   {
-  //     title: 'Completions',
-  //     value: totalCompletions,
-  //     icon: '📈',
-  //     color: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-  //     bgColor: 'rgba(16, 185, 129, 0.1)'
-  //   },
-  //   {
-  //     title: 'Active Ads',
-  //     value: activeAds,
-  //     icon: '🎯',
-  //     color: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-  //     bgColor: 'rgba(139, 92, 246, 0.1)'
-  //   }
-  // ];
 
   return (
     <div style={{
@@ -91,97 +61,7 @@ const AdAnalyticsPage = ({ ads = [], onEditAd }) => {
           </p>
         </div>
 
-        {/* Summary Cards */}
-        {/* <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '24px',
-          marginBottom: '32px'
-        }}>
-          {summaryCards.map((card, index) => (
-            <div 
-              key={index}
-              style={{
-                background: 'rgba(255, 255, 255, 0.95)',
-                backdropFilter: 'blur(20px)',
-                borderRadius: '20px',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                padding: '32px 24px',
-                border: 'none',
-                overflow: 'hidden',
-                position: 'relative',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 32px 64px -12px rgba(0, 0, 0, 0.35)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
-              }}
-            > */}
-        {/* Background decoration */}
-
-        {/* <div style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: '100px',
-                height: '100px',
-                background: card.bgColor,
-                borderRadius: '50%',
-                transform: 'translate(30px, -30px)',
-                opacity: 0.3
-              }} />
-              
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'flex-start',
-                position: 'relative',
-                zIndex: 1
-              }}>
-                <div>
-                  <p style={{ 
-                    fontSize: '14px', 
-                    color: 'rgba(0, 0, 0, 0.6)', 
-                    marginBottom: '8px',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>
-                    {card.title}
-                  </p>
-                  <p style={{ 
-                    fontSize: '2.5rem', 
-                    fontWeight: 'bold', 
-                    margin: 0,
-                    background: card.color,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text'
-                  }}>
-                    {card.value.toLocaleString()}
-                  </p>
-                </div>
-                <div style={{ 
-                  fontSize: '32px',
-                  padding: '12px',
-                  background: card.bgColor,
-                  borderRadius: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  {card.icon}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div> */}
-
+       
         {/* Ads Table */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.95)',

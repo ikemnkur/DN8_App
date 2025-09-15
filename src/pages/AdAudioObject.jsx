@@ -1,26 +1,54 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  memo,
+} from 'react';
 import {
   fetchDisplayAds,
   trackAdView,
-  trackAdSkip,
   trackAdCompletion,
   trackRewardClaim,
   fetchRandomQuizQuestion,
   submitQuizAnswer,
 } from '../components/api';
+import { Modal } from '@mui/material';
 
-const LiveAdvertisement = ({
+const stableStringify = (obj) => {
+  if (!obj || typeof obj !== 'object') return String(obj);
+  const keys = [];
+  JSON.stringify(obj, (k, v) => (keys.push(k), v));
+  keys.sort();
+  return JSON.stringify(obj, keys);
+};
+
+const areEqual = (prev, next) => {
+  const sameFilters =
+    stableStringify(prev.filters || {}) === stableStringify(next.filters || {});
+  const sameStyle =
+    stableStringify(prev.style || {}) === stableStringify(next.style || {});
+  return (
+    prev.getAdById === next.getAdById &&
+    prev.showRewardProbability === next.showRewardProbability &&
+    prev.className === next.className &&
+    sameFilters &&
+    sameStyle
+  );
+};
+
+const AdAudioObject = memo(function AdAudioObject({
   onAdView,
-  onAdClick,
-  onAdSkip,
+  onAdClick, // kept for parity, though not used here
   onRewardClaim,
   RewardModal,
   showRewardProbability = 0.2,
   style = {},
   className = '',
-  filters = {}, // For filtering ads by format, etc.
-  getAdById = -1 // If provided, fetch and display this specific ad
-}) => {
+  filters = {},
+  getAdById = -1,
+}) {
   const [ad, setAd] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -32,528 +60,204 @@ const LiveAdvertisement = ({
   const [selectedOption, setSelectedOption] = useState('');
   const [quizResult, setQuizResult] = useState(null);
   const [adViewed, setAdViewed] = useState(false);
+  const [showAdDetails, setShowAdDetails] = useState(false);
 
+  // refs to avoid re-renders
   const audioRef = useRef(null);
+  const playGuard = useRef(false);
 
-  // if user is not logged dont show reward button
-  useEffect(() => {
-    if (!localStorage.getItem('token')) {
-      setShowRewardButton(false);
-    } else {
-      setShowRewardButton(Math.random() < showRewardProbability);
-    }
-  }, [showRewardProbability]);
+  const filtersKey = useMemo(() => stableStringify(filters), [filters]);
+  const styleKey = useMemo(() => stableStringify(style), [style]);
+  const hasToken = useMemo(() => Boolean(localStorage.getItem('token')), []);
 
-  // Fetch advertisement data
   useEffect(() => {
-    const fetchAd = async () => {
+    setShowRewardButton(hasToken && Math.random() < showRewardProbability);
+  }, [hasToken, showRewardProbability]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
       try {
         setLoading(true);
         setError(null);
-
-        const userdata = JSON.parse(localStorage.getItem('userdata')) || {};
-        console.log('Fetching ads with filters:', filters, "and media format:", filters.mediaFormat, ' for User:', localStorage.getItem('token') ? userdata.username || 'Guest' : 'Guest');
-
-        const response = await fetchDisplayAds(filters.format, filters.mediaFormat, userdata.user_id || 0, getAdById !== -1 ? getAdById : null);
-
-        // console.log('Fetched Ads:', response.ads[0]);
-
-        if (!response.ads || response.ads.length === 0) {
-          setAd(null);
-          return;
+        const userdata = JSON.parse(localStorage.getItem('userdata') || '{}');
+        const res = await fetchDisplayAds(
+          filters.format,
+          filters.mediaFormat,
+          userdata.user_id || 0,
+          getAdById !== -1 ? getAdById : null
+        );
+        if (!res.ads || res.ads.length === 0) {
+          if (!cancelled) setAd(null);
+        } else {
+          if (!cancelled) {
+            setAd(res.ads[0]);
+            setAdViewed(false);
+            setShowRewardButton(hasToken && Math.random() < showRewardProbability);
+          }
         }
-
-        console.log("List of ads fetched:", response.ads);
-
-        const adData = response.ads[0]; // Get first ad
-        setAd(adData);
-
-        console.log('Current Ad Data Media link:', adData.media_url);
-
-        // Determine if reward button should be shown
-        setShowRewardButton(Math.random() < showRewardProbability);
-
-      } catch (err) {
-        setError(err.message);
-        console.error('Error fetching advertisement:', err);
+      } catch (e) {
+        if (!cancelled) {
+          setError(e?.message || 'Failed to load ad');
+          setAd(null);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
+    })();
+    return () => {
+      cancelled = true;
     };
+  }, [filtersKey, getAdById, hasToken, showRewardProbability, filters.format, filters.mediaFormat]);
 
-    fetchAd();
-  }, [filters, showRewardProbability]);
-
-  const goToAdWebSite = (ad) => {
-    if (ad?.link) {
-      window.open(ad.link, '_blank');
-    }
-  };
-
-
-  // Track ad view when component mounts and ad is loaded
+  // view once + delayed autoplay (once)
+  const viewGuard = useRef(null);
   useEffect(() => {
-    if (ad && !adViewed) {
-      handleAdView();
-    }
-
-    setTimeout(() => {
-      audioRef.current?.play();
-    }, 5000); // 5 second delay before autoplaying audio
-  }, [ad, adViewed]);
-
-  const handleAdView = async () => {
     if (!ad || adViewed) return;
-    let guest = true;
-    try {
-      // check if user is logged or a guest
-      if (localStorage.getItem('token')) {
-        guest = false;
-      }
-      await trackAdView(ad.id, guest);
+    if (viewGuard.current === ad.id) return;
+    viewGuard.current = ad.id;
 
-      setAdViewed(true);
+    (async () => {
+      try {
+        await trackAdView(ad.id, !hasToken);
+        setAdViewed(true);
+        onAdView && onAdView(ad);
+      } catch { }
+    })();
 
-      if (onAdView) {
-        onAdView(ad);
-      }
-    } catch (error) {
-      console.error('Error tracking ad view:', error);
+    if (!playGuard.current) {
+      playGuard.current = true;
+      setTimeout(() => {
+        // Try autoplay; browsers may block without interaction.
+        audioRef.current?.play().catch(() => { });
+      }, 5000);
     }
-  };
+  }, [ad, adViewed, hasToken, onAdView]);
 
-  const handleFindOutMore = async () => {
-    if (!ad?.findOutMoreLink) return;
-    let guest = true;
-    try {
-      // check if user is logged or a guest
-      if (localStorage.getItem('token')) {
-        guest = false;
-      }
-      // Track completion since user is engaging with the ad
-      await trackAdCompletion(ad.id, guest);
+  const goToAdWebSite = useCallback((theAd) => {
+    if (theAd?.link) window.open(theAd.link, '_blank');
+  }, []);
 
-      if (onAdClick) {
-        onAdClick(ad);
-      }
-
-      // Open link in new tab
-      window.open(ad.findOutMoreLink, '_blank');
-    } catch (error) {
-      console.error('Error tracking ad click:', error);
-    }
-  };
-
-  const handleRewardClick = async () => {
+  const handleRewardClick = useCallback(async () => {
     if (!ad) return;
-    console.log("Ad ID: ", ad)
-    let guest = true;
     try {
-      // check if user is logged or a guest
-      if (localStorage.getItem('token')) {
-        guest = false;
-      }
-      // Fetch quiz question for this ad
-      const quizResponse = await fetchRandomQuizQuestion(ad.id);
-      setQuizQuestion(quizResponse.question);
+      const quiz = await fetchRandomQuizQuestion(ad.id);
+      setQuizQuestion(quiz.question);
       setShowQuiz(true);
-    } catch (error) {
-      console.error('Error fetching quiz question:', error);
-      // If no quiz available, show reward modal directly
+    } catch {
       setShowRewardModal(true);
     }
-  };
+  }, [ad]);
 
-  const handleQuizSubmit = async () => {
+  const handleQuizSubmit = useCallback(async () => {
     if (!quizQuestion || !ad) return;
-
     try {
-      const response = await submitQuizAnswer(
+      const res = await submitQuizAnswer(
         ad.id,
         quizQuestion.id,
         quizAnswer,
         selectedOption
       );
-
-      setQuizResult(response);
-
-      if (response.correct) {
-        // Close quiz and show reward modal after short delay
+      setQuizResult(res);
+      if (res.correct) {
         setTimeout(() => {
           setShowQuiz(false);
           setShowRewardModal(true);
         }, 1500);
       } else {
-        // Close quiz after showing incorrect message
         setTimeout(() => {
           setShowQuiz(false);
           setQuizResult(null);
         }, 2000);
       }
-    } catch (error) {
-      console.error('Error submitting quiz answer:', error);
-    }
-  };
+    } catch { }
+  }, [ad, quizQuestion, quizAnswer, selectedOption]);
 
-  const handleRewardEarned = async (amount) => {
-    let guest = true;
-    try {
-      // check if user is logged or a guest
-      if (localStorage.getItem('token')) {
-        guest = false;
-      }
-      await trackRewardClaim(ad.id, amount);
+  const handleRewardEarned = useCallback(
+    async (amount) => {
+      if (!ad) return;
+      try {
+        await trackRewardClaim(ad.id, amount);
+        onRewardClaim && onRewardClaim(ad, amount);
+        setShowRewardModal(false);
+      } catch { }
+    },
+    [ad, onRewardClaim]
+  );
 
-      if (onRewardClaim) {
-        onRewardClaim(ad, amount);
-      }
-
-      setShowRewardModal(false);
-    } catch (error) {
-      console.error('Error tracking reward claim:', error);
-    }
-  };
-
-  // const handleSkip = async () => {
-  //   if (!ad) return;
-
-  //   try {
-  //     await trackAdSkip(ad.id);
-
-  //     if (onAdSkip) {
-  //       onAdSkip(ad);
-  //     }
-
-  //     setAd(null);
-  //   } catch (error) {
-  //     console.error('Error tracking ad skip:', error);
-  //   }
-  // };
-
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (window.parent !== window) {
       window.parent.postMessage({ type: 'CLOSE_AD' }, '*');
     } else {
       window.close();
     }
-  };
+  }, []);
 
-  const resetQuiz = () => {
+  const resetQuiz = useCallback(() => {
     setQuizAnswer('');
     setSelectedOption('');
     setQuizResult(null);
-  };
+  }, []);
 
-  // Loading state
-  if (loading) {
-    return (
-      <div style={{
-        minHeight: '400px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderRadius: '24px',
-        ...style
-      }} className={className}>
-        <div style={{
-          textAlign: 'center',
-          color: 'white'
-        }}>
-          <div style={{
-            fontSize: '48px',
-            marginBottom: '16px',
-            animation: 'pulse 1.5s ease-in-out infinite'
-          }}>
-            ⏳
-          </div>
-          <p style={{ fontSize: '18px', fontWeight: 600 }}>Loading advertisement...</p>
-        </div>
-      </div>
-    );
-  }
+  // UI trimmed (loading/error returns null to keep this concise)
+  if (loading || error || !ad) return null;
 
-  // Error or no ad state
-  if (error || !ad) {
-    return (
-      <div style={{
-        minHeight: '400px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: '24px',
-        ...style
-      }} className={className}>
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '24px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          padding: '48px',
-          textAlign: 'center',
-          maxWidth: '500px',
-          width: '100%'
-        }}>
-          <div style={{ fontSize: '64px', marginBottom: '24px' }}>
-            {error ? '❌' : '🎉'}
-          </div>
-          <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: 'rgba(0, 0, 0, 0.8)',
-            marginBottom: '16px'
-          }}>
-            {error ? 'Error Loading Ad' : 'No Ads Available'}
-          </h2>
-          <p style={{
-            color: 'rgba(0, 0, 0, 0.6)',
-            fontSize: '16px',
-            lineHeight: 1.6,
-            marginBottom: '24px'
-          }}>
-            {error
-              ? 'There was an error loading the advertisement. Please try again later.'
-              : "Great! No ads to display at the moment. Enjoy the ad-free experience!"}
-          </p>
-          <button
-            onClick={handleClose}
-            style={{
-              padding: '12px 24px',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: 600,
-              color: 'white',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)',
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.6)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-            }}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Quiz Modal
-  if (showQuiz && quizQuestion) {
-    return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.8)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        ...style
-      }} className={className}>
-        <div style={{
-          background: 'white',
-          borderRadius: '16px',
-          padding: '32px',
-          maxWidth: '500px',
-          width: '90%',
-          textAlign: 'center',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-        }}>
-          <h3 style={{
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            marginBottom: '24px',
-            color: 'rgba(0, 0, 0, 0.85)'
-          }}>
-            Answer to Earn Reward! 🎁
-          </h3>
-
-          <p style={{
-            fontSize: '16px',
-            marginBottom: '24px',
-            color: 'rgba(0, 0, 0, 0.7)',
-            lineHeight: 1.6
-          }}>
-            {quizQuestion.question}
-          </p>
-
-          {quizQuestion.type === 'multiple' && quizQuestion.options ? (
-            <div style={{ marginBottom: '24px' }}>
-              {quizQuestion.options.map((option, index) => (
-                <label key={index} style={{
-                  display: 'block',
-                  margin: '8px 0',
-                  padding: '12px',
-                  border: '2px solid rgba(0, 0, 0, 0.1)',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.3s ease',
-                  backgroundColor: selectedOption === option ? 'rgba(59, 130, 246, 0.1)' : 'white',
-                  borderColor: selectedOption === option ? 'rgba(59, 130, 246, 0.5)' : 'rgba(0, 0, 0, 0.1)'
-                }}>
-                  <input
-                    type="radio"
-                    value={option}
-                    checked={selectedOption === option}
-                    onChange={(e) => setSelectedOption(e.target.value)}
-                    style={{ marginRight: '8px' }}
-                  />
-                  {option}
-                </label>
-              ))}
-            </div>
-          ) : (
-            <input
-              type="text"
-              value={quizAnswer}
-              onChange={(e) => setQuizAnswer(e.target.value)}
-              placeholder="Enter your answer..."
-              style={{
-                width: '100%',
-                padding: '12px',
-                border: '2px solid rgba(0, 0, 0, 0.1)',
-                borderRadius: '8px',
-                fontSize: '16px',
-                marginBottom: '24px',
-                outline: 'none',
-                transition: 'border-color 0.3s ease'
-              }}
-              onFocus={(e) => e.target.style.borderColor = 'rgba(59, 130, 246, 0.5)'}
-              onBlur={(e) => e.target.style.borderColor = 'rgba(0, 0, 0, 0.1)'}
-            />
-          )}
-
-          {quizResult && (
-            <div style={{
-              padding: '12px',
-              borderRadius: '8px',
-              marginBottom: '16px',
-              background: quizResult.correct ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-              color: quizResult.correct ? 'rgba(22, 163, 74, 1)' : 'rgba(220, 38, 38, 1)',
-              fontWeight: 600
-            }}>
-              {quizResult.message}
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-            <button
-              onClick={handleQuizSubmit}
-              disabled={!quizAnswer && !selectedOption}
-              style={{
-                padding: '12px 24px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 600,
-                color: 'white',
-                background: (!quizAnswer && !selectedOption)
-                  ? 'rgba(0, 0, 0, 0.3)'
-                  : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                cursor: (!quizAnswer && !selectedOption) ? 'not-allowed' : 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Submit Answer
-            </button>
-
-            <button
-              onClick={() => {
-                setShowQuiz(false);
-                resetQuiz();
-              }}
-              style={{
-                padding: '12px 24px',
-                border: '2px solid rgba(0, 0, 0, 0.2)',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 600,
-                color: 'rgba(0, 0, 0, 0.7)',
-                backgroundColor: 'white',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  // Main ad display (compact, max 25% of screen)
   return (
-    <div
-      style={{
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%)',
-        // borderRadius: '12px',
-        // padding: '5px',
-        position: 'relative',
-        maxWidth: '540px',
-        minWidth: '260px',
-        width: '100%',
-        boxSizing: 'border-box',
-        margin: '0 auto',
-        ...style
-      }}
-      className={className}
-    >
-      {/* Ad Content */}
+    <div className={className} style={{ ...style }} data-style-key={styleKey}>
       <div
         style={{
           background: 'white',
           display: 'flex',
-          // borderRadius: '12px',
-          padding: '3px',
-          // boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-          // border: '1px solid rgba(0,0,0,0.04)',
+          padding: 3,
           maxWidth: '100%',
           textAlign: 'center',
           position: 'relative',
         }}
       >
-
-        {/* Ad Media (if applicable) */}
         {ad.media_url && (
-          <div style={{ marginBottom: '4px', minWidth: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '10px' }}>
-            {/* draw large speaker icon */}
-            <span role="img" aria-label="speaker" style={{ fontSize: '96px', margin: 'auto' }}>🔊</span>
+          <div style={{ marginBottom: 4, minWidth: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: 10 }}>
+            <span role="img" aria-label="speaker" style={{ fontSize: 96, margin: 'auto' }}>
+              🔊
+            </span>
             <audio
               ref={audioRef}
-              // set timeout to autoplay after 1 second
-
               id={`ad-audio-${ad.id}`}
               key={ad.id}
               src={ad.media_url}
-              // autoPlay
-            
-              // controls
-              // loop
-              // style={{ width: '100%', borderRadius: '12px', outline: 'none', marginTop: '8px' }}
-              // controls={false}
               style={{ display: 'none' }}
             />
           </div>
         )}
-        <div
-          style={{ padding: ' 10px 15px', margin: 'auto auto', minWidth: '300px', alignItems: 'center', display: 'flex', flexDirection: 'column' }}
-        >
 
-          {/* Ad Title */}
+        <div style={{ padding: '5px 5px', margin: 'auto', minWidth: 300, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* add info icon at top right corner */}
+          <div style={{ position: 'absolute', top: -8, right: -5 }}>
+            {/* when clicked should a modal with advertiser details */}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowAdDetails(true);
+              }}
+              style={{
+                cursor: 'pointer',
+                padding: 4,
+                borderRadius: '50%',
+                transition: 'background 0.3s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(0,0,0,0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <span role="img" aria-label="info" style={{ fontSize: 24 }}>
+                ℹ️
+              </span>
+            </div>
+
+
+          </div>
           <strong
             style={{
               fontSize: '0.98rem',
@@ -561,17 +265,16 @@ const LiveAdvertisement = ({
               color: 'rgba(0,0,0,0.85)',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              marginBottom: '2px',
+              marginBottom: 2,
             }}
           >
             {ad.title}
           </strong>
 
-          {/* Ad Description */}
           <p
             style={{
               color: 'rgba(0,0,0,0.65)',
-              marginBottom: '6px',
+              marginBottom: 6,
               lineHeight: 1.2,
               fontSize: '0.7rem',
               maxHeight: '2.8em',
@@ -582,27 +285,14 @@ const LiveAdvertisement = ({
             {ad.description}
           </p>
 
-
-
-          {/* Action Buttons */}
-          <div
-            style={{
-              display: 'flex',
-
-              gap: '8px',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              marginTop: '4px',
-            }}
-          >
-            {/* Find Out More Button */}
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 4 }}>
             {ad.findOutMoreLink && (
               <button
-                onClick={handleFindOutMore}
+                onClick={() => goToAdWebSite(ad)}
                 style={{
                   padding: '8px 14px',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: 8,
                   fontSize: '0.92rem',
                   fontWeight: 600,
                   color: 'white',
@@ -612,29 +302,20 @@ const LiveAdvertisement = ({
                   boxShadow: '0 2px 8px rgba(59,130,246,0.18)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(59,130,246,0.28)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 2px 8px rgba(59,130,246,0.18)';
+                  gap: 4,
                 }}
               >
                 <span>🔗</span> More
               </button>
             )}
 
-            {/* Conditional Reward Button */}
             {showRewardButton && (
               <button
                 onClick={handleRewardClick}
                 style={{
                   padding: '8px 14px',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: 8,
                   fontSize: '0.92rem',
                   fontWeight: 600,
                   color: 'white',
@@ -644,63 +325,29 @@ const LiveAdvertisement = ({
                   boxShadow: '0 2px 8px rgba(16,185,129,0.18)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px',
+                  gap: 4,
                   animation: 'pulse 2s infinite',
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-1px) scale(1.04)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(16,185,129,0.28)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0) scale(1)';
-                  e.target.style.boxShadow = '0 2px 8px rgba(16,185,129,0.18)';
                 }}
               >
                 <span>🎁</span> Reward
               </button>
             )}
 
-            {/* Skip Button */}
-            {/* <button
-              onClick={handleSkip}
-              style={{
-                padding: '8px 14px',
-                border: '1px solid rgba(0,0,0,0.14)',
-                borderRadius: '8px',
-                fontSize: '0.92rem',
-                fontWeight: 600,
-                color: 'rgba(0,0,0,0.7)',
-                backgroundColor: 'white',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'rgba(0,0,0,0.04)';
-                e.target.style.borderColor = 'rgba(0,0,0,0.22)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'white';
-                e.target.style.borderColor = 'rgba(0,0,0,0.14)';
-              }}
-            >
-              Skip
-            </button> */}
             <button
               onClick={(e) => {
-                e.stopPropagation(); // Prevent the ad click from triggering
+                e.stopPropagation();
                 goToAdWebSite(ad);
               }}
               style={{
-                padding: '12px 24px',
+                padding: '12px 12px',
                 border: '2px solid rgba(0, 0, 0, 0.2)',
                 borderRadius: '12px',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: 600,
                 color: 'rgba(0, 0, 0, 0.7)',
                 backgroundColor: 'transparent',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                onHover: { backgroundColor: 'rgba(156, 255, 138, 0.36)' }
               }}
               onMouseEnter={(e) => {
                 e.target.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
@@ -709,50 +356,401 @@ const LiveAdvertisement = ({
                 e.target.style.backgroundColor = 'transparent';
               }}
             >
-              See More
+              <span>🔗</span> Learn More
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+      {showQuiz && quizQuestion && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: 16,
+              padding: 32,
+              maxWidth: 500,
+              width: '90%',
+              textAlign: 'center',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)',
+            }}
+          >
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: 24, color: 'rgba(0,0,0,0.85)' }}>
+              Answer to Earn Reward! 🎁
+            </h3>
+
+            <p style={{ fontSize: 16, marginBottom: 24, color: 'rgba(0,0,0,0.7)', lineHeight: 1.6 }}>
+              {quizQuestion.question}
+            </p>
+
+            {quizQuestion.type === 'multiple' && quizQuestion.options ? (
+              <div style={{ marginBottom: 24 }}>
+                {quizQuestion.options.map((option, idx) => (
+                  <label
+                    key={idx}
+                    style={{
+                      display: 'block',
+                      margin: '8px 0',
+                      padding: 12,
+                      border: '2px solid rgba(0,0,0,0.1)',
+                      borderRadius: 8,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: selectedOption === option ? 'rgba(59,130,246,0.1)' : 'white',
+                      borderColor: selectedOption === option ? 'rgba(59,130,246,0.5)' : 'rgba(0,0,0,0.1)',
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      value={option}
+                      checked={selectedOption === option}
+                      onChange={(e) => setSelectedOption(e.target.value)}
+                      style={{ marginRight: 8 }}
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <input
+                type="text"
+                value={quizAnswer}
+                onChange={(e) => setQuizAnswer(e.target.value)}
+                placeholder="Enter your answer..."
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  border: '2px solid rgba(0,0,0,0.1)',
+                  borderRadius: 8,
+                  fontSize: 16,
+                  marginBottom: 24,
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease',
+                }}
+              />
+            )}
+
+            {quizResult && (
+              <div
+                style={{
+                  padding: 12,
+                  borderRadius: 8,
+                  marginBottom: 16,
+                  background: quizResult.correct ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+                  color: quizResult.correct ? 'rgba(22,163,74,1)' : 'rgba(220,38,38,1)',
+                  fontWeight: 600,
+                }}
+              >
+                {quizResult.message}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <button
+                onClick={handleQuizSubmit}
+                disabled={!quizAnswer && !selectedOption}
+                style={{
+                  padding: '12px 24px',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: 'white',
+                  background:
+                    !quizAnswer && !selectedOption
+                      ? 'rgba(0,0,0,0.3)'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                  cursor: !quizAnswer && !selectedOption ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Submit Answer
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowQuiz(false);
+                  resetQuiz();
+                }}
+                style={{
+                  padding: '12px 24px',
+                  border: '2px solid rgba(0,0,0,0.2)',
+                  borderRadius: 8,
+                  fontSize: 16,
+                  fontWeight: 600,
+                  color: 'rgba(0,0,0,0.7)',
+                  backgroundColor: 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <Modal
+        open={showAdDetails}
+        onClose={() => setShowAdDetails(false)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2
+        }}
+      >
+        <div style={{
+          background: 'white',
+          borderRadius: '24px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          maxWidth: '500px',
+          width: '90%',
+          maxHeight: '80vh',
+          overflow: 'hidden',
+          position: 'relative'
+        }}>
+          {/* Header */}
+          <div style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            padding: '24px 32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '24px' }}>🏢</span>
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                margin: 0
+              }}>
+                Advertiser Information
+              </h2>
+            </div>
+
+            {/* Close button */}
+            <button
+              onClick={() => setShowAdDetails(false)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                fontSize: '20px',
+                color: 'white',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+              }}
+            >
+              ✕
             </button>
           </div>
 
-          {/* Sponsored Badge */}
-          {/* <div
-          style={{
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            background: 'rgba(0,0,0,0.04)',
-            color: 'rgba(0,0,0,0.5)',
-            padding: '3px 8px',
-            borderRadius: '10px',
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-          }}
-        >
-          Sponsored
-        </div> */}
+          {/* Content */}
+          <div style={{ padding: '32px' }}>
+            {ad.advertiser ? (
+              <div>
+                {/* Business Info Card */}
+                <div style={{
+                  background: 'rgba(102, 126, 234, 0.05)',
+                  padding: '24px',
+                  borderRadius: '16px',
+                  border: '2px solid rgba(102, 126, 234, 0.1)',
+                  marginBottom: '24px'
+                }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: 'rgba(0, 0, 0, 0.8)',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span>🏪</span>
+                    Business Details
+                  </h3>
+
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: '600', color: 'rgba(0, 0, 0, 0.7)' }}>Name:</span>
+                      <span style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
+                        {ad.advertiser.Business_Name || 'N/A'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: '600', color: 'rgba(0, 0, 0, 0.7)' }}>Email:</span>
+                      <span style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
+                        {ad.advertiser.email || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location Info Card */}
+                <div style={{
+                  background: 'rgba(16, 185, 129, 0.05)',
+                  padding: '24px',
+                  borderRadius: '16px',
+                  border: '2px solid rgba(16, 185, 129, 0.1)',
+                  marginBottom: '24px'
+                }}>
+                  <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: 'rgba(0, 0, 0, 0.8)',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <span>📍</span>
+                    Location
+                  </h3>
+
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: '600', color: 'rgba(0, 0, 0, 0.7)' }}>Country:</span>
+                      <span style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
+                        {ad.advertiser.country || 'N/A'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: '600', color: 'rgba(0, 0, 0, 0.7)' }}>State:</span>
+                      <span style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
+                        {ad.advertiser.state || 'N/A'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: '600', color: 'rgba(0, 0, 0, 0.7)' }}>City:</span>
+                      <span style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
+                        {ad.advertiser.city || 'N/A'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: '600', color: 'rgba(0, 0, 0, 0.7)' }}>ZIP:</span>
+                      <span style={{ color: 'rgba(0, 0, 0, 0.8)' }}>
+                        {ad.advertiser.zip || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Website Link */}
+                {ad.advertiser.website && (
+                  <div style={{
+                    background: 'rgba(245, 158, 11, 0.05)',
+                    padding: '20px',
+                    borderRadius: '16px',
+                    border: '2px solid rgba(245, 158, 11, 0.1)',
+                    textAlign: 'center'
+                  }}>
+                    <h3 style={{
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      color: 'rgba(0, 0, 0, 0.8)',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}>
+                      <span>🌐</span>
+                      Visit Our Website
+                    </h3>
+
+                    <a
+                      href={ad.advertiser.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '12px 24px',
+                        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                        color: 'white',
+                        textDecoration: 'none',
+                        borderRadius: '12px',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.boxShadow = '0 8px 20px rgba(245, 158, 11, 0.4)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+                      }}
+                    >
+                      <span>🔗</span>
+                      Visit Website
+                    </a>
+
+                    <p style={{
+                      margin: '12px 0 0 0',
+                      fontSize: '12px',
+                      color: 'rgba(0, 0, 0, 0.5)'
+                    }}>
+                      {ad.advertiser.website}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{
+                textAlign: 'center',
+                padding: '40px 20px',
+                color: 'rgba(0, 0, 0, 0.6)'
+              }}>
+                <span style={{ fontSize: '48px', marginBottom: '16px', display: 'block' }}>📭</span>
+                <p style={{ fontSize: '16px', margin: 0 }}>
+                  No advertiser information available
+                </p>
+              </div>
+            )}
+          </div>
         </div>
+      </Modal>
 
-      </div>
-
-      {/* Reward Modal */}
       {showRewardModal && RewardModal && (
-        <RewardModal
-          ad={ad}
-          onClose={() => setShowRewardModal(false)}
-          onReward={handleRewardEarned}
-        />
+        <RewardModal ad={ad} onClose={() => setShowRewardModal(false)} onReward={handleRewardEarned} />
       )}
-
-      {/* CSS Animations */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.05); }
-        }
-      `}</style>
     </div>
   );
-};
+}, areEqual);
 
-export default LiveAdvertisement;
+export default AdAudioObject;

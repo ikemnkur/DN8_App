@@ -63,10 +63,21 @@ const SignInPage = ({ onSignInSuccess, onNavigateToRegister }) => {
 
         // Check if user is already logged in
         const authToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
-        if (authToken && !expired) {
+        const advertiserData = localStorage.getItem('advertiserData');
+        if (authToken && advertiserData && !expired) {
             // User is logged in, redirect to ads service or dashboard
-            navigate('/ads-service'); // or wherever you want to redirect
-            alert('You are already logged in. Redirecting to Ads Service...');
+            // navigate('/ads-service'); // or wherever you want to redirect
+            // alert('You are already logged in. Redirecting to Ads Service...');
+            setNotification({
+                show: true,
+                message: 'You are already logged in. Redirecting to Ads Service...',
+                type: 'info'
+            });
+            setTimeout(() => {
+
+                navigate('/ads-service'); // or wherever you want to redirect
+
+            }, 2000); // Simulate loading delay
         } else {
             // User is not logged in, show the sign-in form
             setNotification({
@@ -576,7 +587,7 @@ const SignInPage = ({ onSignInSuccess, onNavigateToRegister }) => {
                                     margin: '0 0 8px 0',
                                     fontWeight: 'bold'
                                 }}>
-                                    💡 Demo Credentials (Remove in production):
+                                    💡 Example Credentials (Your ad account can have different credentials from your main account):
                                 </p>
                                 <p style={{
                                     fontSize: '12px',

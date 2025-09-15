@@ -1,22 +1,22 @@
 require('dotenv').config();
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { 
-  Typography, 
-  TextField, 
-  Button, 
-  Paper, 
-  Box, 
-  Snackbar, 
-  Avatar, 
+import {
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  Box,
+  Snackbar,
+  Avatar,
   Alert,
   InputAdornment,
   Fade,
   CircularProgress,
   Divider
 } from '@mui/material';
-import { 
-  Person, 
+import {
+  Person,
   Search,
   Send,
   Visibility
@@ -24,6 +24,7 @@ import {
 import { fetchUserProfile, fetchOtherUserProfile, sendMoneyToOtherUser } from './api';
 import axios from 'axios';
 import { useAuthCheck } from './useAuthCheck';
+import AdVideoObject from '../pages/AdVideoObject';
 
 const SendMoney = () => {
   const { userId } = useParams();
@@ -36,7 +37,7 @@ const SendMoney = () => {
   const [message, setMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [thisUser, setThisUser] = useState(JSON.parse(localStorage.getItem("userdata")));
+  const [userData, setUserData] = useState(JSON.parse(localStorage.getItem("userdata")));
   const [searching, setSearching] = useState(false);
   const [sending, setSending] = useState(false);
   const usernameInputRef = useRef(null);
@@ -47,7 +48,7 @@ const SendMoney = () => {
   useEffect(() => {
     let ud = JSON.parse(localStorage.getItem("userdata"))
     console.log("this user data: ", ud)
-    setThisUser(ud)
+    setUserData(ud)
 
     const searchParams = new URLSearchParams(location.search);
     const recipientFromUrl = searchParams.get('recipient');
@@ -59,11 +60,11 @@ const SendMoney = () => {
     console.log("recipient from url: ", recipientFromUrl)
     loadUserProfile();
 
-    if(recipientFromUrl !== null)
+    if (recipientFromUrl !== null)
       setTimeout(() => {
         search4user(null, recipientFromUrl)
       }, 50);
-      
+
   }, [userId, location.search]);
 
   const loadUserProfile = async () => {
@@ -94,7 +95,7 @@ const SendMoney = () => {
   const search4user = async (e, user2search) => {
     setSearching(true);
     let term = user2search;
-    if (term == null) 
+    if (term == null)
       term = recipient;
 
     console.log("Search Term: ", term)
@@ -127,15 +128,15 @@ const SendMoney = () => {
         recipient: recipient,
         recipientId: toUser.user_id,
         recipientUsername: toUser.username,
-        sendingUsername: thisUser.username,
-        sendingId: thisUser.user_id,
+        sendingUsername: userData.username,
+        sendingId: userData.user_id,
         amount: parseFloat(amount),
         message: message
       };
       await sendMoneyToOtherUser(sendmoneyData);
       setSnackbarMessage("Money sent successfully!");
       setOpenSnackbar(true);
-      
+
       // Reset form
       setRecipient('');
       setAmount('');
@@ -144,9 +145,9 @@ const SendMoney = () => {
 
       const notif = {
         type: 'money_received',
-        recipient_user_id: toUser.user_id, 
-        message: `You received ₡${amount} from ${thisUser.username}.`,
-        from_user: thisUser.user_id,
+        recipient_user_id: toUser.user_id,
+        message: `You received ₡${amount} from ${userData.username}.`,
+        from_user: userData.user_id,
         date: new Date(),
         recipient_username: toUser.username
       }
@@ -180,11 +181,11 @@ const SendMoney = () => {
   return (
     <Box sx={{ p: 2 }}>
       {/* Header */}
-       <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography 
-          variant="h3" 
+      <Box sx={{ mb: 4, textAlign: 'center' }}>
+        <Typography
+          variant="h3"
           component="h1"
-          sx={{ 
+          sx={{
             fontWeight: 700,
             background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
             backgroundClip: 'text',
@@ -215,22 +216,22 @@ const SendMoney = () => {
       <Fade in={!!toUser}>
         <Box sx={{ mb: 2 }}>
           {toUser && (
-            <Paper sx={{ 
-              p: 2, 
-              display: 'flex', 
-              alignItems: 'center', 
+            <Paper sx={{
+              p: 2,
+              display: 'flex',
+              alignItems: 'center',
               gap: 2,
               backgroundColor: '#f8f9fa',
               border: '1px solid #e9ecef'
             }}>
-              <Avatar 
-                src={toUser.profilePic || toUser.avatar} 
-                alt={toUser.username} 
-                sx={{ 
-                  width: 80, 
+              <Avatar
+                src={toUser.profilePic || toUser.avatar}
+                alt={toUser.username}
+                sx={{
+                  width: 80,
                   height: 80,
                   border: '2px solid #1976d2'
-                }} 
+                }}
               />
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h5" sx={{ fontWeight: 600, color: '#1976d2', mb: 1 }}>
@@ -240,11 +241,11 @@ const SendMoney = () => {
                   Bio: {toUser.bio || "No bio available."}
                 </Typography>
               </Box>
-              <Button 
-                onClick={goToUserProfile} 
-                variant="contained" 
+              <Button
+                onClick={goToUserProfile}
+                variant="contained"
                 startIcon={<Visibility />}
-                sx={{ 
+                sx={{
                   textTransform: 'none',
                   fontWeight: 500
                 }}
@@ -280,12 +281,12 @@ const SendMoney = () => {
                   ),
                 }}
               />
-              <Button 
-                onClick={search4user} 
+              <Button
+                onClick={search4user}
                 variant="contained"
                 disabled={searching || !recipient.trim()}
                 startIcon={searching ? <CircularProgress size={16} /> : <Search />}
-                sx={{ 
+                sx={{
                   minWidth: 120,
                   minHeight: 48,
                   textTransform: 'none'
@@ -303,7 +304,7 @@ const SendMoney = () => {
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
               Transaction Details
             </Typography>
-            
+
             <TextField
               label="Amount"
               fullWidth
@@ -323,7 +324,7 @@ const SendMoney = () => {
                 ),
               }}
             />
-            
+
             <TextField
               label="Leave a Message"
               fullWidth
@@ -337,14 +338,15 @@ const SendMoney = () => {
             />
           </Box>
 
+
           {/* Submit Button */}
-          <Button 
-            type="submit" 
-            variant="contained" 
+          <Button
+            type="submit"
+            variant="contained"
             size="large"
             disabled={sending || !toUser || !amount || !message}
             startIcon={sending ? <CircularProgress size={20} /> : <Send />}
-            sx={{ 
+            sx={{
               mt: 2,
               py: 1.5,
               px: 4,
@@ -357,6 +359,33 @@ const SendMoney = () => {
           </Button>
         </form>
       </Paper>
+
+      {/* Advertisement Section */}
+      {userData.accountTier < 4 && (
+        <Box sx={{ mt: 4 }}>
+          <AdVideoObject
+            onAdView={(ad) => console.log('Ad viewed:', ad)}
+            onAdClick={(ad) => console.log('Ad clicked:', ad)}
+            onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+            onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+            RewardModal={({ onClose, onReward }) => (
+              <div style={{ /* simple modal styles */ }}>
+                <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+                <button onClick={onClose}>Close</button>
+              </div>
+            )}
+            // style={{ borderRadius: 0 }}
+            showRewardProbability={0.3} // 30% chance to show reward button
+            filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
+            style={{
+              minHeight: '240px', // Ensure minimum height
+              maxHeight: '400px', // Limit maximum height
+              borderRadius: 0 // Remove border radius to fit Paper container
+            }}
+            className="modal-ad"
+          />
+        </Box>
+      )}
 
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
