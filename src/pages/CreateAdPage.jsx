@@ -125,6 +125,7 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
     description: '',
     link: '',
     format: 'regular',
+    mediaFormat: 'image',  // default to image
     mediaType: 'image',      // <-- Add this line to initialize mediaType
     mediaFile: null,         // File kept in memory until submit
     mediaFileLink: "",       // Filled *after* we upload on submit
@@ -184,8 +185,12 @@ const CreateAdPage = ({ onSave, editingAd = null, authToken }) => {
         link: editingAd.link || '',
         format: editingAd.format || 'regular',
         mediaFile: null,
+        mediaFileLink: editingAd.mediaLink || '',
+        mediaDataUrl: '',        // No preview for existing ads
+        mediaMimeType: '',      // No mime type for existing ads
+        mediaName: '',          // No name for existing ads
         budget: editingAd.budget || 1000,
-        reward: editingAd.reward || 0,
+        reward: editingAd.reward || 5,
         frequency: editingAd.frequency || 'moderate',
         quiz: editingAd.quiz || [
           { question: '', type: 'multiple', options: ['', '', '', ''], correct: 0, answer: '' }

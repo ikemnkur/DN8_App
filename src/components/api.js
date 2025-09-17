@@ -43,12 +43,12 @@ api.interceptors.response.use(
     // const subPage = window.location.pathname.startsWith('/sub');
 
     // Check if the current path is the info page
-    let paths = ["/info", "/help", "/ads", "/unlock", "/sub", '/login', '/register', '/', '/info', '/create-ad', "/ad-analytics", "/ad-help", '/ads', '/display-ad','/preview-ad', "/ads-service", "/test-ad", "/ads", "/ads-join","/ads-login", "/preview/pending-ad"]
+    let paths = ["/info", "/help", "/ads", "/unlock", "/sub", '/login', '/register', '/', '/info', '/create-ad', "/ad-analytics", "/ad-help", '/ads', '/display-ad', '/preview-ad', "/ads-service", "/test-ad", "/ads", "/ads-join", "/ads-login", "/preview/pending-ad"]
 
     // Check if current path starts with '/unlock', to handle dynamic unlock paths like '/unlock/:itemid'
     const isExempted = paths.some(path => location.pathname.startsWith(path));
 
-    
+
     if (isExempted) {
       // User is on one of the specified pages; do not redirect to login
       // Allow the error to be handled by the component
@@ -564,20 +564,20 @@ export const updateAdroute = async (adData, adId) => {
 export const fetchAdvertiserProfile = async (user) => {
   if (!user || !user.email || !user.token) {
     console.error('Invalid user object:', user);
-    
+
     throw new Error('Invalid user object: missing email or token');
   }
 
   try {
-    const response = await api.post(`/ads/advertiser/profile/${user.email}`,{ userdata: user, email: user.email, user_id: user.user_id});
-    console.log ("Fetch Advertiser Profile Res: ", response)
+    const response = await api.post(`/ads/advertiser/profile/${user.email}`, { userdata: user, email: user.email, user_id: user.user_id });
+    console.log("Fetch Advertiser Profile Res: ", response)
 
     if (!response.data || response.data.error) {
       const errorData = response.data || { error: 'Unknown error' };
       console.error('API - Error fetching advertiser profile:', errorData);
       navigate("/login");
       throw new Error(errorData || 'Failed to fetch advertiser profile');
-     }
+    }
 
     const data = await response.data;
     return data; // { user: ... }
@@ -589,7 +589,7 @@ export const fetchAdvertiserProfile = async (user) => {
 export const activateAdvertiserProfile = async (user) => {
   try {
     console.log("Activating advertiser profile for user: ", user);
-    const response = await api.put(`/ads/advertiser/profile/activate`,{
+    const response = await api.put(`/ads/advertiser/profile/activate`, {
       userdata: user,
       user_id: user.user_id,
       email: user.email,
@@ -629,29 +629,29 @@ export const buyCredits = async (amount, email, user_id, token) => {
 
 // Example function to upload file to backend:
 // Example function to upload file to backend:
-  // const uploadToBackend = async (file) => {
-  //   const formData = new FormData();
-  //   formData.append('media', file);
+// const uploadToBackend = async (file) => {
+//   const formData = new FormData();
+//   formData.append('media', file);
 
-  //   try {
-  //     // uploadMediaFiles should return the media link or an object with mediaLink property
-  //     const response = await uploadMediaFiles(formData);
-  //     console.log('Ad Media file uploaded:', response);
+//   try {
+//     // uploadMediaFiles should return the media link or an object with mediaLink property
+//     const response = await uploadMediaFiles(formData);
+//     console.log('Ad Media file uploaded:', response);
 
-  //     // If your backend returns { mediaLink: "..." }
-  //     if (response && response.mediaLink) {
-  //       return response.mediaLink;
-  //     }
-  //     // If your backend returns the link directly
-  //     if (typeof response === 'string') {
-  //       return response;
-  //     }
-  //     throw new Error('Upload failed or invalid response');
-  //   } catch (error) {
-  //     console.error(error);
-  //     throw error;
-  //   }
-  // };
+//     // If your backend returns { mediaLink: "..." }
+//     if (response && response.mediaLink) {
+//       return response.mediaLink;
+//     }
+//     // If your backend returns the link directly
+//     if (typeof response === 'string') {
+//       return response;
+//     }
+//     throw new Error('Upload failed or invalid response');
+//   } catch (error) {
+//     console.error(error);
+//     throw error;
+//   }
+// };
 
 // // Upload media file to backend, accepts FormData directly
 // export const uploadMediaFiles = async (formData) => {
@@ -675,7 +675,45 @@ export const uploadMediaFiles = async (formData) => {
     // Let Axios/browser set the multipart boundary automatically:
     // headers: { 'Content-Type': undefined },  // <- clears any JSON default
     //  headers: { 'Content-Type': 'multipart/form-data' },
-     headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
+    transformRequest: [(data, headers) => {
+      // Remove any JSON defaults your instance might add
+      delete headers.common?.['Content-Type'];
+      delete headers.post?.['Content-Type'];
+      return data; // keep FormData as-is
+    }],
+  });
+  return res.data;
+};
+
+export const uploadTransactionScreenshot = async (formData) => {
+  try {
+    const res = await api.post('/upload/transaction-screenshot', formData, {
+      // Let Axios/browser set the multipart boundary automatically:
+      // headers: { 'Content-Type': undefined },  // <- clears any JSON default
+      //  headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 'Content-Type': 'application/json' },
+      transformRequest: [(data, headers) => {
+        // Remove any JSON defaults your instance might add
+        delete headers.common?.['Content-Type'];
+        delete headers.post?.['Content-Type'];
+        return data; // keep FormData as-is
+      }],
+    });
+    return res.data;
+  } catch (error) {
+    console.error('API - Error uploading transaction screenshot:', error);
+    throw error;
+  }
+};
+
+
+export const uploadProfilePicture = async (formData) => {
+  const res = await api.post('/upload/profile-picture', formData, {
+    // Let Axios/browser set the multipart boundary automatically:
+    // headers: { 'Content-Type': undefined },  // <- clears any JSON default
+    //  headers: { 'Content-Type': 'multipart/form-data' },
+    headers: { 'Content-Type': 'application/json' },
     transformRequest: [(data, headers) => {
       // Remove any JSON defaults your instance might add
       delete headers.common?.['Content-Type'];
@@ -689,7 +727,7 @@ export const uploadMediaFiles = async (formData) => {
 export const fetchAds = async (email, user_id, name, token) => {
   try {
     // const response = await api.get('/ads/ad');
-     const response = await api.post('/ads/get-user-ads', { email: email, name: name, user_id: user_id, token: token });
+    const response = await api.post('/ads/get-user-ads', { email: email, name: name, user_id: user_id, token: token });
 
     console.log("fetchAds response: ", response)
     return response;

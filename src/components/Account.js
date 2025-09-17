@@ -24,13 +24,14 @@ import {
   ArrowDownward
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { fetchUserProfile, updateUserProfile, fetchWalletData } from './api';
+import { fetchUserProfile, updateUserProfile, fetchWalletData, uploadProfilePicture } from './api';
 import { useAuthCheck } from './useAuthCheck';
 import axios from 'axios';
 import { Autocomplete } from '@mui/material';
 import moment from 'moment-timezone';
 // import AdVideoObject from '../pages/AdVideoComponent';
 import AdVideoObject from '../pages/AdVideoObject';
+import { uploadMediaFiles } from './api';
 
 const API_URL = process.env.REACT_APP_API_SERVER_URL + '/api';
 
@@ -150,6 +151,35 @@ const AccountPage = () => {
     loadUserProfile();
   }, [navigate]);
 
+  // Example function to upload file to backend:
+  const uploadToBackend = async (file) => {
+    const formData = new FormData();
+    formData.append('media', file);
+
+    try {
+      // uploadMediaFiles should return the media link or an object with mediaLink property
+      const response = await uploadProfilePicture(formData);
+      console.log('Profile picture uploaded:', response);
+
+      // If your backend returns { mediaLink: "..." }
+      if (response && response.url) {
+        return response.url;
+      }
+      // If your backend returns { mediaLink: "..." }
+      if (response && response.mediaLink) {
+        return response.mediaLink;
+      }
+      // If your backend returns the link directly
+      if (typeof response === 'string') {
+        return response;
+      }
+      throw new Error('Upload failed or invalid response');
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
   // (Optional) Fetch wallet data
   useEffect(() => {
     const loadWalletData = async () => {
@@ -198,11 +228,25 @@ const AccountPage = () => {
     formData.append('date', new Date().toISOString());
 
     try {
-      const response = await api.post('/upload/profile-picture', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      setUserData((prev) => ({ ...prev, profilePictureUrl: response.data.url || '' }));
-      setSnackbarMessage('Profile picture uploaded successfully!');
+      let mediaLink;
+      try {
+        mediaLink = await uploadToBackend(file); // server returns { mediaLink }
+        formData.append('mediaLink', mediaLink);
+        console.log('Uploaded profile picture: ', mediaLink);
+
+        // setMessage('Picture loaded-in successfully!');
+        setSnackbarMessage('Uploading profile picture...');
+        setOpenSnackbar(true);
+      } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        setSnackbarMessage('Failed to upload profile picture.');
+        setOpenSnackbar(true);
+        return;
+      }
+      setUserData((prev) => ({ ...prev, profilePictureUrl: mediaLink || '' }));
+      setTimeout(() => {
+        setSnackbarMessage('Profile picture uploaded successfully!');
+      }, 1500);
     } catch (error) {
       console.error('API - Error uploading user profile image:', error);
       setSnackbarMessage('An error occurred while uploading the image.');
@@ -592,27 +636,27 @@ const AccountPage = () => {
       <Divider sx={{ my: 4 }} />
 
       {/* <Box sx={{ mt: 4 }}> */}
-        <AdVideoObject
-          onAdView={(ad) => console.log('Ad viewed:', ad)}
-          onAdClick={(ad) => console.log('Ad clicked:', ad)}
-          onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-          onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-          RewardModal={({ onClose, onReward }) => (
-            <div style={{ /* simple modal styles */ }}>
-              <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-              <button onClick={onClose}>Close</button>
-            </div>
-          )}
-          // style={{ borderRadius: 0 }}
-          showRewardProbability={0.3} // 30% chance to show reward button
-          filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
-          style={{
-            minHeight: '240px', // Ensure minimum height
-            maxHeight: '400px', // Limit maximum height
-            borderRadius: 0 // Remove border radius to fit Paper container
-          }}
-          className="modal-ad"
-        />
+      <AdVideoObject
+        onAdView={(ad) => console.log('Ad viewed:', ad)}
+        onAdClick={(ad) => console.log('Ad clicked:', ad)}
+        onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+        onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+        RewardModal={({ onClose, onReward }) => (
+          <div style={{ /* simple modal styles */ }}>
+            <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+            <button onClick={onClose}>Close</button>
+          </div>
+        )}
+        // style={{ borderRadius: 0 }}
+        showRewardProbability={0.3} // 30% chance to show reward button
+        filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
+        style={{
+          minHeight: '240px', // Ensure minimum height
+          maxHeight: '400px', // Limit maximum height
+          borderRadius: 0 // Remove border radius to fit Paper container
+        }}
+        className="modal-ad"
+      />
       {/* </Box> */}
 
 

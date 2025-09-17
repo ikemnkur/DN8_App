@@ -10,9 +10,9 @@ import { useNavigate } from 'react-router-dom';
 import { fetchWalletData } from './api';
 
 const ReloadWallet = () => {
-  const [amount, setAmount] = useState(10000);         // used by crypto/cashapp
+  const [amount, setAmount] = useState(10000 + Math.floor(Math.random() * 1000)-500);         // used by crypto/cashapp
   const [purchaseAmount, setPurchaseAmount] = useState('20'); // used by stripe/coinbase
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [paymentMethod, setPaymentMethod] = useState('crypto');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [walletData, setWalletData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -101,7 +101,7 @@ const ReloadWallet = () => {
             size="small"
             sx={{ mb: 2, maxWidth: 320 }}
           >
-            <MenuItem value="stripe"><CreditCard sx={{ mr: 1 }} /> Stripe</MenuItem>
+            {/* <MenuItem value="stripe"><CreditCard sx={{ mr: 1 }} /> Stripe</MenuItem> */}
             <MenuItem value="coinbase"><CurrencyBitcoin sx={{ mr: 1 }} /> Coinbase</MenuItem>
             <MenuItem value="crypto"><CurrencyBitcoin sx={{ mr: 1 }} /> Crypto (manual)</MenuItem>
             <MenuItem value="cashapp"><Payments sx={{ mr: 1 }} /> Cash App</MenuItem>
