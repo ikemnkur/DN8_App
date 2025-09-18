@@ -140,56 +140,128 @@ const UpgradeAccountPage = () => {
       case 0:
         return (
           <Box>
-            <Typography variant="h6" gutterBottom>
-              Compare Plans - (Prices in Coins/Subject to change)
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{ 
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                textAlign: { xs: 'center', sm: 'left' }
+              }}
+            >
+              Compare Plans
             </Typography>
-            <Grid container spacing={3}>
+            <Typography 
+              variant="caption" 
+              color="text.secondary" 
+              display="block"
+              sx={{ 
+                mb: 2,
+                textAlign: 'center',
+                fontSize: { xs: '0.7rem', sm: '0.75rem' }
+              }}
+            >
+              (Prices in Coins/Subject to change)
+            </Typography>
+            
+            {/* Mobile: Stack cards vertically, Desktop: Side by side */}
+            <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
-                <Card variant="outlined">
+                <Card 
+                  variant="outlined"
+                  sx={{ 
+                    height: { xs: 'auto', md: '100%' },
+                    mb: { xs: 2, md: 0 }
+                  }}
+                >
                   <CardHeader 
                     title={`Current: ${tierInfo[currentTier].name}`} 
                     subheader={tierInfo[currentTier].price}
-                    sx={{ backgroundColor: '#f5f5f5' }}
+                    sx={{ 
+                      backgroundColor: '#f5f5f5',
+                      '& .MuiCardHeader-title': {
+                        fontSize: { xs: '1rem', sm: '1.25rem' }
+                      },
+                      '& .MuiCardHeader-subheader': {
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                      },
+                      py: { xs: 1, sm: 2 }
+                    }}
                   />
-                  <CardContent>
+                  <CardContent sx={{ py: { xs: 1, sm: 2 } }}>
                     <List dense>
                       {tierInfo[currentTier].features.map((feature, index) => (
-                        <ListItem key={`current-${index}`}>
-                          <ListItemIcon sx={{ minWidth: 36 }}>
+                        <ListItem 
+                          key={`current-${index}`}
+                          sx={{ py: { xs: 0.25, sm: 0.5 } }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 24 }}>
                             <CheckIcon color="success" fontSize="small" />
                           </ListItemIcon>
-                          <ListItemText primary={feature} />
+                          <ListItemText 
+                            primary={feature}
+                            primaryTypographyProps={{
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                            }}
+                          />
                         </ListItem>
                       ))}
                     </List>
                   </CardContent>
                 </Card>
               </Grid>
+              
               <Grid item xs={12} md={6}>
-                <Card variant="outlined" sx={{ border: '2px solid #1976d2' }}>
+                <Card 
+                  variant="outlined" 
+                  sx={{ 
+                    border: '2px solid #1976d2',
+                    height: { xs: 'auto', md: '100%' }
+                  }}
+                >
                   <CardHeader 
                     title={`New: ${tierInfo[nextTier].name}`}
                     subheader={tierInfo[nextTier].price}
-                    sx={{ backgroundColor: '#e3f2fd' }}
+                    sx={{ 
+                      backgroundColor: '#e3f2fd',
+                      '& .MuiCardHeader-title': {
+                        fontSize: { xs: '1rem', sm: '1.25rem' }
+                      },
+                      '& .MuiCardHeader-subheader': {
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                      },
+                      py: { xs: 1, sm: 2 }
+                    }}
                   />
-                  <CardContent>
+                  <CardContent sx={{ py: { xs: 1, sm: 2 } }}>
                     <List dense>
                       {tierInfo[nextTier].features.map((feature, index) => (
-                        <ListItem key={`new-${index}`}>
-                          <ListItemIcon sx={{ minWidth: 36 }}>
+                        <ListItem 
+                          key={`new-${index}`}
+                          sx={{ py: { xs: 0.25, sm: 0.5 } }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 24 }}>
                             <CheckIcon color="success" fontSize="small" />
                           </ListItemIcon>
-                          <ListItemText primary={feature} />
+                          <ListItemText 
+                            primary={feature}
+                            primaryTypographyProps={{
+                              fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                            }}
+                          />
                         </ListItem>
                       ))}
                     </List>
                   </CardContent>
-                  <CardActions>
+                  <CardActions sx={{ p: { xs: 1, sm: 2 } }}>
                     <Button 
                       fullWidth 
                       variant="contained" 
                       onClick={handleNextStep}
                       endIcon={<ArrowForwardIcon />}
+                      sx={{ 
+                        fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                        py: { xs: 1, sm: 1.5 }
+                      }}
                     >
                       Proceed to Payment
                     </Button>
@@ -203,64 +275,29 @@ const UpgradeAccountPage = () => {
       case 1:
         return (
           <Box>
-            <Typography variant="h6" gutterBottom>
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{ 
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                textAlign: { xs: 'center', sm: 'left' }
+              }}
+            >
               Payment Details
             </Typography>
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography 
+              variant="body2" 
+              color="text.secondary" 
+              paragraph
+              sx={{ 
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                textAlign: { xs: 'center', sm: 'left' }
+              }}
+            >
               You will be charged {tierInfo[nextTier].price} for the {tierInfo[nextTier].name} tier.
             </Typography>
             
             <Grid container spacing={2}>
-              {/* <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Card Number"
-                  name="cardNumber"
-                  value={paymentDetails.cardNumber}
-                  onChange={handleInputChange}
-                  placeholder="1234 5678 9012 3456"
-                  required
-                  disabled={processing}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Cardholder Name"
-                  name="cardName"
-                  value={paymentDetails.cardName}
-                  onChange={handleInputChange}
-                  placeholder="John Doe"
-                  required
-                  disabled={processing}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  label="Expiry Date"
-                  name="expiryDate"
-                  value={paymentDetails.expiryDate}
-                  onChange={handleInputChange}
-                  placeholder="MM/YY"
-                  required
-                  disabled={processing}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  fullWidth
-                  label="CVV"
-                  name="cvv"
-                  value={paymentDetails.cvv}
-                  onChange={handleInputChange}
-                  placeholder="123"
-                  type="password"
-                  required
-                  disabled={processing}
-                />
-              </Grid>
-               */}
               {error && (
                 <Grid item xs={12}>
                   <Alert severity="error">{error}</Alert>
@@ -268,11 +305,21 @@ const UpgradeAccountPage = () => {
               )}
               
               <Grid item xs={12}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  justifyContent: 'space-between', 
+                  gap: { xs: 2, sm: 0 },
+                  mt: 2 
+                }}>
                   <Button 
                     variant="outlined" 
                     onClick={handlePreviousStep}
                     disabled={processing}
+                    sx={{ 
+                      order: { xs: 2, sm: 1 },
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                    }}
                   >
                     Back
                   </Button>
@@ -280,8 +327,12 @@ const UpgradeAccountPage = () => {
                     variant="contained" 
                     color="primary"
                     onClick={handleUpgrade}
-                    // disabled={!validatePaymentDetails() || processing}
+                    disabled={processing}
                     startIcon={<CreditCardIcon />}
+                    sx={{ 
+                      order: { xs: 1, sm: 2 },
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                    }}
                   >
                     {processing ? 'Processing...' : `Upgrade to ${tierInfo[nextTier].name}`}
                   </Button>
@@ -298,19 +349,28 @@ const UpgradeAccountPage = () => {
   
   if (success) {
     return (
-      <Container maxWidth="md" sx={{ py: 4 }}>
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <CheckIcon color="success" sx={{ fontSize: 60, mb: 2 }} />
-          <Typography variant="h5" gutterBottom>
+      <Container maxWidth="sm" sx={{ py: { xs: 2, sm: 4 }, px: { xs: 1, sm: 3 } }}>
+        <Paper sx={{ p: { xs: 2, sm: 4 }, textAlign: 'center' }}>
+          <CheckIcon color="success" sx={{ fontSize: { xs: 40, sm: 60 }, mb: 2 }} />
+          <Typography 
+            variant="h5" 
+            gutterBottom
+            sx={{ fontSize: { xs: '1.3rem', sm: '1.5rem' } }}
+          >
             Upgrade Successful!
           </Typography>
-          <Typography variant="body1" paragraph>
+          <Typography 
+            variant="body1" 
+            paragraph
+            sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+          >
             Your account has been upgraded to the {tierInfo[nextTier].name} tier.
             You will be redirected to your account page in a moment.
           </Typography>
           <Button 
             variant="contained" 
             onClick={() => navigate('/account')}
+            sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
           >
             Go to Account
           </Button>
@@ -320,18 +380,47 @@ const UpgradeAccountPage = () => {
   }
   
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper sx={{ p: 4 }}>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" gutterBottom>
+   <Container 
+      maxWidth="md" 
+      sx={{ 
+        py: { xs: 1, sm: 4 }, 
+        px: { xs: 1, sm: 3 },
+        minHeight: '100vh'
+      }}
+    >
+      <Paper sx={{ p: { xs: 2, sm: 4 } }}>
+        <Box sx={{ mb: { xs: 2, sm: 4 } }}>
+          <Typography 
+            variant="h4" 
+            gutterBottom
+            sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2.125rem' },
+              textAlign: { xs: 'center', sm: 'left' }
+            }}
+          >
             Upgrade Your Account
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography 
+            variant="body1" 
+            color="text.secondary"
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1rem' },
+              textAlign: { xs: 'center', sm: 'left' }
+            }}
+          >
             Get more features and benefits with our premium tiers.
           </Typography>
         </Box>
         
-        <Stepper activeStep={step} sx={{ mb: 4 }}>
+        <Stepper 
+          activeStep={step} 
+          sx={{ 
+            mb: { xs: 2, sm: 4 },
+            '& .MuiStepLabel-label': {
+              fontSize: { xs: '0.8rem', sm: '0.875rem' }
+            }
+          }}
+        >
           <Step>
             <StepLabel>Compare Plans</StepLabel>
           </Step>
@@ -340,17 +429,32 @@ const UpgradeAccountPage = () => {
           </Step>
         </Stepper>
         
-        <Divider sx={{ mb: 4 }} />
+        <Divider sx={{ mb: { xs: 2, sm: 4 } }} />
         
         {renderStepContent()}
       </Paper>
       
-      {/* All Account Tiers */}
-      <Paper sx={{ p: 4, mt: 4 }}>
-        <Typography variant="h6" gutterBottom>
+      {/* All Account Tiers - Mobile Optimized */}
+      <Paper sx={{ p: { xs: 2, sm: 4 }, mt: { xs: 2, sm: 4 } }}>
+        <Typography 
+          variant="h6" 
+          gutterBottom
+          sx={{ 
+            fontSize: { xs: '1.1rem', sm: '1.25rem' },
+            textAlign: { xs: 'center', sm: 'left' }
+          }}
+        >
           All Account Tiers
         </Typography>
-        <Box sx={{ display: 'flex', overflowX: 'auto', py: 2, gap: 2 }}>
+        
+        {/* Mobile: Vertical stack, Desktop: Horizontal scroll */}
+        <Box sx={{ 
+          display: { xs: 'flex', sm: 'flex' },
+          flexDirection: { xs: 'column', sm: 'row' },
+          overflowX: { xs: 'visible', sm: 'auto' },
+          py: 2, 
+          gap: 2 
+        }}>
           {Object.entries(tierInfo).map(([tierLevel, tier]) => {
             const tierNum = parseInt(tierLevel);
             const isCurrent = tierNum === currentTier;
@@ -362,7 +466,8 @@ const UpgradeAccountPage = () => {
               <Card 
                 key={tierLevel} 
                 sx={{ 
-                  minWidth: 200,
+                  minWidth: { xs: '100%', sm: 200 },
+                  maxWidth: { xs: '100%', sm: 250 },
                   border: isCurrent 
                     ? '2px solid #1976d2' 
                     : isTarget 
@@ -375,15 +480,25 @@ const UpgradeAccountPage = () => {
                       : 'white'
                 }}
               >
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {tier.name}
+                <CardContent sx={{ p: { xs: 2, sm: 2 } }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    flexWrap: 'wrap',
+                    gap: 1,
+                    mb: 1
+                  }}>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                    >
+                      {tier.name}
+                    </Typography>
                     {isCurrent && (
                       <Chip 
                         label="Current" 
                         size="small" 
                         color="primary"
-                        sx={{ ml: 1 }}
                       />
                     )}
                     {isTarget && (
@@ -391,20 +506,33 @@ const UpgradeAccountPage = () => {
                         label="Target" 
                         size="small" 
                         color="success"
-                        sx={{ ml: 1 }}
                       />
                     )}
-                  </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
+                  </Box>
+                  <Typography 
+                    variant="subtitle1" 
+                    color="text.secondary"
+                    sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+                  >
                     {tier.price}
                   </Typography>
                   <Divider sx={{ my: 1 }} />
-                  <Typography variant="body2" sx={{ height: 80, overflow: 'auto' }}>
-                    {tier.features.slice(0, 2).join(', ')}
-                    {tier.features.length > 2 && '...'}
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      height: { xs: 'auto', sm: 80 }, 
+                      overflow: { xs: 'visible', sm: 'auto' },
+                      fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                    }}
+                  >
+                    {/* Show all features on mobile, truncated on desktop */}
+                    {window.innerWidth < 600 
+                      ? tier.features.join(', ')
+                      : tier.features.slice(0, 2).join(', ') + (tier.features.length > 2 ? '...' : '')
+                    }
                   </Typography>
                 </CardContent>
-                <CardActions>
+                <CardActions sx={{ p: { xs: 1, sm: 1 } }}>
                   {isUpgrade && !isTarget && (
                     <Button 
                       size="small" 
@@ -417,6 +545,7 @@ const UpgradeAccountPage = () => {
                           state: { currentTier: currentTier, nextTier: tierNum } 
                         });
                       }}
+                      sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
                     >
                       Upgrade To
                     </Button>
@@ -430,6 +559,7 @@ const UpgradeAccountPage = () => {
                       onClick={() => navigate('/downgrade-account', { 
                         state: { currentTier: currentTier, nextTier: tierNum } 
                       })}
+                      sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
                     >
                       Downgrade To
                     </Button>
@@ -439,6 +569,7 @@ const UpgradeAccountPage = () => {
                       size="small" 
                       fullWidth
                       disabled
+                      sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
                     >
                       Current Tier
                     </Button>
@@ -450,6 +581,7 @@ const UpgradeAccountPage = () => {
                       variant="contained"
                       color="success"
                       onClick={() => handleNextStep()}
+                      sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
                     >
                       Select This
                     </Button>
