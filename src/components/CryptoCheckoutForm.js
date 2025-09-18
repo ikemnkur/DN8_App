@@ -259,7 +259,7 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
 
   if (orderSubmitted) {
     return (
-      <div id="checkout" style={styles.container}>
+      <div id="checkout" style={styles.container} backgroundColor="#e6ffed" borderRadius="8px" padding="20px">
         <h2>Order Logged!</h2>
         <p>
           Please make sure that you send <strong>{cryptoAmount} {currency}</strong> to the following wallet address:
