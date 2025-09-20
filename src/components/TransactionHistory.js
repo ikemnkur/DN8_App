@@ -257,6 +257,9 @@ const TransactionHistory = () => {
       >
         {/* Controls */}
        {/* // Replace your controls Box section with this updated version: */}
+       {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}> */}
+                 <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Transactions </Typography>
+               {/* </div> */}
         <Box
           component="form"
           onSubmit={handleSearch}

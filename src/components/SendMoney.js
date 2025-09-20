@@ -130,7 +130,7 @@ const SendMoney = () => {
         recipientUsername: toUser.username,
         sendingUsername: userData.username,
         sendingId: userData.user_id,
-        amount: parseFloat(amount),
+        amount: Math.ceil(parseFloat(amount)),
         message: message
       };
       await sendMoneyToOtherUser(sendmoneyData);

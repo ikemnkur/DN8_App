@@ -11,9 +11,12 @@ import {
   InputLabel,
   Box,
   Snackbar,
-  chipClasses,
-
-  Chip
+  Chip,
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Alert
 } from '@mui/material';
 import {
   Divider, CircularProgress
@@ -448,23 +451,16 @@ const WithdrawWallet = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 800, minWidth: 600, margin: 'auto', padding: 2 }}>
-      {/* <Typography variant="h4" gutterBottom>
-        Redeem Clout Coins
-      </Typography>
-      {!isLoading && walletData && (
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Current Redeemable Balance: ₡{walletData.redeemable}
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Account Tier: {userData.accountTier}
-          </Typography>
-    
-        </Box>
-      )} */}
-
-      <Box sx={{ textAlign: 'center', mb: 3 }}>
+    <Container 
+      maxWidth="md" 
+      sx={{ 
+        py: { xs: 1, sm: 3 }, 
+        px: { xs: 1, sm: 2 },
+        minHeight: '100vh'
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ textAlign: 'center', mb: { xs: 2, sm: 3 } }}>
         <Typography
           variant="h3"
           sx={{
@@ -473,135 +469,458 @@ const WithdrawWallet = () => {
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            mb: 1
+            mb: 1,
+            fontSize: { xs: '1.8rem', sm: '3rem' }
           }}
         >
           Withdraw / Redeem
         </Typography>
-        <Typography variant="h6" color="text.secondary">
+        <Typography 
+          variant="h6" 
+          color="text.secondary"
+          sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+        >
           Cash out your coins via your preferred method
         </Typography>
       </Box>
-      
 
-      {/* Balances */}
-      <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, border: '1px solid #e9ecef', backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+      {/* Balance Cards */}
+      <Paper 
+        sx={{ 
+          p: { xs: 2, sm: 3 }, 
+          mb: { xs: 2, sm: 3 }, 
+          border: '1px solid #e9ecef', 
+          backgroundColor: '#f8f9fa', 
+          borderRadius: 2 
+        }}
+      >
         {(isLoadingWallet || isLoadingRates) ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><CircularProgress size={24} /></Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+            <CircularProgress size={24} />
+          </Box>
         ) : (
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Chip label={`Redeemable: ₡${walletData?.redeemable ?? 0}`} />
-            <Chip variant="outlined" label={`Spendable: ₡${walletData?.spendable ?? 0}`} />
-            <Chip variant="outlined" label={`Tier: ${userData?.accountTier ?? '-'}`} />
+          <Box sx={{ 
+            display: 'flex', 
+            gap: { xs: 1, sm: 1 }, 
+            flexWrap: 'wrap',
+            justifyContent: { xs: 'center', sm: 'flex-start' }
+          }}>
+            <Chip 
+              label={`Redeemable: ₡${walletData?.redeemable ?? 0}`}
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
+            />
+            <Chip 
+              variant="outlined" 
+              label={`Spendable: ₡${walletData?.spendable ?? 0}`}
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
+            />
+            <Chip 
+              variant="outlined" 
+              label={`Tier: ${userData?.accountTier ?? '-'}`}
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
+            />
           </Box>
         )}
       </Paper>
 
-
-      <Paper sx={{ p: 2 }} style={{ backgroundColor: '#f1f3f5ff' }}>
-        <Typography variant="h6" gutterBottom>
-          Withdrawal: {amount}C ~ {(amount * 0.001).toFixed(2)} $USD{' '}
+      {/* Main Form */}
+      <Paper 
+        sx={{ 
+          p: { xs: 2, sm: 3 }, 
+          backgroundColor: '#f1f3f5ff',
+          borderRadius: 2
+        }}
+      >
+        <Typography 
+          variant="h6" 
+          gutterBottom
+          sx={{ 
+            fontSize: { xs: '1.1rem', sm: '1.25rem' },
+            textAlign: { xs: 'center', sm: 'left' }
+          }}
+        >
+          Withdrawal: {amount}C ~ {(amount * 0.001).toFixed(2)} $USD
         </Typography>
+
         <form onSubmit={handleSubmit}>
-          <TextField
-            label="Amount"
-            fullWidth
-            margin="normal"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-            inputProps={{ min: '0.01', step: '0.01' }}
-          />
+          <Grid container spacing={2}>
+            {/* Amount Input */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="Amount (Coins)"
+                fullWidth
+                margin="normal"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+                inputProps={{ min: '0.01', step: '0.01' }}
+                size="small"
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.9rem', sm: '1rem' }
+                  }
+                }}
+              />
+            </Grid>
 
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Withdrawal Method</InputLabel>
-            <Select
-              value={withdrawMethod}
-              onChange={(e) => setWithdrawMethod(e.target.value)}
-              label="Withdrawal Method"
+            {/* Withdrawal Method */}
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth margin="normal" size="small">
+                <InputLabel 
+                  sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}
+                >
+                  Withdrawal Method
+                </InputLabel>
+                <Select
+                  value={withdrawMethod}
+                  onChange={(e) => setWithdrawMethod(e.target.value)}
+                  label="Withdrawal Method"
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: { xs: '0.9rem', sm: '1rem' }
+                    }
+                  }}
+                >
+                  <MenuItem value="XMR">Crypto: Monero</MenuItem>
+                  <MenuItem value="SOL">Crypto: Solana</MenuItem>
+                  <MenuItem value="LTC">Crypto: Litecoin</MenuItem>
+                  <MenuItem value="ETH">Crypto: Ethereum</MenuItem>
+                  <MenuItem value="BTC">Crypto: Bitcoin</MenuItem>
+                  <MenuItem value="Amazon">Amazon Gift Card</MenuItem>
+                  <MenuItem value="Walmart">Walmart Gift Card</MenuItem>
+                  <MenuItem value="Target">Target Gift Card</MenuItem>
+                  <MenuItem value="Ticket">Prize Raffle Tickets</MenuItem>
+                  <MenuItem value="Bank">Bank Transfer</MenuItem>
+                  <MenuItem value="Paypal">PayPal</MenuItem>
+                  <MenuItem value="Sendwave">Sendwave</MenuItem>
+                  <MenuItem value="Check">Check by Mail (U.S Only)</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* Extra Fields */}
+            <Grid item xs={12}>
+              {renderExtraFields()}
+            </Grid>
+          </Grid>
+
+          {/* Method Info */}
+          <Box sx={{ mt: { xs: 2, sm: 3 } }}>
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
             >
-              <MenuItem value="XMR">Crypto: Monero</MenuItem>
-              <MenuItem value="SOL">Crypto: Solana</MenuItem>
-              <MenuItem value="LTC">Crypto: Litecoin</MenuItem>
-              <MenuItem value="ETH">Crypto: Ethereum</MenuItem>
-              <MenuItem value="BTC">Crypto: Bitcoin</MenuItem>
-              <MenuItem value="Amazon">Amazon Gift Card</MenuItem>
-              <MenuItem value="Walmart">Walmart Gift Card</MenuItem>
-              <MenuItem value="Target">Target Gift Card</MenuItem>
-              <MenuItem value="Ticket">Prize Raffle Tickets</MenuItem>
-              <MenuItem value="Bank">Bank Transfer</MenuItem>
-              <MenuItem value="Paypal">PayPal</MenuItem>
-              <MenuItem value="Sendwave">Sendwave</MenuItem>
-              <MenuItem value="Check">Check by Mail (U.S Only)</MenuItem>
-            </Select>
-          </FormControl>
-
-          {/* Render additional fields based on withdrawal method */}
-          {renderExtraFields()}
-
-          {/* Display Derived Values */}
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h5" gutterBottom>
               Minimum Withdraw: {min} Coins
             </Typography>
-            <Typography variant="h5" gutterBottom>
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+            >
               Rate: {rate} Coins = 1 {methodNames[withdrawMethod]}
             </Typography>
-            <Typography variant="h6" gutterBottom>
+            <Typography 
+              variant="h6" 
+              gutterBottom
+              sx={{ fontSize: { xs: '0.9rem', sm: '1.125rem' } }}
+            >
               Estimated Wait Time: {time}
             </Typography>
-
-
-          </Box>
-          {/* Cost + Info */}
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 2 }}>
-            <Chip variant="outlined" label={`Rate: ${rate ? `₡${rate}/$` : '—'}`} />
-            <Chip variant="outlined" label={`Flat Fee: ${feeFlat}`} />
-            <Chip variant="outlined" label={`Server: ${Math.round(serverPct * 100)}%`} />
-            <Chip color="warning" label={`Min: ₡${min}`} />
-            {time && <Chip label={`ETA: ${time}`} />}
           </Box>
 
-          <Divider sx={{ my: 2 }} />
-
-          <Box style={{ backgroundColor: "#EEEEFF", padding: "5px" }}>
-
-            <Typography variant="h6" gutterBottom>
-              Amount: {amount} Coins
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Fees: {fee} Coins
-            </Typography>
-            <Typography variant="h6" gutterBottom>
-              Server Cost: {Math.round(serverCost)} Coins
-            </Typography>
-            <Typography variant="h5" gutterBottom>
-              Total Cost: {Math.round(totalCost)} Coins
-            </Typography>
+          {/* Cost Info Chips */}
+          <Box sx={{ 
+            display: 'flex', 
+            gap: { xs: 0.5, sm: 1 }, 
+            flexWrap: 'wrap', 
+            mt: 2,
+            justifyContent: { xs: 'center', sm: 'flex-start' }
+          }}>
+            <Chip 
+              variant="outlined" 
+              label={`Rate: ${rate ? `₡${rate}/$` : '—'}`}
+              size="small"
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+            />
+            <Chip 
+              variant="outlined" 
+              label={`Flat Fee: ${feeFlat}`}
+              size="small"
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+            />
+            <Chip 
+              variant="outlined" 
+              label={`Server: ${Math.round(serverPct * 100)}%`}
+              size="small"
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+            />
+            <Chip 
+              color="warning" 
+              label={`Min: ₡${min}`}
+              size="small"
+              sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+            />
+            {time && (
+              <Chip 
+                label={`ETA: ${time}`}
+                size="small"
+                sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}
+              />
+            )}
           </Box>
 
+          <Divider sx={{ my: { xs: 2, sm: 3 } }} />
 
+          {/* Cost Breakdown */}
+          <Card sx={{ backgroundColor: "#EEEEFF", mb: 2 }}>
+            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+              <Grid container spacing={1}>
+                <Grid item xs={6} sm={3}>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                  >
+                    Amount: {amount ? amount : '—'} Coins
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Typography 
+                    variant="body2"
+                    sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                  >
+                    Fees: {fee} Coins
+                  </Typography>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Typography 
+                    variant="body2"
+                    sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                  >
+                    Server Cost: {Math.round(serverCost)} Coins
+                  </Typography>
+                </Grid>
+                {/* <Grid item xs={6} sm={3}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 'bold',
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}
+                  >
+                    Total: {Math.round(totalCost)} Coins
+                  </Typography>
+                </Grid> */}
+              </Grid>
+              <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 'bold',
+                      fontSize: { xs: '1rem', sm: '1.25rem' }
+                    }}
+                  >
+                    Total: {Math.round(totalCost)} Coins
+                  </Typography>
+            </CardContent>
+          </Card>
+
+          {/* Submit Button */}
           <Button
             type="submit"
             variant="contained"
             color="primary"
-            sx={{ mt: 2 }}
+            fullWidth
+            size="large"
             disabled={isLoading || amountNum < min || isNaN(amountNum) || amount > parseInt(userData.balance)}
+            sx={{ 
+              mt: { xs: 2, sm: 3 },
+              py: { xs: 1.5, sm: 2 },
+              fontSize: { xs: '0.9rem', sm: '1rem' }
+            }}
           >
             {isLoading ? 'Processing...' : 'Request Withdrawal'}
           </Button>
         </form>
       </Paper>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Snackbar */}
       <Snackbar
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         open={openSnackbar}
-        autoHideDuration={3000}
+        autoHideDuration={4000}
         onClose={() => setOpenSnackbar(false)}
         message={snackbarMessage}
+        sx={{
+          '& .SnackbarContent-root': {
+            fontSize: { xs: '0.8rem', sm: '0.875rem' }
+          }
+        }}
       />
-    </Box>
+    </Container>
   );
+  // return (
+  //   <Box sx={{ maxWidth: 800, minWidth: 600, margin: 'auto', padding: 2 }}>
+  //     {/* <Typography variant="h4" gutterBottom>
+  //       Redeem Clout Coins
+  //     </Typography>
+  //     {!isLoading && walletData && (
+  //       <Box sx={{ mb: 2 }}>
+  //         <Typography variant="h6" gutterBottom>
+  //           Current Redeemable Balance: ₡{walletData.redeemable}
+  //         </Typography>
+  //         <Typography variant="body1" gutterBottom>
+  //           Account Tier: {userData.accountTier}
+  //         </Typography>
+    
+  //       </Box>
+  //     )} */}
+
+  //     <Box sx={{ textAlign: 'center', mb: 3 }}>
+  //       <Typography
+  //         variant="h3"
+  //         sx={{
+  //           fontWeight: 700,
+  //           background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+  //           backgroundClip: 'text',
+  //           WebkitBackgroundClip: 'text',
+  //           WebkitTextFillColor: 'transparent',
+  //           mb: 1
+  //         }}
+  //       >
+  //         Withdraw / Redeem
+  //       </Typography>
+  //       <Typography variant="h6" color="text.secondary">
+  //         Cash out your coins via your preferred method
+  //       </Typography>
+  //     </Box>
+      
+
+  //     {/* Balances */}
+  //     <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, border: '1px solid #e9ecef', backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+  //       {(isLoadingWallet || isLoadingRates) ? (
+  //         <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}><CircularProgress size={24} /></Box>
+  //       ) : (
+  //         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+  //           <Chip label={`Redeemable: ₡${walletData?.redeemable ?? 0}`} />
+  //           <Chip variant="outlined" label={`Spendable: ₡${walletData?.spendable ?? 0}`} />
+  //           <Chip variant="outlined" label={`Tier: ${userData?.accountTier ?? '-'}`} />
+  //         </Box>
+  //       )}
+  //     </Paper>
+
+
+  //     <Paper sx={{ p: 2 }} style={{ backgroundColor: '#f1f3f5ff' }}>
+  //       <Typography variant="h6" gutterBottom>
+  //         Withdrawal: {amount}C ~ {(amount * 0.001).toFixed(2)} $USD{' '}
+  //       </Typography>
+  //       <form onSubmit={handleSubmit}>
+  //         <TextField
+  //           label="Amount"
+  //           fullWidth
+  //           margin="normal"
+  //           type="number"
+  //           value={amount}
+  //           onChange={(e) => setAmount(e.target.value)}
+  //           required
+  //           inputProps={{ min: '0.01', step: '0.01' }}
+  //         />
+
+  //         <FormControl fullWidth margin="normal">
+  //           <InputLabel>Withdrawal Method</InputLabel>
+  //           <Select
+  //             value={withdrawMethod}
+  //             onChange={(e) => setWithdrawMethod(e.target.value)}
+  //             label="Withdrawal Method"
+  //           >
+  //             <MenuItem value="XMR">Crypto: Monero</MenuItem>
+  //             <MenuItem value="SOL">Crypto: Solana</MenuItem>
+  //             <MenuItem value="LTC">Crypto: Litecoin</MenuItem>
+  //             <MenuItem value="ETH">Crypto: Ethereum</MenuItem>
+  //             <MenuItem value="BTC">Crypto: Bitcoin</MenuItem>
+  //             <MenuItem value="Amazon">Amazon Gift Card</MenuItem>
+  //             <MenuItem value="Walmart">Walmart Gift Card</MenuItem>
+  //             <MenuItem value="Target">Target Gift Card</MenuItem>
+  //             <MenuItem value="Ticket">Prize Raffle Tickets</MenuItem>
+  //             <MenuItem value="Bank">Bank Transfer</MenuItem>
+  //             <MenuItem value="Paypal">PayPal</MenuItem>
+  //             <MenuItem value="Sendwave">Sendwave</MenuItem>
+  //             <MenuItem value="Check">Check by Mail (U.S Only)</MenuItem>
+  //           </Select>
+  //         </FormControl>
+
+  //         {/* Render additional fields based on withdrawal method */}
+  //         {renderExtraFields()}
+
+  //         {/* Display Derived Values */}
+  //         <Box sx={{ mt: 2 }}>
+  //           <Typography variant="h5" gutterBottom>
+  //             Minimum Withdraw: {min} Coins
+  //           </Typography>
+  //           <Typography variant="h5" gutterBottom>
+  //             Rate: {rate} Coins = 1 {methodNames[withdrawMethod]}
+  //           </Typography>
+  //           <Typography variant="h6" gutterBottom>
+  //             Estimated Wait Time: {time}
+  //           </Typography>
+
+
+  //         </Box>
+  //         {/* Cost + Info */}
+  //         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 2 }}>
+  //           <Chip variant="outlined" label={`Rate: ${rate ? `₡${rate}/$` : '—'}`} />
+  //           <Chip variant="outlined" label={`Flat Fee: ${feeFlat}`} />
+  //           <Chip variant="outlined" label={`Server: ${Math.round(serverPct * 100)}%`} />
+  //           <Chip color="warning" label={`Min: ₡${min}`} />
+  //           {time && <Chip label={`ETA: ${time}`} />}
+  //         </Box>
+
+  //         <Divider sx={{ my: 2 }} />
+
+  //         <Box style={{ backgroundColor: "#EEEEFF", padding: "5px" }}>
+
+  //           <Typography variant="h6" gutterBottom>
+  //             Amount: {amount} Coins
+  //           </Typography>
+  //           <Typography variant="h6" gutterBottom>
+  //             Fees: {fee} Coins
+  //           </Typography>
+  //           <Typography variant="h6" gutterBottom>
+  //             Server Cost: {Math.round(serverCost)} Coins
+  //           </Typography>
+  //           <Typography variant="h5" gutterBottom>
+  //             Total Cost: {Math.round(totalCost)} Coins
+  //           </Typography>
+  //         </Box>
+
+
+  //         <Button
+  //           type="submit"
+  //           variant="contained"
+  //           color="primary"
+  //           sx={{ mt: 2 }}
+  //           disabled={isLoading || amountNum < min || isNaN(amountNum) || amount > parseInt(userData.balance)}
+  //         >
+  //           {isLoading ? 'Processing...' : 'Request Withdrawal'}
+  //         </Button>
+  //       </form>
+  //     </Paper>
+  //     <Snackbar
+  //       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+  //       open={openSnackbar}
+  //       autoHideDuration={3000}
+  //       onClose={() => setOpenSnackbar(false)}
+  //       message={snackbarMessage}
+  //     />
+  //   </Box>
+  // );
 };
 
 export default WithdrawWallet;

@@ -968,8 +968,8 @@ const Messages = () => {
             className="modal-ad"
           />
         </Box>
-
-      <Divider sx={{ my: 4 }} />
+{/* 
+      <Divider sx={{ my: 4 }} /> */}
 
       <AdModalObject
         onAdView={(ad) => console.log('Ad viewed:', ad)}
