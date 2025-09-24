@@ -181,7 +181,7 @@ const DotCaptcha = ({ onSuccess, onFailure }) => {
   }
 
   return (
-    <Box sx={{ mt: 4 }} style={{ backgroundColor: "#F0F0FF", padding: 7 }}  >
+    <Box sx={{ mt: 4 }} style={{ backgroundColor: "#16161eff", padding: 7 }}  >
       <div style={{ background: grey, padding: 5 }}>
         <Typography style={{ backgroundColor: grey }} variant="h6" align="center">
           Count the number of <span style={{ color: targetColor, background: "lightgrey", padding: 5 , borderRadius: 5 }}>{targetColor}</span> dots:

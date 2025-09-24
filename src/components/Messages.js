@@ -39,7 +39,7 @@ const Messages = () => {
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [userData, setUserData] = useState(() => {
-    const data = localStorage.getItem('userData');
+    const data = localStorage.getItem('userdata');
     return data ? JSON.parse(data) : {};
   });
 

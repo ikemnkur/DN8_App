@@ -52,6 +52,17 @@ const Dashboard = () => {
     return r;
   };
 
+  const tiers = [
+    { id: 1, name: 'Basic', limit: 100, fee: 0 },
+    { id: 2, name: 'Standard', limit: 500, fee: 5 },
+    { id: 3, name: 'Premium', limit: 1000, fee: 10 },
+    { id: 4, name: 'Gold', limit: 5000, fee: 20 },
+    { id: 5, name: 'Platinum', limit: 10000, fee: 35 },
+    { id: 6, name: 'Diamond', limit: 50000, fee: 50 },
+    { id: 7, name: 'Ultimate', limit: 100000, fee: 75 },
+  ];
+  const currentTier = tiers.find(t => t.id === tier) || tiers[0];
+
 
 
   useEffect(() => {
@@ -112,9 +123,10 @@ const Dashboard = () => {
 
   const cardSx = {
     p: { xs: 2, sm: 2.5 },
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #e9ecef',
+     background: 'linear-gradient(45deg, #2a2b27ff 30%, #393c1aff 90%)',
+    border: '2px solid #e6cd0aff',
     borderRadius: 2,
+
     boxShadow: 'none',
   };
 
@@ -143,7 +155,7 @@ const Dashboard = () => {
           component="h1"
           sx={{
             fontWeight: 700,
-            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            background: 'linear-gradient(45deg, #e2f321ff 30%, #d2e31aff 90%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -162,10 +174,10 @@ const Dashboard = () => {
         <Grid item xs={12} sm={6} md={4}>
           <Paper sx={cardSx}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography variant="h3" sx={{ fontWeight: 700 }}>
                 Wallet
               </Typography>
-              <Chip label={`Tier ${tier || 1}`} color="primary" size="small" />
+              <Chip label={`Tier: ${tiers[tier-1].name || 1}`} sx={{ color: 'black', fontSize: '0.75rem', background: 'linear-gradient(45deg, #e2f321ff 30%, #d2e31aff 90%)' }} size="small" />
             </Box>
 
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -186,133 +198,77 @@ const Dashboard = () => {
               </Paper>
             </Box>
 
-            <Divider sx={{ my: 1.5 }} />
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={() => navigate('/send')}
-                sx={{ textTransform: 'none', fontWeight: 600 }}
-              >
-                Send Coins
-              </Button>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={() => navigate('/reload')}
-                sx={{ textTransform: 'none', fontWeight: 600 }}
-              >
-                Get Coins
-              </Button>
-              {/* <Button
-                fullWidth
-                variant="outlined"
-                onClick={() => navigate(`/user/${userData?.username || ''}`)}
-                sx={{ textTransform: 'none', fontWeight: 600 }}
-              >
-                View Profile
-              </Button> */}
-            </Box>
-          </Paper>
-        </Grid>
-
-        {/* Transaction Limits */}
-        <Grid item xs={12} sm={6} md={4}>
-          <Paper sx={cardSx}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-              Transaction Limits (Today)
-            </Typography>
-
-            <Typography variant="body2" sx={{ mb: 0.5 }}>
-              Times Sent: {sentTimes} / {dailyTxLimit || '—'}
-            </Typography>
-            <LinearProgress
-              variant="determinate"
-              value={safeRatio(sentTimes, dailyTxLimit)}
-              sx={{ height: 8, borderRadius: 1, mb: 1.5 }}
-            />
-
-            <Typography variant="body2" sx={{ mb: 0.5 }}>
-              Times Received: {recvTimes} / {dailyTxLimit || '—'}
-            </Typography>
-            <LinearProgress
-              variant="determinate"
-              value={safeRatio(recvTimes, dailyTxLimit)}
-              sx={{ height: 8, borderRadius: 1 }}
-            />
-            <br />
-            <Alert severity="info" sx={{ bgcolor: '#e7f3fe', borderColor: '#b3d4fc' }}>
-              Note: Transaction and coin limits reset every 24 hours. Upgrade your account tier for higher limits.
-            </Alert>
-          </Paper>
-
-        </Grid>
-
-        {/* Last 24h Summary */}
-        <Grid item xs={12} md={4}>
-          <Paper sx={cardSx}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-              Last 24 Hours
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-              Sent
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-              <Typography variant="h6">₡{formatCoins(sent24h)}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                limit: ₡{formatCoins(dailyCoinLimit || 0)}
+            <Box sx={{  gap: 1.5, mb: 2 }}>
+            <Paper sx={cardSx}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                Transaction Limits (Today)
               </Typography>
-            </Box>
-            <LinearProgress
-              variant="determinate"
-              value={safeRatio(sent24h, dailyCoinLimit)}
-              sx={{ height: 8, borderRadius: 1, mb: 1.5 }}
-            />
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
-              Received
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-              <Typography variant="h6">₡{formatCoins(recv24h)}</Typography>
-              <Typography variant="caption" color="text.secondary">
-                limit: ₡{formatCoins(dailyCoinLimit || 0)}
+              <Typography variant="body2" sx={{ mb: 0.5 }}>
+                Times Sent: {sentTimes} / {dailyTxLimit || '—'}
               </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={safeRatio(sentTimes, dailyTxLimit)}
+                sx={{ height: 8, borderRadius: 1, mb: 1.5 }}
+              />
+
+              <Typography variant="body2" sx={{ mb: 0.5 }}>
+                Times Received: {recvTimes} / {dailyTxLimit || '—'}
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={safeRatio(recvTimes, dailyTxLimit)}
+                sx={{ height: 8, borderRadius: 1 }}
+              />
+           
+             
+            </Paper>
+
             </Box>
-            <LinearProgress
-              variant="determinate"
-              value={safeRatio(recv24h, dailyCoinLimit)}
-              sx={{ height: 8, borderRadius: 1 }}
-            />
+
+
+            <Box sx={{  gap: 1.5, mb: 2 }}>
+            <Paper sx={cardSx}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                Last 24 Hours
+              </Typography>
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Typography variant="h6">Sent: ₡{formatCoins(sent24h)}</Typography>
+                <Typography variant="h6" color="text.secondary">
+                  limit: ₡{formatCoins(dailyCoinLimit || 0)}
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={safeRatio(sent24h, dailyCoinLimit)}
+                sx={{ height: 8, borderRadius: 1, mb: 1.5 }}
+              />
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Typography variant="h6">Received: ₡{formatCoins(recv24h)}</Typography>
+                <Typography variant="h6" color="text.secondary">
+                  limit: ₡{formatCoins(dailyCoinLimit || 0)}
+                </Typography>
+              </Box>
+              <LinearProgress
+                variant="determinate"
+                value={safeRatio(recv24h, dailyCoinLimit)}
+                sx={{ height: 8, borderRadius: 1 }}
+              />
+            </Paper>
+            </Box>
+
+            {/* <Paper sx={{ ...cardSx, textAlign: 'center' }}> */}
+               <Alert severity="info" sx={{ bgcolor: '#23231fff', borderColor: '#b3d4fc' }}>
+                Note: Transaction and coin limits reset every 24 hours. Upgrade your account tier for higher limits.
+              </Alert>
+            {/* </Paper> */}
           </Paper>
         </Grid>
-        {userData.accountTier < 4 && (
-          <Grid item xs={12}>
 
 
-            <AdVideoObject
-              onAdView={(ad) => console.log('Ad viewed:', ad)}
-              onAdClick={(ad) => console.log('Ad clicked:', ad)}
-              onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-              onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-              RewardModal={({ onClose, onReward }) => (
-                <div style={{ /* simple modal styles */ }}>
-                  <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-                  <button onClick={onClose}>Close</button>
-                </div>
-              )}
-              // style={{ borderRadius: 0 }}
-              showRewardProbability={0.3} // 30% chance to show reward button
-              filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
-              style={{
-                minHeight: '240px', // Ensure minimum height
-                maxHeight: '400px', // Limit maximum height
-                borderRadius: 0 // Remove border radius to fit Paper container
-              }}
-              className="modal-ad"
-            />
-          </Grid>
-        )}
       </Grid>
 
       {/* Notifications below the cards */}

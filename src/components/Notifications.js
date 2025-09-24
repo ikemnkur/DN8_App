@@ -156,15 +156,15 @@ const Notifications = () => {
       {notifications.length > 0 ? (
         <>
           <Paper>
-            <List>
+            <List sx={{ paddingRight: "5px" }}>
               {currentNotifications.map((notif) => (
                 <ListItem key={notif.id} alignItems="flex-start">
-                  <ListItemText
+                  <ListItemText sx={{ marginRight: '5px' }}
                     primary={notif.message}
                     secondary={new Date(notif.created_at).toLocaleString()}
                   />
-                  <ListItemSecondaryAction>
-                    <IconButton
+                  <ListItemSecondaryAction sx={{top: '30%'}}>
+                    {/* <IconButton
                       edge="end"
                       aria-label="view"
                       onClick={() => handleView(notif)}
@@ -177,7 +177,7 @@ const Notifications = () => {
                       onClick={() => handleSnooze(notif.id)}
                     >
                       <Snooze />
-                    </IconButton>
+                    </IconButton> */}
                     <IconButton
                       edge="end"
                       aria-label="dismiss"
@@ -185,6 +185,7 @@ const Notifications = () => {
                     >
                       <Close />
                     </IconButton>
+                    
                   </ListItemSecondaryAction>
                 </ListItem>
               ))}

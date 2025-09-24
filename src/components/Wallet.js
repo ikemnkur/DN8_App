@@ -121,7 +121,7 @@ const Wallet = () => {
           component="h1"
           sx={{
             fontWeight: 700,
-            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            background: 'linear-gradient(45deg, #bff321ff 30%, #bff321ff 90%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -140,9 +140,9 @@ const Wallet = () => {
         <Grid item xs={12} md={7}>
           <Paper sx={cardSx}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              {/* <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 Overview
-              </Typography>
+              </Typography> */}
               <Chip label={`Tier: ${tierName}`} color="primary" size="small" />
             </Box>
 
@@ -155,18 +155,18 @@ const Wallet = () => {
 
             <Grid container spacing={1.5} sx={{ mb: 2 }}>
               <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #e9ecef', boxShadow: 'none' }}>
+                <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #f4c50bff', boxShadow: 'none' }}>
                   <Typography variant="caption" color="text.secondary">
-                    Spendable
+                    Credits Available for Dontating
                   </Typography>
                   <Typography variant="h6">₡{fmt(spendable)}</Typography>
                   <LinearProgress variant="determinate" value={spendablePct} sx={{ height: 8, borderRadius: 1, mt: 0.75 }} />
                 </Paper>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #e9ecef', boxShadow: 'none' }}>
+                <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #f4c50bff', boxShadow: 'none' }}>
                   <Typography variant="caption" color="text.secondary">
-                    Redeemable
+                    Credits Earned for Redeeming
                   </Typography>
                   <Typography variant="h6">₡{fmt(redeemable)}</Typography>
                   <LinearProgress variant="determinate" value={redeemablePct} sx={{ height: 8, borderRadius: 1, mt: 0.75 }} />
@@ -217,7 +217,7 @@ const Wallet = () => {
                   Reload Wallet
                 </Button>
               </Grid>
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <Button
                   fullWidth
                   variant="outlined"          // replaces invalid color="tertiary"
@@ -226,7 +226,7 @@ const Wallet = () => {
                 >
                   Convert Coins
                 </Button>
-              </Grid>
+              </Grid> */}
               <Grid item xs={12}>
                 <Button
                   fullWidth
@@ -242,70 +242,11 @@ const Wallet = () => {
           </Paper>
         </Grid>
 
-        {userData.accountTier <= 4 && (
-          <Grid item xs={12}>
-            <Divider sx={{ my: 4 }} />
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-              Earn More Coins
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-              Listen/Watch ads to earn additional coins for your wallet
-            </Typography>
+       
 
-            {userData.accountTier > 2 && (
-              <AdAudioObject
-                onAdView={(ad) => console.log('Ad viewed:', ad)}
-                onAdClick={(ad) => console.log('Ad clicked:', ad)}
-                onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-                onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-                RewardModal={({ onClose, onReward }) => (
-                  <div style={{ /* simple modal styles */ }}>
-                    <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-                    <button onClick={onClose}>Close</button>
-                  </div>
-                )}
-                // style={{ borderRadius: 0 }}
-                showRewardProbability={0.3} // 30% chance to show reward button
-                filters={{ format: 'banner', mediaFormat: "audio" }} // Only show modal ads for this placement
-                style={{
-
-                  maxHeight: '400px', // Limit maximum height
-                  borderRadius: 0 // Remove border radius to fit Paper container
-                }}
-                className="modal-ad"
-              />
-            )}
-
-            {userData.accountTier <= 2 && (
-              <AdVideoObject
-                onAdView={(ad) => console.log('Ad viewed:', ad)}
-                onAdClick={(ad) => console.log('Ad clicked:', ad)}
-                onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-                onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-                RewardModal={({ onClose, onReward }) => (
-                  <div style={{ /* simple modal styles */ }}>
-                    <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-                    <button onClick={onClose}>Close</button>
-                  </div>
-                )}
-                // style={{ borderRadius: 0 }}
-                showRewardProbability={0.3} // 30% chance to show reward button
-                filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
-                style={{
-                  minHeight: '240px', // Ensure minimum height
-                  maxHeight: '400px', // Limit maximum height
-                  borderRadius: 0 // Remove border radius to fit Paper container
-                }}
-                className="modal-ad"
-              />
-            )} 
-
-          </Grid>
-        )}
-
-        <Grid item xs={12}>
-          <ShareWallet walletData={walletData} /> {/* ShareWallet component */}
-        </Grid>
+        {/* <Grid item xs={12}>
+          <ShareWallet walletData={walletData} /> 
+        </Grid> */}
       </Grid>
 
       {/* (Optional) Dialog if you later want confirmation flow */}

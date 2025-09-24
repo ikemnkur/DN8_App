@@ -114,22 +114,22 @@ const NavBar = ({ children }) => {
   const getMenuItems = () => [
     { text: 'Dashboard', icon: <Dashboard />, path: '/Dashboard' },
     { text: 'Your Wallet', icon: <AccountBalance />, path: '/wallet' },
-    { text: 'Send Coins', icon: <Send />, path: '/send' },
-    { text: 'Look for Users', icon: <Search />, path: '/search' },
-    { text: 'Messages', icon: <Message />, path: '/messages' },
+    // { text: 'Send Coins', icon: <Send />, path: '/send' },
+    // { text: 'Look for Users', icon: <Search />, path: '/search' },
+    // { text: 'Messages', icon: <Message />, path: '/messages' },
     { text: 'Transaction History', icon: <History />, path: '/transactions' },
-    { text: 'Published Content', icon: <LockOutlined />, path: '/manage-content' },
-    { text: 'Your Stuff', icon: <CategoryIcon />, path: '/your-stuff' },
+    // { text: 'Published Content', icon: <LockOutlined />, path: '/manage-content' },
+    // { text: 'Your Stuff', icon: <CategoryIcon />, path: '/your-stuff' },
     { text: 'Account', icon: <AccountCircle />, path: '/account' },
     { text: "Info", icon: <InfoIcon />, path: '/' },
     { text: "Help & FAQs", icon: <HelpIcon />, path: '/help' },
-    { text: "Ads", icon: <BookmarkAdd />, path: getAdsPath() },
+    // { text: "Ads", icon: <BookmarkAdd />, path: getAdsPath() },
   ];
 
   const unlockPage = location.pathname.startsWith('/unlock');
   const subPage = location.pathname.startsWith('/sub');
   const previewPage = location.pathname.startsWith('/preview-ad');
-  const hideNavBar = ['/login', "/help", '/register', '/', '/info', '/create-ad', "/ad-analytics", "/ad-help", '/ads', '/display-ad', '/preview-ad', '/preview-ad/ad/', '/preview/pending-ad', "/ads-service", "/test-ad", "/ads", "/ads-join", "/ads-login", "/preview/pending-ad"].includes(location.pathname);
+  const hideNavBar = ['/login', '/register', '/',  '/create-ad', "/ad-analytics", "/ad-help", '/ads', '/display-ad', '/preview-ad', '/preview-ad/ad/', '/preview/pending-ad', "/ads-service", "/test-ad", "/ads", "/ads-join", "/ads-login", "/preview/pending-ad"].includes(location.pathname);
 
   function refreshPage() {
     window.location.reload(false);
@@ -188,11 +188,10 @@ const NavBar = ({ children }) => {
         position="fixed"
         sx={{
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          ...(isMobilePortrait && { display: 'none' }),
         }}
       >
         <Toolbar>
-          {!isMobilePortrait && (
+          {/* {!isMobilePortrait && (
             <IconButton
               color="inherit"
               aria-label="toggle drawer"
@@ -203,7 +202,7 @@ const NavBar = ({ children }) => {
             >
               {open ? <ChevronLeftIcon fontSize="large" /> : <MenuIcon fontSize="large" />}
             </IconButton>
-          )}
+          )} */}
           <IconButton
             color="inherit"
             aria-label="toggle full screen"
@@ -220,9 +219,9 @@ const NavBar = ({ children }) => {
             component="div"
             sx={{ flexGrow: 1, textAlign: 'center' }}
           >
-            Clout Coin
+            DN8
           </Typography>
-          <IconButton
+          {/* <IconButton
             color="inherit"
             onClick={() => navigate('/settings')}
             sx={{ mr: 2, p: 1.5, fontSize: 32 }}
@@ -237,11 +236,11 @@ const NavBar = ({ children }) => {
             size="large"
           >
             <AccountCircle fontSize="large" />
-          </IconButton>
+          </IconButton> */}
           <IconButton
             color="inherit"
             onClick={() => navigate('/login')}
-            sx={{ mr: 2, p: 1.5, fontSize: 32 }}
+            sx={{ mr: 1, p: 1, fontSize: 32 }}
             size="large"
           >
             <LogoutOutlined fontSize="large" />
@@ -249,115 +248,8 @@ const NavBar = ({ children }) => {
         </Toolbar>
       </AppBar>
 
-      {/* Desktop Drawer */}
-      {!isMobilePortrait && (
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: open ? drawerWidth : 0,
-            flexShrink: 0,
-            transition: (theme) =>
-              theme.transitions.create('width', {
-                easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.enteringScreen,
-              }),
-            '& .MuiDrawer-paper': {
-              width: open ? drawerWidth : 48,
-              boxSizing: 'border-box',
-              overflowX: 'hidden',
-              transition: (theme) =>
-                theme.transitions.create('width', {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.enteringScreen,
-                }),
-              // top: 64,
-            },
-          }}
-        >
-          <Toolbar />
-          <Box sx={{ overflow: 'auto' }}>
-            <List>
-              {menuItems.map((item) => (
-                //   <Tooltip
-                //   title={open ? '' : item.text}
-                //   placement="right"
-                //   key={item.text}
-                //   PopperProps={{
-                //   modifiers: [
-                //     {
-                //     name: 'offset',
-                //     options: {
-                //       offset: [0, -4], // Remove vertical offset
-                //     },
-                //     },
-                //   ],
-                //   }}
-                // >
-
-                <ListItem
-                  button
-                  component={RouterLink}
-                  to={item.path}
-                  sx={{
-                    alignItems: 'center',
-                    justifyContent: open ? 'center' : 'center', // center row when open too
-                    px: 1,
-                  }}
-                >
-                  <Tooltip
-                    title={open ? '' : item.text}
-                    placement="right"
-                    key={item.text}
-                    PopperProps={{
-                      modifiers: [
-                        {
-                          name: 'offset',
-                          options: {
-                            // progressively shift the tooltip up a bit each tip instance
-                            offset: [ 8 + 4 * (menuItems.indexOf(item) + 1), 12],
-                          },
-                        },
-                      ],
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: open ? 30 : 0,      // give the icon cell some width when open
-                        maxHeight: 48,
-                        mr: open ? 1 : 'auto',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        // px: 0.5,
-                      }}
-                    >
-                      {React.isValidElement(item.icon)
-                        ? React.cloneElement(item.icon, {
-                          sx: { fontSize: open ? 30 : 30 }, // <- size the actual icon
-                        })
-                        : item.icon}
-                    </ListItemIcon>
-
-                  </Tooltip>
-
-                  <ListItemText
-                    primary={open ? item.text : ''}
-                    sx={{
-                      opacity: open ? 1 : 0,
-                      transition: 'opacity 150ms',
-                      ml: open ? 0.5 : 0,
-                    }}
-                  />
-                </ListItem>
-                // </Tooltip>
-              ))}
-            </List>
-          </Box>
-        </Drawer>
-      )}
-
       {/* Mobile Bottom Navigation Bar */}
-      {isMobilePortrait && (
+     
         <Paper
           ref={mobileNavRef}
           sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 100 }}
@@ -429,7 +321,7 @@ const NavBar = ({ children }) => {
             ))}
           </List>
         </Paper>
-      )}
+      
 
       {/* Main Content Area */}
       <Box
@@ -441,7 +333,7 @@ const NavBar = ({ children }) => {
           ml: (!isMobilePortrait && !open) ? `${mobileNavWidth}px` : 0,
         }}
       >
-        {!isMobilePortrait && <Toolbar />}
+        <Toolbar />
         {children}
       </Box>
     </Box>

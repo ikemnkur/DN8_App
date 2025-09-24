@@ -20,7 +20,7 @@ import AdAudioObject from '../pages/AdAudioObject'; // Assuming you have an AdAu
 
 import { fetchUserProfile } from './api';
 
-const UnlockContent = () => {
+const Donate = () => {
   const { itemid } = useParams();
   const navigate = useNavigate();
   const [contentData, setContentData] = useState(null);
@@ -74,49 +74,7 @@ const UnlockContent = () => {
 
   const API_URL = process.env.REACT_APP_API_SERVER_URL || 'http://localhost:5000';
 
-  // Load comments from database
-  const loadComments = async (contentId) => {
-    try {
-      setLoadingComments(true);
-      const response = await axios.get(`${API_URL}/api/content/comments/${contentId}`);
-      const commentsData = response.data.comments;
-
-      // Parse comments JSON if it exists
-      if (commentsData) {
-        const parsedComments = typeof commentsData === 'string'
-          ? JSON.parse(commentsData)
-          : commentsData;
-        setComments(parsedComments || []);
-      } else {
-        setComments([]);
-      }
-    } catch (error) {
-      console.error('Error loading comments:', error);
-      setComments([]);
-    } finally {
-      setLoadingComments(false);
-    }
-  };
-
-  // Save comments to database
-  const saveCommentsToDb = async (contentId, updatedComments) => {
-    try {
-
-      
-      const token = localStorage.getItem('token');
-      await axios.post(
-        `${API_URL}/api/content/update-comments`,
-        {
-          contentId: contentId,
-          comments: JSON.stringify(updatedComments)
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    } catch (error) {
-      console.error('Error saving comments:', error);
-      setSnackbarMessage('Failed to save comment. Please try again.');
-    }
-  };
+ 
 
   const createNotification = async (notifBody) => {
     try {
@@ -550,7 +508,7 @@ const UnlockContent = () => {
     const fetchData = async () => {
       try {
         // 1) Get content info
-        const contentResponse = await axios.get(`${API_URL}/api/unlock/unlock-content/${itemid}`);
+        const contentResponse = await axios.get(`${API_URL}/api/donate/user/${itemid}`);
         const content = contentResponse.data;
         console.log("HostUser Content Data: ", content);
         setContentData(content);
@@ -1112,46 +1070,7 @@ const UnlockContent = () => {
             </Typography>
           )}
         </Box>
-
-        <Divider sx={{ mb: 2 }} />
-
-        <div style={{ marginTop: '5px' }}>
-          <Typography variant="subtitle1" gutterBottom>
-            Leave a public comment:
-          </Typography>
-          {/* Fixed: Made comment text field wider and added proper state management */}
-          <TextField
-            label="Leave a public comment"
-            fullWidth
-            multiline
-            rows={3}
-            margin="normal"
-            placeholder={unlocked ? `I think that "${contentData?.title}" is amazing!` : "Unlock content to leave comments"}
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            disabled={!isLoggedIn || !unlocked}
-            helperText={
-              !isLoggedIn ? "Please log in to leave comments" :
-                !unlocked ? "You must unlock this content to leave comments" : ""
-            }
-            sx={{ width: '100%' }}
-          />
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            {/* Fixed: Made button light green */}
-            <Button
-              variant="contained"
-              onClick={handleCommentSubmit}
-              sx={{
-                backgroundColor: '#4CAF50',
-                '&:hover': {
-                  backgroundColor: '#45a049'
-                }
-              }}
-            >
-              Submit Comment
-            </Button>
-          </Box>
-        </div>
+      
       </Paper>
 
       {/* create a component to display a banner ad beneath the comment section */}
@@ -1213,4 +1132,4 @@ const UnlockContent = () => {
   );
 };
 
-export default UnlockContent;
+export default Donate;

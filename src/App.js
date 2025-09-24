@@ -24,7 +24,7 @@ import Account from './components/Account';
 import Settings from './components/Settings';
 import Auth from './components/Auth';
 import Wallet from './components/Wallet';
-import UnlockContent from './components/UnlockContent';
+import Donate from './components/Donate.js';
 import Subscriptions from './components/ManageSubscriptions';
 import ManageContent from './components/ManageContent';
 import AddToWallet from './components/AddToWallet';
@@ -102,10 +102,10 @@ function App() {
             <Route path="/login" element={<Auth isLogin={true} />} />
             {/* <Route path="/" element={<Auth isLogin={true} />} /> */}
             <Route path="/register" element={<Auth isLogin={false} />} />
-            <Route path="/unlock/:itemid" element={<UnlockContent />} />
+            <Route path="/donate/:username" element={<Donate />} />
             <Route path="/help" element={<HelpPage />} />
 
-            
+
 
             {/* Protected Routes */}
             <Route path="/adminx" element={
@@ -131,10 +131,10 @@ function App() {
               <ProtectedRoute> <UserProfile /> </ProtectedRoute>} />
             <Route path="/share" element={
               <ProtectedRoute> <ShareWallet /> </ProtectedRoute>} />
-            <Route path="/messages" element={
+            {/* <Route path="/messages" element={
               <ProtectedRoute> <Messages /> </ProtectedRoute>} />
             <Route path="/messages/:username" element={
-              <ProtectedRoute> <Messages /> </ProtectedRoute>} />
+              <ProtectedRoute> <Messages /> </ProtectedRoute>} /> */}
             <Route path="/upgrade-account" element={
               <ProtectedRoute> < UpgradeAccountPage /> </ProtectedRoute>} />
             <Route path="/downgrade-account" element={
@@ -147,63 +147,36 @@ function App() {
               <ProtectedRoute> <Wallet /> </ProtectedRoute>} />
             <Route path="/manage-subscriptions" element={
               <ProtectedRoute> <Subscriptions /> </ProtectedRoute>} />
-            <Route path="/subscribe/:itemid" element={
-              <ProtectedRoute> <SubscribeToContent /> </ProtectedRoute>} />
+            {/* <Route path="/subscribe/:itemid" element={
+              <ProtectedRoute> <SubscribeToContent /> </ProtectedRoute>} /> */}
             <Route path="/manage-content" element={
               <ProtectedRoute> <ManageContent /> </ProtectedRoute>} />
             <Route path="/reload-wallet" element={
               <ProtectedRoute> <AddToWallet /> </ProtectedRoute>} />
-            <Route path="/your-stuff" element={
-              <ProtectedRoute> <YourStuff /> </ProtectedRoute>} />
-            <Route path="/user-posts/:user" element={
+            {/* <Route path="/your-stuff" element={
+              <ProtectedRoute> <YourStuff /> </ProtectedRoute>} />*/}
+            <Route path="/donate-causes/:username" element={
               <ProtectedRoute> <OtherUserStuff /> </ProtectedRoute>} />
-            <Route path="/Admin" element={
-              <ProtectedRoute> <AdminDashboard /> </ProtectedRoute>} />
+            {/* <Route path="/Admin" element={
+              <ProtectedRoute> <AdminDashboard /> </ProtectedRoute>} /> */}
             {/* <Route path="/admin-purchases" element={
               <ProtectedRoute> <AdminPurchasesPage /> </ProtectedRoute>} />
             <Route path="/admin-withdraws" element={
               <ProtectedRoute> <AdminWithdrawsPage /> </ProtectedRoute>} /> */}
-            <Route path="/stripe-checkout" element={
-              <ProtectedRoute> <CheckoutForm setCoins={setCoins} /> </ProtectedRoute>} />
+            {/* <Route path="/stripe-checkout" element={
+              <ProtectedRoute> <CheckoutForm setCoins={setCoins} /> </ProtectedRoute>} /> */}
             <Route path="/crypto-checkout" element={
               <ProtectedRoute> <CryptoCheckoutForm setCoins={setCoins} /> </ProtectedRoute>} />
             <Route path="/cashapp-checkout" element={
               <ProtectedRoute> <CashappCheckoutForm setCoins={setCoins} /> </ProtectedRoute>} />
-            <Route path="/coinbase-checkout" element={
+            {/* <Route path="/coinbase-checkout" element={
               <ProtectedRoute> <CoinBaseCheckoutForm setCoins={setCoins} /> </ProtectedRoute>} />
-            <Route path="/return" element={
-              <ProtectedRoute> <Return /> </ProtectedRoute>} />
-            <Route path="/test" element={
-              <ProtectedRoute> <UserManagement /> </ProtectedRoute>} />
-              {/* Ad Service Pages */}
-            <Route path="/create-ad" element={
-              <ProtectedRoute> <CreateAdPage /> </ProtectedRoute>} />
-            <Route path="/ad-help" element={
-              <ProtectedRoute> <AdHelpPage /> </ProtectedRoute>} />
-            <Route path="/ad-analytics" element={
-              <ProtectedRoute> <AdAnalyticsPage /> </ProtectedRoute>} />
-             <Route path="/ad-dashboard" element={
-              <ProtectedRoute> <AdDashboardPage /> </ProtectedRoute>} />
-            <Route path="/manage-ads" element={
-              <ProtectedRoute> <ManageAdsPage /> </ProtectedRoute>} />
-            <Route path="/preview-ad/:id" element={
-              <ProtectedRoute> <AdPreviewPage /> </ProtectedRoute>} />
-            <Route path="/preview/pending-ad/" element={
-              <ProtectedRoute> <AdPreviewPage /> </ProtectedRoute>} />
-            <Route path="/ads-homepage" element={
-              <ProtectedRoute> <AdHomepage /> </ProtectedRoute>} />
-            <Route path="/ads-activate" element={
-              <ProtectedRoute> <AdsActivatePage /> </ProtectedRoute>} />
-            <Route path="/ads-join" element={
-              <ProtectedRoute> <JoinAdProgram /> </ProtectedRoute>} />
-            <Route path="/ads-login" element={
-              <ProtectedRoute> <LoginToAdProgram /> </ProtectedRoute>} />
-            <Route path="/ads-service" element={
-              <ProtectedRoute> <AdsHeader /> </ProtectedRoute>} /> 
-            <Route path="/test-ad" element={
-              <ProtectedRoute> <AdObject /> </ProtectedRoute>} />
-            <Route path="/display-ad" element={<DisplayAd /> } />
-            <Route path="/display-adId/:id" element={<DisplayAd /> } />
+            {/* <Route path="/return" element={ */}
+            {/* <ProtectedRoute> <Return /> </ProtectedRoute>} /> */}
+            {/* <Route path="/test" element={
+              <ProtectedRoute> <UserManagement /> </ProtectedRoute>} /> */}
+
+
 
 
           </Routes>

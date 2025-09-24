@@ -248,6 +248,14 @@ const UserProfile = () => {
         {/* Left: Profile summary */}
         <Grid item xs={12} md={4}>
           <Paper sx={cardSx}>
+
+            <>
+              {/* <Divider sx={{ my: 1.5 }} /> */}
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>Profile: <span style={(user.accountTier > 2) ? { color: 'Blue' } : { color: 'Gray' }}>{(user.accountTier > 2) ? "Verified" : 'Basic'}</span></Typography>
+            </>
+
+            {/* <Divider sx={{ my: 1.5 }} /> */}
+
             <Box sx={{ textAlign: 'center' }}>
               <Avatar
                 src={user.profilePic || user.avatar}
@@ -261,7 +269,7 @@ const UserProfile = () => {
                   borderColor: 'primary.light',
                 }}
               />
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>Profile</Typography>
+
               <Typography variant="body2" color="text.secondary">
                 @{user.username}
               </Typography>
@@ -270,7 +278,7 @@ const UserProfile = () => {
             <Divider sx={{ my: 1.5 }} />
 
             {/* Stats */}
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 1 }}>
+            {/* <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 1 }}>
               <Chip
                 icon={<StarIcon />}
                 label={`Rating: ${Number(user.avgRating || 0).toFixed(1)}`}
@@ -291,12 +299,12 @@ const UserProfile = () => {
                 label={`Favorites Received: ${user.numberOfFavorites ?? 0}`}
                 variant="outlined"
               />
-            </Box>
+            </Box> */}
 
             {user.bio && (
               <>
-                <Divider sx={{ my: 1.5 }} />
-                <Typography variant="subtitle2" color="text.secondary">Bio</Typography>
+                {/* <Divider sx={{ my: 1.5 }} /> */}
+                <Typography variant="subtitle1" color="text.secondary">Bio</Typography>
                 <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
                   {user.bio}
                 </Typography>
@@ -335,7 +343,7 @@ const UserProfile = () => {
                   Send Coins
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              {/* <Grid item xs={12} sm={6} md={4}>
                 <Button
                   fullWidth
                   variant={isFavorite ? 'contained' : 'outlined'}
@@ -345,7 +353,7 @@ const UserProfile = () => {
                 >
                   {isFavorite ? 'Remove Favorite' : 'Add Favorite'}
                 </Button>
-              </Grid>
+              </Grid> */}
               <Grid item xs={12} sm={6} md={4}>
                 <Button
                   fullWidth
@@ -357,7 +365,7 @@ const UserProfile = () => {
                   Report
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              {/* <Grid item xs={12} sm={6} md={4}>
                 <Button
                   fullWidth
                   variant="outlined"
@@ -367,7 +375,7 @@ const UserProfile = () => {
                 >
                   Message
                 </Button>
-              </Grid>
+              </Grid> */}
             </Grid>
           </Paper>
 
