@@ -91,7 +91,9 @@ const AccountPage = () => {
     lastName: '',
     phoneNumber: '',
     birthDate: '',
-    encryptionKey: '',
+    city: '',
+    state: '',
+    country: '',
     accountTier: 1,
     profilePicture: '',
     account_id: '',
@@ -411,7 +413,7 @@ const AccountPage = () => {
           </Paper>
 
           {/* Tier Card */}
-          <Paper sx={{ ...cardSx, mt: 2 }}>
+          {/* <Paper sx={{ ...cardSx, mt: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
               Account Tier
             </Typography>
@@ -446,7 +448,7 @@ const AccountPage = () => {
                 Downgrade
               </Button>
             </Box>
-          </Paper>
+          </Paper> */}
         </Grid>
 
         {/* Right column: Form */}
@@ -568,10 +570,34 @@ const AccountPage = () => {
                   <TextField
                     fullWidth
                     margin="normal"
-                    name="encryptionKey"
-                    label="Encryption Key"
+                    name="City"
+                    label="City"
                     disabled={isUpdating}
-                    value={userData.encryptionKey}
+                    value={userData.city}
+                    onChange={handleInputChange}
+                  />
+                </Grid>
+
+                  {/* Encryption Key */}
+                  <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="Country"
+                    label="country"
+                    disabled={isUpdating}
+                    value={userData.country}
+                    onChange={handleInputChange}
+                  /> 
+                  {/* State or Province */}
+                  <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    name="Country"
+                    label="country"
+                    disabled={isUpdating}
+                    value={userData.state}
                     onChange={handleInputChange}
                   />
                 </Grid>

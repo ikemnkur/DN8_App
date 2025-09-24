@@ -132,6 +132,11 @@ const UserProfile = () => {
     navigate(`/user-posts/${user.username}`);
   };
 
+  const handleSupport = () => {
+    if (!user?.username) return;
+    navigate(`/donate/${user.username}`);
+  };
+
   const handleToggleFavorite = async () => {
     if (!user) return;
     try {
@@ -270,6 +275,7 @@ const UserProfile = () => {
                 }}
               />
 
+
               <Typography variant="body2" color="text.secondary">
                 @{user.username}
               </Typography>
@@ -310,6 +316,16 @@ const UserProfile = () => {
                 </Typography>
               </>
             )}
+
+            {(user.country && user.city) && (
+              <>
+                {/* <Divider sx={{ my: 1.5 }} /> */}
+                <Typography variant="subtitle1" color="text.secondary">Location</Typography>
+                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                  {user.country}, {user.state}, {user.city}
+                </Typography>
+              </>
+            )}
           </Paper>
         </Grid>
 
@@ -329,7 +345,7 @@ const UserProfile = () => {
                   onClick={handleViewingUserPosts}
                   sx={{ textTransform: 'none', fontWeight: 600 }}
                 >
-                  View Posts
+                  View Posted Causes
                 </Button>
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
@@ -376,6 +392,47 @@ const UserProfile = () => {
                   Message
                 </Button>
               </Grid> */}
+            </Grid>
+          </Paper>
+
+
+          <Paper sx={{ ...cardSx, mb: 2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+              Info & Promo
+            </Typography>
+            <Grid container spacing={1.25}>
+              {/* <Grid item xs={12} sm={6} md={4}></Grid> */}
+              <Grid item xs={12} sm={6} md={4}>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    paddingBottom: '56.25%',
+                    height: 0,
+                    overflow: 'hidden',
+                    mt: 2,
+                  }}
+                >
+                  <iframe
+                    ref={howToVideoRef}
+                    src="https://www.youtube.com/embed/Q_KxEMxn2pc"
+                    title="How-to Video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 0 }}
+                  ></iframe>
+                </Box>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<ReportIcon />}
+                  onClick={handleSupport}
+                  sx={{ textTransform: 'none', fontWeight: 600 }}
+                >
+                  Support
+                </Button>
+              </Grid>
             </Grid>
           </Paper>
 

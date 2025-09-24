@@ -681,96 +681,7 @@ const ManageContent = () => {
           >
             Create
           </Button>
-          {/* 
-            <Button
-              variant="outlined"
-              sx={{ textTransform: 'none' }}
-              onClick={() => {
-                setSearchTerm('');
-                setFilteredContentList(contentList);
-              }}
-            >
-              Reset
-            </Button> */}
-
         </Box>
-
-        {/* Scrollable Table */}
-        {/* <TableContainer
-          component={Paper}
-          sx={{ maxHeight: { xs: 360, md: 500 }, overflowY: 'auto', borderRadius: 1 }}
-        >
-          <Table stickyHeader>
-            <TableHead
-              sx={{
-                '& .MuiTableCell-stickyHeader': {
-                  backgroundColor: (t) => t.palette.background.paper + ' !important',
-                  fontWeight: 600,
-                },
-              }}
-            >
-              <TableRow>
-                <TableCell>Title</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Date</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell align="center">Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {!loading &&
-                filteredContentList.map((item) => (
-                  <TableRow key={item.id} hover>
-                    <TableCell>{item.title}</TableCell>
-                    <TableCell sx={{ maxWidth: 240, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {item.description}
-                    </TableCell>
-                    <TableCell>{item.created_at.slice(0, 10)}</TableCell>
-                    <TableCell>{item.type}</TableCell>
-                    <TableCell>₡{item.cost}</TableCell>
-                    <TableCell align="center">
-                      <Tooltip title="Preview">
-                        <IconButton onClick={() => navigate(`/unlock/${item.reference_id}`)} size="small">
-                          <Visibility fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Share">
-                        <IconButton onClick={() => handleShare(item)} size="small">
-                          <ShareIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Edit">
-                        <IconButton onClick={() => handleEdit(item)} size="small">
-                          <EditNoteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete">
-                        <IconButton onClick={() => handleDelete(item.id)} size="small">
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-
-              {!loading && filteredContentList.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    No content found.
-                  </TableCell>
-                </TableRow>
-              )}
-              {loading && (
-                <TableRow>
-                  <TableCell colSpan={6} align="center">
-                    <CircularProgress size={24} />
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer> */}
       </Paper>
 
 
@@ -785,10 +696,10 @@ const ManageContent = () => {
           sx: { borderRadius: 2 },
         }}
       >
-        <DialogTitle>{editing ? 'Edit Content' : 'Add New Content'}</DialogTitle>
+        <DialogTitle>{editing ? 'Edit Causes' : 'Add New Cause'}</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            {editing ? 'Update your content details below.' : 'Fill in the details to add content.'}
+            {editing ? 'Update your donation cause details below.' : 'Fill in the details to add a Cause.'}
           </DialogContentText>
 
           <Box component="form" onSubmit={editing ? handleSubmitEdit : handleCreateContent}>
@@ -801,7 +712,7 @@ const ManageContent = () => {
               margin="normal"
               required
             />
-            <TextField
+            {/* <TextField
               label="Price (₡)"
               name="cost"
               type="number"
@@ -811,7 +722,7 @@ const ManageContent = () => {
               fullWidth
               margin="normal"
               required
-            />
+            /> */}
             <TextField
               label="Description"
               name="description"
@@ -822,6 +733,21 @@ const ManageContent = () => {
               multiline
               rows={2}
             />
+
+             <TextField
+              label="Content"
+              name="content"
+              value={newContent.link}
+              onChange={handleInputChange}
+              fullWidth
+              margin="normal"
+              multiline
+              rows={1}
+              required
+              helperText="Enter URL of your causes website, channel, or social media page"
+            />
+           
+
             <TextField
               label="Content"
               name="content"
@@ -832,7 +758,7 @@ const ManageContent = () => {
               multiline
               rows={3}
               required
-              helperText="Enter URL, text, or file path based on content type"
+              helperText="Embed a promotional video or add a background image, Enter URL of media"
             />
             <Select
               name="type"
@@ -845,6 +771,7 @@ const ManageContent = () => {
               <MenuItem value="image">Image</MenuItem>
               <MenuItem value="code">Code</MenuItem>
               <MenuItem value="video">Video</MenuItem>
+              <MenuItem value="audio">Audio</MenuItem>
               <MenuItem value="file">File</MenuItem>
             </Select>
 
@@ -860,7 +787,7 @@ const ManageContent = () => {
                 </>
               ) : (
                 <Button type="submit" variant="contained" sx={{ textTransform: 'none' }}>
-                  Add New Content
+                  Add Cause
                 </Button>
               )}
             </Box>

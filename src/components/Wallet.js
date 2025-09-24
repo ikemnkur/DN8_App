@@ -31,6 +31,7 @@ const Wallet = () => {
   const [error, setError] = useState(null);
   const [userData] = useState(JSON.parse(localStorage.getItem('userdata')));
   const navigate = useNavigate();
+  const [accountType, setAccountType] = useState(Math.random() > 0.5 ? "donor" : "reciever"); 
 
   const tiers = [
     { id: 1, name: 'Basic', limit: 100, fee: 0 },
@@ -152,47 +153,54 @@ const Wallet = () => {
             <Typography variant="h4" sx={{ fontWeight: 800, mb: 1 }}>
               ₡{fmt(total)}
             </Typography>
+            {accountType == 1 && (
+              <div>
+                <Grid container spacing={1.5} sx={{ mb: 2 }}>
+                  <Grid item xs={12} sm={6}>
+                    <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #f4c50bff', boxShadow: 'none' }}>
+                      <Typography variant="caption" color="text.secondary">
+                        Pending Credits from Donations
+                      </Typography>
+                      <Typography variant="h6">₡{fmt(spendable)}</Typography>
+                      <LinearProgress variant="determinate" value={spendablePct} sx={{ height: 8, borderRadius: 1, mt: 0.75 }} />
+                    </Paper>
+                  </Grid>
 
-            <Grid container spacing={1.5} sx={{ mb: 2 }}>
-              <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #f4c50bff', boxShadow: 'none' }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Credits Available for Dontating
-                  </Typography>
-                  <Typography variant="h6">₡{fmt(spendable)}</Typography>
-                  <LinearProgress variant="determinate" value={spendablePct} sx={{ height: 8, borderRadius: 1, mt: 0.75 }} />
-                </Paper>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #f4c50bff', boxShadow: 'none' }}>
-                  <Typography variant="caption" color="text.secondary">
-                    Credits Earned for Redeeming
-                  </Typography>
-                  <Typography variant="h6">₡{fmt(redeemable)}</Typography>
-                  <LinearProgress variant="determinate" value={redeemablePct} sx={{ height: 8, borderRadius: 1, mt: 0.75 }} />
-                </Paper>
-              </Grid>
-            </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Paper sx={{ p: 1.25, borderRadius: 1.5, border: '1px solid #f4c50bff', boxShadow: 'none' }}>
+                      <Typography variant="caption" color="text.secondary">
+                        Credits Available for Redeeming
+                      </Typography>
+                      <Typography variant="h6">₡{fmt(redeemable)}</Typography>
+                      <LinearProgress variant="determinate" value={redeemablePct} sx={{ height: 8, borderRadius: 1, mt: 0.75 }} />
+                    </Paper>
+                  </Grid>
+                </Grid>
 
-            <Divider sx={{ my: 1.5 }} />
+                <Divider sx={{ my: 1.5 }} />
 
-            <Typography variant="body2" color="text.secondary">
-              Limits & Fees (Tier {tiers[tierIdx]?.id || 1})
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 0.5 }}>
-              <Chip
-                label={`Daily limit: ₡${fmt(tiers[tierIdx]?.limit ?? 0)}`}
-                size="small"
-                variant="outlined"
-                color="default"
-              />
-              <Chip
-                label={`Fee: ₡${fmt(tiers[tierIdx]?.fee ?? 0)}`}
-                size="small"
-                variant="outlined"
-                color="default"
-              />
-            </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Limits & Fees (Tier {tiers[tierIdx]?.id || 1})
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 0.5 }}>
+                  <Chip
+                    label={`Daily limit: ₡${fmt(tiers[tierIdx]?.limit ?? 0)}`}
+                    size="small"
+                    variant="outlined"
+                    color="default"
+                  />
+                  <Chip
+                    label={`Fee: ₡${fmt(tiers[tierIdx]?.fee ?? 0)}`}
+                    size="small"
+                    variant="outlined"
+                    color="default"
+                  />
+                </Box>
+              </div>
+            )
+
+            }
+
           </Paper>
         </Grid>
 
@@ -242,7 +250,7 @@ const Wallet = () => {
           </Paper>
         </Grid>
 
-       
+
 
         {/* <Grid item xs={12}>
           <ShareWallet walletData={walletData} /> 

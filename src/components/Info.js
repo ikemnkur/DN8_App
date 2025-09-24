@@ -313,30 +313,30 @@ const Info = () => {
       </Box>
 
 
-<Divider sx={{ my: 4 }} />
-         <Box sx={{ mt: 4 }}>
-          <AdVideoObject
-            onAdView={(ad) => console.log('Ad viewed:', ad)}
-            onAdClick={(ad) => console.log('Ad clicked:', ad)}
-            onAdSkip={(ad) => console.log('Ad skipped:', ad)}
-            onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
-            RewardModal={({ onClose, onReward }) => (
-              <div style={{ /* simple modal styles */ }}>
-                <button onClick={() => onReward(5)}>Claim 5 Credits</button>
-                <button onClick={onClose}>Close</button>
-              </div>
-            )}
-            // style={{ borderRadius: 0 }}
-            showRewardProbability={0.3} // 30% chance to show reward button
-            filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
-            style={{
-              minHeight: '240px', // Ensure minimum height
-              maxHeight: '400px', // Limit maximum height
-              borderRadius: 0 // Remove border radius to fit Paper container
-            }}
-            className="modal-ad"
-          />
-        </Box>
+      <Divider sx={{ my: 4 }} />
+      <Box sx={{ mt: 4 }}>
+        <AdVideoObject
+          onAdView={(ad) => console.log('Ad viewed:', ad)}
+          onAdClick={(ad) => console.log('Ad clicked:', ad)}
+          onAdSkip={(ad) => console.log('Ad skipped:', ad)}
+          onRewardClaim={(ad, amount) => console.log('Reward claimed:', amount)}
+          RewardModal={({ onClose, onReward }) => (
+            <div style={{ /* simple modal styles */ }}>
+              <button onClick={() => onReward(5)}>Claim 5 Credits</button>
+              <button onClick={onClose}>Close</button>
+            </div>
+          )}
+          // style={{ borderRadius: 0 }}
+          showRewardProbability={0.3} // 30% chance to show reward button
+          filters={{ format: 'regular', mediaFormat: 'video' }} // Only show modal ads for this placement
+          style={{
+            minHeight: '240px', // Ensure minimum height
+            maxHeight: '400px', // Limit maximum height
+            borderRadius: 0 // Remove border radius to fit Paper container
+          }}
+          className="modal-ad"
+        />
+      </Box>
 
       {/* Advertisement Section */}
       {/* <Paper
@@ -355,7 +355,7 @@ const Info = () => {
         </Box>
 
         {/* AdObject Component */}
-        {/* <AdObject
+      {/* <AdObject
           onAdView={(ad) => console.log('Ad viewed:', ad)}
           onAdClick={(ad) => console.log('Ad clicked:', ad)}
           onAdSkip={(ad) => console.log('Ad skipped:', ad)}
@@ -375,7 +375,7 @@ const Info = () => {
           getAdById={-1}
           className="banner-ad"
         /> */}
-      {/* </Paper> */} 
+      {/* </Paper> */}
 
       {/* Support Ticket Modal */}
       <Modal
@@ -458,7 +458,7 @@ const Info = () => {
       </Modal>
 
 
-     
+
 
       {/* Popup Ad Modal */}
       <Modal
@@ -486,7 +486,7 @@ const Info = () => {
             Popup Ad
           </Typography>
 
-         {/* <Divider sx={{ my: 4 }} />
+          {/* <Divider sx={{ my: 4 }} />
          <Box sx={{ mt: 4 }}> */}
           <AdVideoObject
             onAdView={(ad) => console.log('Ad viewed:', ad)}
@@ -509,7 +509,7 @@ const Info = () => {
             }}
             className="modal-ad"
           />
-        {/* </Box> */}
+          {/* </Box> */}
 
           <Typography id="popup-ad-modal-description" variant="body2">
             This is a popup ad, it will close automatically after a few seconds.

@@ -73,8 +73,31 @@ const DetailsModal = ({ transaction, open, handleClose }) => {
         <Typography variant="body1"><strong>ID:</strong> {transaction.id}</Typography>
         <Typography variant="body1"><strong>Amount:</strong> ${parseFloat(transaction.amount).toFixed(2)}</Typography>
         <Typography variant="body1"><strong>Type:</strong> {transaction.transaction_type}</Typography>
-        <Typography variant="body1"><strong>From:</strong> {transaction.sending_user}</Typography>
-        <Typography variant="body1"><strong>To:</strong> {transaction.receiving_user}</Typography>
+        <Typography variant="body1"><strong>From:</strong> {transaction.sending_user}
+          <Button
+            onClick={goToUserProfile}
+            variant="contained"
+            startIcon={<Visibility />}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            View Profile
+          </Button></Typography>
+        <Typography variant="body1"><strong>To:</strong> {transaction.receiving_user}
+          <Button
+            onClick={goToUserProfile}
+            variant="contained"
+            startIcon={<Visibility />}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            View Profile
+          </Button>
+        </Typography>
         <Typography variant="body1"><strong>Date:</strong> {new Date(transaction.created_at).toLocaleString()}</Typography>
         <Typography variant="body1"><strong>Status:</strong> {transaction.status}</Typography>
         <Typography variant="body1" mt={2}><strong>Message:</strong></Typography>
@@ -90,6 +113,14 @@ const DetailsModal = ({ transaction, open, handleClose }) => {
     </Modal>
   );
 };
+
+const goToUserProfile = (username) => {
+  if (username === "You" || username === "System") {
+    alert("No profile for this user.")
+    return;
+  }
+  navigate(`/user/${username}`)
+}
 
 const TransactionHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -256,10 +287,10 @@ const TransactionHistory = () => {
         }}
       >
         {/* Controls */}
-       {/* // Replace your controls Box section with this updated version: */}
-       {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}> */}
-                 <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Transactions </Typography>
-               {/* </div> */}
+        {/* // Replace your controls Box section with this updated version: */}
+        {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0 }}> */}
+        <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>Your Transactions </Typography>
+        {/* </div> */}
         <Box
           component="form"
           onSubmit={handleSearch}
@@ -365,13 +396,13 @@ const TransactionHistory = () => {
       </Button> */}
             </Box>
 
-            
+
           </Box>
         </Box>
 
         {/* Table */}
 
-                {/* // Replace your Table section with this optimized version: */}
+        {/* // Replace your Table section with this optimized version: */}
         <TableContainer
           component={Paper}
           sx={{
@@ -575,18 +606,18 @@ const TransactionHistory = () => {
         </Box>
         <Divider sx={{ my: 2 }} />
         {/* Right side: Export button */}
-            <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
-              <Button
-                variant="contained"
-                onClick={exportToCSV}
-                sx={{
-                  textTransform: 'none',
-                  flexShrink: 0
-                }}
-              >
-                Export CSV
-              </Button>
-            </Box>
+        <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+          <Button
+            variant="contained"
+            onClick={exportToCSV}
+            sx={{
+              textTransform: 'none',
+              flexShrink: 0
+            }}
+          >
+            Export CSV
+          </Button>
+        </Box>
 
         {/* <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="transaction history table">
