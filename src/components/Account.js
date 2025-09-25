@@ -565,12 +565,12 @@ const AccountPage = () => {
                   />
                 </Grid>
 
-                {/* Encryption Key */}
+                {/* City */}
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
                     margin="normal"
-                    name="City"
+                    name="city"
                     label="City"
                     disabled={isUpdating}
                     value={userData.city}
@@ -578,24 +578,26 @@ const AccountPage = () => {
                   />
                 </Grid>
 
-                  {/* Encryption Key */}
-                  <Grid item xs={12}>
+                {/* Country */}
+                <Grid item xs={12}>
                   <TextField
                     fullWidth
                     margin="normal"
-                    name="Country"
-                    label="country"
+                    name="country"
+                    label="Country"
                     disabled={isUpdating}
                     value={userData.country}
                     onChange={handleInputChange}
-                  /> 
-                  {/* State or Province */}
-                  <Grid item xs={12}>
+                  />
+                </Grid>
+
+                {/* State or Province */}
+                <Grid item xs={12}>
                   <TextField
                     fullWidth
                     margin="normal"
-                    name="Country"
-                    label="country"
+                    name="state"
+                    label="State/Province"
                     disabled={isUpdating}
                     value={userData.state}
                     onChange={handleInputChange}

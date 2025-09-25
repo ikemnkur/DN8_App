@@ -23,7 +23,7 @@ import {
   Divider, // Added Modal
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { Search as SearchIcon, Download as DownloadIcon } from '@mui/icons-material';
+import { Search as SearchIcon, Download as DownloadIcon, Visibility } from '@mui/icons-material';
 import { keyframes } from '@mui/system';
 import { fetchTransactionHistory, deleteTransaction } from './api';
 
@@ -79,6 +79,7 @@ const DetailsModal = ({ transaction, open, handleClose }) => {
             variant="contained"
             startIcon={<Visibility />}
             sx={{
+              padding: "-3px",
               textTransform: 'none',
               fontWeight: 500
             }}

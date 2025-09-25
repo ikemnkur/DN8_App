@@ -45,6 +45,8 @@ const UserProfile = () => {
   const [userid_or_username, setUserid_or_Username] = useState(userId);
   const navigate = useNavigate();
 
+  const howToVideoRef = React.createRef();
+
   const [user, setUser] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
