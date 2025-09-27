@@ -168,10 +168,10 @@ const Dashboard = () => {
           Overview of your wallet and activity
         </Typography>
       </Box>
-
-      <Grid container spacing={2.5}>
+{/* 
+      <Grid container spacing={2.5}> */}
         {/* Wallet Overview */}
-        <Grid item xs={12} sm={6} md={4}>
+        {/* <Grid item xs={12} sm={6} md={4}> */} 
           <Paper sx={cardSx}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Typography variant="h3" sx={{ fontWeight: 700 }}>
@@ -266,10 +266,10 @@ const Dashboard = () => {
               </Alert>
             {/* </Paper> */}
           </Paper>
-        </Grid>
+        {/* </Grid> */}
 
 
-      </Grid>
+      {/* </Grid> */}
 
       {/* Notifications below the cards */}
       <Box sx={{ mt: 2.5 }}>

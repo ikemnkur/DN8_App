@@ -70,41 +70,67 @@ const DetailsModal = ({ transaction, open, handleClose }) => {
         <Typography variant="h5" component="h2" mb={2}>
           Transaction Details
         </Typography>
-        <Typography variant="body1"><strong>ID:</strong> {transaction.id}</Typography>
-        <Typography variant="body1"><strong>Amount:</strong> ${parseFloat(transaction.amount).toFixed(2)}</Typography>
-        <Typography variant="body1"><strong>Type:</strong> {transaction.transaction_type}</Typography>
-        <Typography variant="body1"><strong>From:</strong> {transaction.sending_user}
-          <Button
-            onClick={goToUserProfile}
-            variant="contained"
-            startIcon={<Visibility />}
-            sx={{
-              padding: "-3px",
-              textTransform: 'none',
-              fontWeight: 500
-            }}
-          >
-            View Profile
-          </Button></Typography>
-        <Typography variant="body1"><strong>To:</strong> {transaction.receiving_user}
-          <Button
-            onClick={goToUserProfile}
-            variant="contained"
-            startIcon={<Visibility />}
-            sx={{
-              textTransform: 'none',
-              fontWeight: 500
-            }}
-          >
-            View Profile
-          </Button>
+        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <strong style={{ minWidth: 80 }}>ID:</strong> {transaction.id}
         </Typography>
-        <Typography variant="body1"><strong>Date:</strong> {new Date(transaction.created_at).toLocaleString()}</Typography>
-        <Typography variant="body1"><strong>Status:</strong> {transaction.status}</Typography>
+        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <strong style={{ minWidth: 80 }}>Amount:</strong> ${parseFloat(transaction.amount).toFixed(2)}
+        </Typography>
+        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <strong style={{ minWidth: 80 }}>Type:</strong> {transaction.transaction_type}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Typography variant="body1" sx={{ mr: 1 }}>
+            <strong style={{ minWidth: 80 }}>From:</strong> {transaction.sending_user}
+          </Typography>
+          <Button
+            onClick={() => goToUserProfile(transaction.sending_user)}
+            variant="outlined"
+            size="small"
+            startIcon={<Visibility />}
+            sx={{
+              ml: 1,
+              textTransform: 'none',
+              fontWeight: 500,
+              minWidth: 0,
+              px: 1,
+              py: 0.5,
+            }}
+          >
+            View
+          </Button>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Typography variant="body1" sx={{ mr: 1 }}>
+            <strong style={{ minWidth: 80 }}>To:</strong> {transaction.receiving_user}
+          </Typography>
+          <Button
+            onClick={() => goToUserProfile(transaction.receiving_user)}
+            variant="outlined"
+            size="small"
+            startIcon={<Visibility />}
+            sx={{
+              ml: 1,
+              textTransform: 'none',
+              fontWeight: 500,
+              minWidth: 0,
+              px: 1,
+              py: 0.5,
+            }}
+          >
+            View
+          </Button>
+        </Box>
+        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <strong style={{ minWidth: 80 }}>Date:</strong> {new Date(transaction.created_at).toLocaleString()}
+        </Typography>
+        <Typography variant="body1" sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <strong style={{ minWidth: 80 }}>Status:</strong> {transaction.status}
+        </Typography>
         <Typography variant="body1" mt={2}><strong>Message:</strong></Typography>
         <Box sx={{
           p: 1,
-          border: '1px solid #ddd',
+          border: '1px solid #f5fd10ff',
           borderRadius: 1,
           mt: 1,
         }}>
@@ -266,7 +292,7 @@ const TransactionHistory = () => {
           variant="h3"
           sx={{
             fontWeight: 700,
-            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            background: 'linear-gradient(45deg, #f0f321ff 30%, #ebfa21ff 90%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -282,8 +308,8 @@ const TransactionHistory = () => {
       <Paper
         sx={{
           p: { xs: 2, md: 3 },
-          border: '1px solid #e9ecef',
-          backgroundColor: '#f8f9fa',
+          border: '1px solid #eeff00ff',
+          backgroundColor: '#000000ff',
           borderRadius: 2,
         }}
       >

@@ -38,6 +38,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import HelpIcon from '@mui/icons-material/Help';
 import CategoryIcon from '@mui/icons-material/Category';
 import { fetchUserProfile } from './api';
+import AutoLogoutHandler from './AutoLogoutHandler';
 
 const drawerWidth = 180;
 
@@ -180,6 +181,8 @@ const NavBar = ({ children }) => {
   }
 
   const menuItems = getMenuItems();
+
+ 
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -329,14 +332,18 @@ const NavBar = ({ children }) => {
         sx={{
           flexGrow: 1,
           p: 3,
-          mb: isMobilePortrait ? `${mobileNavHeight}px` : 0,
-          ml: (!isMobilePortrait && !open) ? `${mobileNavWidth}px` : 0,
+          mb: 10,
+          // mb: isMobilePortrait ? `${mobileNavHeight}px` : 0,
+          // ml: (!isMobilePortrait && !open) ? `${mobileNavWidth}px` : 0,
         }}
       >
         <Toolbar />
         {children}
       </Box>
+      <AutoLogoutHandler />
     </Box>
+
+    
   );
 };
 

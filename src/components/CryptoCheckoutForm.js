@@ -50,11 +50,21 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
 
   // Map for wallet addresses
   const walletAddressMap = {
-    BTC: 'my-bitcoin-wallet-address',
-    LTC: 'my-litecoin-wallet-address',
-    SOL: 'my-solana-wallet-address',
-    ETH: 'my-ethereum-wallet-address',
+    BTC: 'bc1q4j9e7equq4xvlyu7tan4gdmkvze7wc0egvykr6',
+    LTC: 'ltc1qgg5aggedmvjx0grd2k5shg6jvkdzt9dtcqa4dh',
+    SOL: 'qaSpvAumg2L3LLZA8qznFtbrRKYMP1neTGqpNgtCPaU',
+    ETH: '0x9a61f30347258A3D03228F363b07692F3CBb7f27',
     XMR: '44X8AgosuXFCuRmBoDRc66Vw1FeCaL6vRiKRqrmqXeJdeKAciYuyaJj7STZnHMg7x8icHJL6M1hzeAPqSh8NSC1GGC9bkCp',
+  };
+
+  // Map for deposit wallet addresses - these are the addresses your system expects users to send funds to
+  const depositWalletAddressMap = {
+    BTC: { address: 'bc1q4j9e7equq4xvlyu7tan4gdmkvze7wc0egvykr6', blockchain: 'bitcoin-cash' }, // Example for BCH
+    LTC: { address: 'ltc1qgg5aggedmvjx0grd2k5shg6jvkdzt9dtcqa4dh ', blockchain: 'litecoin' },
+    SOL: { address: 'qaSpvAumg2L3LLZA8qznFtbrRKYMP1neTGqpNgtCPaU', blockchain: 'solana' },
+    ETH: { address: '0x9a61f30347258A3D03228F363b07692F3CBb7f27', blockchain: 'ethereum' },
+    XMR: { address: '44X8AgosuXFCuRmBoDRc66Vw1FeCaL6vRiKRqrmqXeJdeKAciYuyaJj7STZnHMg7x8icHJL6M1hzeAPqSh8NSC1GGC9bkCp', blockchain: 'monero' },
+    // Add other currencies and their corresponding Blockchair blockchain paths as needed
   };
 
   // Fetch current crypto rates whenever currency changes
@@ -89,7 +99,7 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
       const response = await uploadTransactionScreenshot(formData);
       console.log('Transaction screenshot file uploaded:', response);
 
-     // If your backend returns { mediaLink: "..." }
+      // If your backend returns { mediaLink: "..." }
       if (response && response.url) {
         return response.url;
       }
@@ -254,16 +264,44 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
   };
 
 
+  const handleCopyAmount = () => {
+    const amountToCopy = cryptoAmount || '0.00000000';
+    navigator.clipboard
+      .writeText(amountToCopy)
+      .then(() => {
+        setMessage('Amount copied to clipboard!');
+        setTimeout(() => setMessage(''), 3000);
+      })
+      .catch((err) => {
+        console.error('Could not copy text: ', err);
+        setErrorMessage('Failed to copy amount.');
+      });
+  };
+
+
 
   const walletAddress = walletAddressMap[currency] || 'YOUR_WALLET_ADDRESS_HERE';
 
   if (orderSubmitted) {
     return (
-      <div id="checkout" style={styles.container} backgroundColor="#e6ffed" borderRadius="8px" padding="20px">
-        <h2>Order Logged!</h2>
-        <p>
-          Please make sure that you send <strong>{cryptoAmount} {currency}</strong> to the following wallet address:
+      <div style={{
+        ...styles.container,
+        backgroundColor: '#1a1a1a',
+        border: '2px solid #66bb6a',
+        boxShadow: '0 6px 25px rgba(102, 187, 106, 0.4)',
+        textAlign: 'center'
+      }}>
+        <h2 style={{ color: '#66bb6a', textShadow: '0 0 10px rgba(102, 187, 106, 0.5)', marginBottom: '20px' }}>Order Logged!</h2>
+        <p style={{ color: '#ffffff', marginBottom: '15px' }}>
+          Please make sure that you send <strong style={{ color: '#ffd700' }}>{cryptoAmount} {currency}</strong> to the following wallet address:
         </p>
+        <div style={styles.walletAddressContainer}>
+          <p style={styles.walletAddress}>{cryptoAmount} {currency}</p>
+          <button style={styles.button} onClick={handleCopyAmount}>
+            Copy Amount
+          </button>
+        </div>
+
         <div style={styles.walletAddressContainer}>
           <p style={styles.walletAddress}>{walletAddress}</p>
           <button style={styles.button} onClick={handleCopyAddress}>
@@ -300,20 +338,43 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
       {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
       {message && <p style={styles.successMessage}>{message}</p>}
       <div style={styles.walletInfo}>
-        <p>
+        <div style={styles.formGroup}>
+          <label>Cryptocurrency:</label>
+          <select
+            name="currency"
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            style={styles.select}
+          >
+            <option value="BTC">Bitcoin (BTC)</option>
+            <option value="LTC">Litecoin (LTC)</option>
+            <option value="SOL">Solana (SOL)</option>
+            <option value="ETH">Ethereum (ETH)</option>
+            <option value="XMR">Monero (XMR)</option>
+          </select>
+        </div>
+
+        <div style={{ marginBottom: '-25px' }}>
           Please send <strong>{cryptoAmount} {currency}</strong> to the following wallet address:
-        </p>
+        </div>
+        <div style={styles.walletAddressContainer}>
+          <p style={styles.walletAddress}>{cryptoAmount} {currency}</p>
+          <button style={styles.button} onClick={handleCopyAmount}>
+            Copy Amount
+          </button>
+        </div>
         <div style={styles.walletAddressContainer}>
           <p style={styles.walletAddress}>{walletAddress}</p>
           <button style={styles.button} onClick={handleCopyAddress}>
             Copy Address
           </button>
         </div>
-        {message && <p style={styles.successMessage}>{message}</p>}
+        {/* {message && <p style={styles.successMessage}>{message}</p>} */}
       </div>
       <br></br>
       <form onSubmit={handleOrderSubmit} style={styles.form}>
         <div style={styles.formGroup}>
+
           <p>
             After sending <strong>{cryptoAmount} {currency}</strong> to the following wallet address: {walletAddress}
             <br></br>
@@ -322,13 +383,28 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
           <label>
             Name:<span style={styles.required}>*</span>
           </label>
+
+          {/* <label style={{color: '#ffd700', fontWeight: '600', marginBottom: '8px', display: 'block'}}>
+            Name:<span style={styles.required}>*</span>
+          </label> */}
           <input
             type="text"
             name="name"
             value={userDetails.name}
             onChange={handleInputChange}
             required
-            style={styles.input}
+            style={{
+              ...styles.input,
+              ':focus': {
+                outline: 'none',
+                borderColor: '#ffed4e',
+                boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
+              },
+              ':hover': {
+                borderColor: '#ffed4e',
+                boxShadow: '0 0 5px rgba(255, 215, 0, 0.3)',
+              }
+            }}
           />
         </div>
 
@@ -363,7 +439,7 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
 
 
         <div style={styles.formGroup}>
-          <label>Date:</label>
+          <label>Date:<span style={styles.required}>*</span></label>
           <br></br>
           <input
             // fullWidth
@@ -380,8 +456,10 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
           />
           <small>Enter the date of transaction</small>
         </div>
+
         <div style={styles.formGroup}>
-          <label>Time:</label>
+          <label>Time:<span style={styles.required}>*</span></label>
+          {/* UTC */}
           <input
             type="text"
             name="time"         // Change from "Time" to "time"
@@ -389,10 +467,7 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
             onChange={handleInputChange}
             required
             style={styles.input}
-          />
-          <small>For reference, please format like (HH:MM + AM/PM), e.g., 12:15 PM</small>
-          {/* <br></br> */}
-          <button type="button" style={{ float: "right", margin: 2, padding: 2 }} onClick={() => {
+          /> <button type="button" style={styles.time_button} onClick={() => {
             const currentTime = new Date();
             let hours = currentTime.getHours();
             const minutes = currentTime.getMinutes();
@@ -407,11 +482,24 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
           }}>
             Get Current Time
           </button>
+          <strong>OR</strong>
+          <input
+            type="time"
+            name="time"         // Change from "Time" to "time"
+            value={userDetails.time}
+            onChange={handleInputChange}
+            required
+            style={styles.input}
+          />
+          <small>For reference, please format like (HH:MM + AM/PM), e.g., 12:15 PM</small>
+          {/* <br></br> */}
+
+
 
         </div>
 
         <div style={styles.formGroup}>
-          <label>Transaction ID:</label>
+          <label>Transaction ID:<span style={styles.required}>*</span></label>
           <input
             type="text"
             name="transactionId"
@@ -442,27 +530,12 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
             name="key"
             value={userDetails.key}
             onChange={handleInputChange}
-            required
+            
             style={styles.input}
           />
           <small>For proof of payment</small>
         </div>
 
-        <div style={styles.formGroup}>
-          <label>Cryptocurrency:</label>
-          <select
-            name="currency"
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            style={styles.select}
-          >
-            <option value="BTC">Bitcoin (BTC)</option>
-            <option value="LTC">Litecoin (LTC)</option>
-            <option value="SOL">Solana (SOL)</option>
-            <option value="ETH">Ethereum (ETH)</option>
-            <option value="XMR">Monero (XMR)</option>
-          </select>
-        </div>
 
         <div style={styles.rateInfo}>
           <p>
@@ -555,7 +628,7 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
         </div>
 
         <div style={styles.buttonGroup}>
-          <button style={styles.button} type="submit">
+          <button style={styles.log_button} type="submit">
             Log Your Order
           </button>
           <button style={styles.cancel_button} type="button" onClick={handleCancelOrder}>
@@ -576,108 +649,198 @@ const styles = {
     margin: 'auto',
     padding: '20px',
     fontFamily: 'Arial, sans-serif',
-    color: '#333',
+    color: '#ffffff',
+    backgroundColor: '#0a0a0a',
+    minHeight: '100vh',
+    borderRadius: '12px',
+    border: '1px solid #ffd700',
+    boxShadow: '0 4px 20px rgba(255, 215, 0, 0.2)',
   },
   header: {
     textAlign: 'center',
     marginBottom: '30px',
+    color: '#ffd700',
+    textShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
   },
   form: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#1a1a1a',
     padding: '20px',
-    borderRadius: '5px',
+    borderRadius: '12px',
     marginBottom: '30px',
+    border: '1px solid #ffd700',
+    boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
   },
   formGroup: {
     marginBottom: '15px',
   },
   input: {
     width: '100%',
-    padding: '8px 10px',
+    padding: '12px 15px',
     marginTop: '5px',
-    borderRadius: '3px',
-    border: '1px solid #ccc',
+    borderRadius: '8px',
+    border: '1px solid #ffd700',
     fontSize: '16px',
+    backgroundColor: '#1a1a1a',
+    color: '#ffffff',
+    transition: 'all 0.3s ease',
+    '&:focus': {
+      outline: 'none',
+      borderColor: '#ffed4e',
+      boxShadow: '0 0 10px rgba(255, 215, 0, 0.5)',
+    },
+    '&:hover': {
+      borderColor: '#ffed4e',
+      boxShadow: '0 0 5px rgba(255, 215, 0, 0.3)',
+    },
   },
   select: {
     width: '100%',
-    padding: '8px 10px',
+    padding: '12px 15px',
     marginTop: '5px',
-    borderRadius: '3px',
-    border: '1px solid #ccc',
+    borderRadius: '8px',
+    border: '1px solid #ffd700',
     fontSize: '16px',
-    backgroundColor: '#fff',
+    backgroundColor: '#1a1a1a',
+    color: '#ffffff',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
   },
   required: {
-    color: 'red',
+    color: '#ff6b6b',
+    fontWeight: 'bold',
   },
   rateInfo: {
     marginTop: '20px',
     marginBottom: '20px',
-    backgroundColor: '#e0f7fa',
+    backgroundColor: '#1a1a1a',
     padding: '15px',
-    borderRadius: '5px',
+    borderRadius: '8px',
+    border: '1px solid #ffd700',
+    boxShadow: '0 2px 10px rgba(255, 215, 0, 0.3)',
+    color: '#ffffff',
   },
   buttonGroup: {
     textAlign: 'center',
+    gap: '15px',
+    display: 'flex',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
   },
   button: {
-    padding: '10px 20px',
-    margin: '5px',
-    backgroundColor: '#007bff',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '3px',
+    padding: '12px 24px',
+    margin: '8px',
+    backgroundColor: '#ffd700',
+    color: '#000000',
+    border: '1px solid #ffd700',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '16px',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
+  },
+  time_button: {
+    float: "right",
+    padding: '6px 12px',
+    margin: '4px 2px',
+    backgroundColor: 'transparent',
+    color: '#ffe70bff',
+    border: '1px solid #ffd700',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    // boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
   },
   cancel_button: {
-    padding: '10px 20px',
-    margin: '5px',
-    backgroundColor: '#F01b2f',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '3px',
+    padding: '12px 24px',
+    margin: '8px',
+    backgroundColor: 'transparent',
+    color: '#ff6b6b',
+    border: '1px solid #ff6b6b',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '16px',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(255, 107, 107, 0.2)',
+  },
+
+  log_button: {
+    padding: '12px 24px',
+    margin: '8px',
+    backgroundColor: 'transparent',
+    color: '#11ff00ff',
+    border: '1px solid #47fd2bff',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '16px',
+    fontWeight: '600',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 15px rgba(181, 255, 107, 0.2)',
   },
   walletInfo: {
-    backgroundColor: '#fff8e1',
-    padding: '15px',
-    borderRadius: '5px',
+    backgroundColor: '#1a1a1a',
+    padding: '20px',
+    borderRadius: '12px',
+    border: '1px solid #ffd700',
+    boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
+    color: '#ffffff',
   },
   walletAddressContainer: {
     display: 'flex',
     alignItems: 'center',
-    marginTop: '10px',
-    marginBottom: '10px',
+    marginTop: '15px',
+    marginBottom: '15px',
+    gap: '15px',
   },
   walletAddress: {
     flexGrow: 1,
     fontSize: '16px',
     wordBreak: 'break-all',
+    backgroundColor: '#0a0a0a',
+    padding: '12px',
+    borderRadius: '6px',
+    border: '1px solid #ffd700',
+    color: '#ffd700',
+    fontFamily: 'monospace',
   },
   errorMessage: {
-    color: 'red',
+    color: '#ff6b6b',
     marginBottom: '20px',
+    padding: '12px',
+    backgroundColor: '#1a1a1a',
+    border: '1px solid #ff6b6b',
+    borderRadius: '8px',
+    textAlign: 'center',
+    fontWeight: '600',
   },
   successMessage: {
-    color: 'green',
+    color: '#66bb6a',
     marginBottom: '20px',
+    padding: '12px',
+    backgroundColor: '#1a1a1a',
+    border: '1px solid #66bb6a',
+    borderRadius: '8px',
+    textAlign: 'center',
+    fontWeight: '600',
   },
   uploadSection: {
     marginBottom: '20px',
-    padding: '15px',
-    backgroundColor: '#f8f9fa',
-    borderRadius: '8px',
-    border: '2px dashed #dee2e6',
+    padding: '20px',
+    backgroundColor: '#1a1a1a',
+    borderRadius: '12px',
+    border: '2px dashed #ffd700',
+    boxShadow: '0 4px 15px rgba(255, 215, 0, 0.2)',
   },
 
   uploadLabel: {
     display: 'block',
     fontWeight: '600',
-    marginBottom: '10px',
-    color: '#495057',
+    marginBottom: '15px',
+    color: '#ffd700',
+    textShadow: '0 0 5px rgba(255, 215, 0, 0.3)',
   },
 
   uploadButtonContainer: {
@@ -689,37 +852,40 @@ const styles = {
     display: 'inline-flex',
     alignItems: 'center',
     padding: '12px 24px',
-    backgroundColor: '#007bff',
-    color: 'white',
-    border: 'none',
-    borderRadius: '6px',
+    backgroundColor: '#ffd700',
+    color: '#000000',
+    border: '1px solid #ffd700',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
     fontWeight: '600',
     transition: 'all 0.3s ease',
-    boxShadow: '0 2px 4px rgba(0,123,255,0.2)',
+    boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
   },
 
   fileError: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '10px',
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
-    borderRadius: '4px',
+    padding: '12px',
+    backgroundColor: '#1a1a1a',
+    color: '#ff6b6b',
+    borderRadius: '8px',
     marginBottom: '15px',
     fontSize: '14px',
+    border: '1px solid #ff6b6b',
+    fontWeight: '600',
   },
 
   filePreviewContainer: {
     display: 'flex',
     gap: '15px',
     padding: '15px',
-    backgroundColor: 'white',
-    borderRadius: '6px',
-    border: '1px solid #dee2e6',
-    marginBottom: '10px',
+    backgroundColor: '#0a0a0a',
+    borderRadius: '8px',
+    border: '1px solid #ffd700',
+    marginBottom: '15px',
+    boxShadow: '0 2px 10px rgba(255, 215, 0, 0.2)',
   },
 
   previewSection: {
@@ -730,8 +896,9 @@ const styles = {
     width: '128px',
     height: '128px',
     objectFit: 'cover',
-    borderRadius: '6px',
-    border: '2px solid #dee2e6',
+    borderRadius: '8px',
+    border: '2px solid #ffd700',
+    boxShadow: '0 2px 8px rgba(255, 215, 0, 0.3)',
   },
 
   fileInfoSection: {
@@ -743,6 +910,7 @@ const styles = {
 
   fileInfo: {
     flex: 1,
+    color: '#ffffff',
   },
 
   fileName: {
@@ -750,7 +918,7 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     fontWeight: '600',
-    color: '#495057',
+    color: '#ffd700',
     marginBottom: '8px',
     fontSize: '14px',
     wordBreak: 'break-word',
@@ -758,40 +926,44 @@ const styles = {
 
   fileIcon: {
     fontSize: '16px',
+    color: '#ffd700',
   },
 
   fileSize: {
     fontSize: '12px',
-    color: '#6c757d',
+    color: '#cccccc',
     marginBottom: '4px',
   },
 
   fileType: {
     display: 'inline-block',
-    padding: '2px 8px',
-    backgroundColor: '#e9ecef',
-    color: '#495057',
+    padding: '4px 12px',
+    backgroundColor: '#ffd700',
+    color: '#000000',
     borderRadius: '12px',
     fontSize: '10px',
     fontWeight: '600',
+    textTransform: 'uppercase',
   },
 
   removeButton: {
-    padding: '8px',
-    backgroundColor: '#dc3545',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
+    padding: '10px',
+    backgroundColor: '#ff6b6b',
+    color: '#ffffff',
+    border: '1px solid #ff6b6b',
+    borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '16px',
     transition: 'all 0.3s ease',
     height: 'fit-content',
+    boxShadow: '0 2px 8px rgba(255, 107, 107, 0.3)',
   },
 
   uploadInstructions: {
     textAlign: 'center',
-    color: '#6c757d',
+    color: '#cccccc',
     fontSize: '12px',
     fontStyle: 'italic',
+    marginTop: '10px',
   },
 };

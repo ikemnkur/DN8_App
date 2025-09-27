@@ -41,13 +41,14 @@ const Search4User = () => {
   const navigate = useNavigate();
 
   // Shared card style (soft, bordered)
-  const cardSx = {
+   const cardSx = {
     p: { xs: 2, sm: 2.5 },
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #e9ecef',
+    backgroundColor: '#070707ff',
+    border: '2px solid #f9f957ff',
     borderRadius: 2,
     boxShadow: 'none',
   };
+
 
   // Load user data and favorites on mount
   useEffect(() => {
@@ -205,7 +206,7 @@ const Search4User = () => {
           component="h1"
           sx={{
             fontWeight: 700,
-            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            background: 'linear-gradient(45deg, #e9f321ff 30%, #f6ba3aff 90%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -266,7 +267,7 @@ const Search4User = () => {
 
           <Paper
             variant="outlined"
-            sx={{ p: 1, maxHeight: { xs: 280, sm: 340 }, overflow: 'auto', backgroundColor: '#fff' }}
+            sx={{ p: 1, maxHeight: { xs: 280, sm: 340 }, overflow: 'auto', backgroundColor: '#000000ff' }}
           >
             <List sx={{ py: 0 }}>
               {searchResults.length > 0 ? (
@@ -320,7 +321,7 @@ const Search4User = () => {
           </Box>
 
           {/* Search Favorites */}
-          <Paper variant="outlined" sx={{ p: 2, mb: 2, backgroundColor: '#fff' }}>
+          <Paper variant="outlined" sx={{ p: 2, mb: 2, backgroundColor: '#000000ff' }}>
             <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
               Search Favorites
             </Typography>
@@ -356,7 +357,7 @@ const Search4User = () => {
             {/* Favorites search results */}
             <Paper
               variant="outlined"
-              sx={{ p: 1, mt: 2, maxHeight: 240, overflow: 'auto', backgroundColor: '#fff' }}
+              sx={{ p: 1, mt: 2, maxHeight: 240, overflow: 'auto', backgroundColor: '#000000ff' }}
             >
               <List sx={{ py: 0 }}>
                 {Array.isArray(favoritesSearchResults) && favoritesSearchResults.length > 0 ? (
@@ -397,8 +398,8 @@ const Search4User = () => {
           </Paper>
 
           {/* Favorite Users List */}
-          <Paper variant="outlined" sx={{ p: 2, backgroundColor: '#fff' }}>
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+          <Paper variant="outlined" sx={{ p: 2, backgroundColor: '#000000ff' }}>
+            <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
               Favorite Users
             </Typography>
 
@@ -407,7 +408,7 @@ const Search4User = () => {
                 <CircularProgress size={24} />
               </Box>
             ) : (
-              <List sx={{ py: 0, maxHeight: 300, overflow: 'auto' }}>
+              <List sx={{ py: 0, maxHeight: 300, overflow: 'hidden' }}>
                 {favoriteUsers.length > 0 ? (
                   favoriteUsers.map((fav) => (
                     <ListItem

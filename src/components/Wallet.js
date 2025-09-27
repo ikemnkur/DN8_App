@@ -45,7 +45,7 @@ const Wallet = () => {
 
   const cardSx = {
     p: { xs: 2, sm: 2.5 },
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#070707ff',
     border: '1px solid #e9ecef',
     borderRadius: 2,
     boxShadow: 'none',
@@ -144,7 +144,7 @@ const Wallet = () => {
               {/* <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 Overview
               </Typography> */}
-              <Chip label={`Tier: ${tierName}`} color="primary" size="small" />
+              <Chip label={`Tier: ${tierName}`} sx={{ backgroundColor: '#e5f321ff', color: '#000' }} size="medium" />
             </Box>
 
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>

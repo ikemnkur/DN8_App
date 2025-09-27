@@ -54,6 +54,15 @@ const ReloadWallet = () => {
     setOpenSnackbar(true);
   };
 
+   const cardSx = {
+    p: { xs: 2, sm: 2.5 },
+    backgroundColor: '#070707ff',
+    border: '1px solid #e9ecef',
+    borderRadius: 2,
+    boxShadow: 'none',
+  };
+
+
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 2 }}>
       {/* Header */}
@@ -62,7 +71,7 @@ const ReloadWallet = () => {
           variant="h3"
           sx={{
             fontWeight: 700,
-            background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+            background: 'linear-gradient(45deg, #f3de21ff 30%, #e8e10cff 90%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -77,7 +86,7 @@ const ReloadWallet = () => {
       </Box>
 
       {/* Summary */}
-      <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, border: '1px solid #e9ecef', backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+      <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, border: '2px solid #efeee9ff', backgroundColor: '#101010ff', borderRadius: 2 }}>
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
             <CircularProgress size={24} />
@@ -92,7 +101,7 @@ const ReloadWallet = () => {
 
       {/* Form */}
       <Paper component="form" onSubmit={handleSubmit}
-        sx={{ p: { xs: 2, md: 3 }, border: '1px solid #e9ecef', backgroundColor: '#fff', borderRadius: 2 }}>
+        sx={{ p: { xs: 2, md: 3 }, border: '1px solid #e9ecef', backgroundColor: '#000000ff', borderRadius: 2 }}>
         <FormControl fullWidth>
           <FormLabel sx={{ mb: 1 }}>Payment method</FormLabel>
           <Select

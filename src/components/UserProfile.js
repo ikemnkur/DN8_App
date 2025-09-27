@@ -61,9 +61,10 @@ const UserProfile = () => {
 
   const cardSx = {
     p: { xs: 2, sm: 2.5 },
-    backgroundColor: '#f8f9fa',
-    border: '1px solid #e9ecef',
+     background: 'linear-gradient(45deg, #2a2b27ff 30%, #393c1aff 90%)',
+    border: '2px solid #e6cd0aff',
     borderRadius: 2,
+
     boxShadow: 'none',
   };
 

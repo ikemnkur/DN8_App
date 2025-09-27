@@ -223,70 +223,7 @@ const Notifications = () => {
     </Box>
   );
 
-  // return (
-  //   // /
-  //   // Main container for notifications
-  //   // /limit list to 10 items use pagination if more than 10
-  //   <Box sx={{ mt: 4 }}>
-  //     <Typography variant="h5" gutterBottom>
-  //       Notifications
-  //     </Typography>
-  //     <Typography variant="body1" gutterBottom>
-  //       You have {notifications.length} new notifications.
-  //     </Typography>
-  //     <Typography variant="body2" color="textSecondary" gutterBottom>
-  //       Click on a notification to view details or take action.
-  //     </Typography>
-  //     {/* Notification List max 10 items per page*/}
-  //     {notifications.length > 0 ? (
-  //       <Paper>
-  //         <List>
-  //           {notifications.map((notif) => (
-  //             <ListItem key={notif.id} alignItems="flex-start">
-  //               <ListItemText
-  //                 primary={notif.message}
-  //                 secondary={new Date(notif.created_at).toLocaleString()}
-  //               />
-  //               <ListItemSecondaryAction>
-  //                 <IconButton
-  //                   edge="end"
-  //                   aria-label="view"
-  //                   onClick={() => handleView(notif)}
-  //                 >
-  //                   <Visibility />
-  //                 </IconButton>
-  //                 <IconButton
-  //                   edge="end"
-  //                   aria-label="snooze"
-  //                   onClick={() => handleSnooze(notif.id)}
-  //                 >
-  //                   <Snooze />
-  //                 </IconButton>
-  //                 <IconButton
-  //                   edge="end"
-  //                   aria-label="dismiss"
-  //                   onClick={() => handleDismiss(notif.id)}
-  //                 >
-  //                   <Close />
-  //                 </IconButton>
-  //               </ListItemSecondaryAction>
-  //             </ListItem>
-  //           ))}
-  //         </List>
-  //       </Paper>
-  //     ) : (
-  //       <Typography variant="body1">No new notifications.</Typography>
-  //     )}
-
-  //     <Snackbar
-  //       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-  //       open={openSnackbar}
-  //       autoHideDuration={3000}
-  //       onClose={() => setOpenSnackbar(false)}
-  //       message={snackbarMessage}
-  //     />
-  //   </Box>
-  // );
+ 
 };
 
 export default Notifications;
