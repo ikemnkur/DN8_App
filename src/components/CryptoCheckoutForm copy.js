@@ -89,73 +89,6 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
 
   }, [currency]);
 
-  // Main transaction checking function
-  async function checkTransaction() {
-    const formData = new FormData(form);
-    const transactionId = formData.get('transactionId').trim();
-    const walletAddress = formData.get('walletAddress').trim();
-    const amount = parseFloat(formData.get('amount'));
-    const currency = formData.get('currency');
-
-    // Show loading state
-    showLoading();
-
-    try {
-      // Validate inputs
-      if (!transactionId || !walletAddress || !amount || !currency) {
-        throw new Error('Please fill in all required fields');
-      }
-
-      // Check if the wallet address matches the expected deposit address
-      const depositInfo = depositWalletAddressMap[currency];
-      if (!depositInfo) {
-        throw new Error('Unsupported cryptocurrency');
-      }
-
-      if (walletAddress !== depositInfo.address) {
-        showResult('error', 'Invalid Wallet Address',
-          `The provided wallet address does not match our ${currency} deposit address.`, {
-          'Expected Address': depositInfo.address,
-          'Provided Address': walletAddress
-        });
-        return;
-      }
-
-      // Get current crypto rate
-      const currentRate = await getCryptoRate(currency);
-
-      // Simulate blockchain verification (replace with actual API calls)
-      const verificationResult = await verifyTransaction(transactionId, walletAddress, amount, currency, currentRate);
-
-      if (verificationResult.success) {
-        showResult('success', 'Transaction Verified!',
-          `Transaction successfully verified on the ${currency} blockchain.`, {
-          'Transaction ID': transactionId,
-          'Amount': `$${amount.toFixed(2)} USD`,
-          'Currency': currency,
-          'Status': verificationResult.status || 'Confirmed',
-          'Confirmations': verificationResult.confirmations || 'N/A',
-          'Block Height': verificationResult.blockHeight || 'N/A'
-        });
-      } else {
-        showResult('error', 'Transaction Not Found',
-          verificationResult.message || 'Unable to verify transaction on the blockchain.', {
-          'Transaction ID': transactionId,
-          'Searched Amount': `$${amount.toFixed(2)} USD`,
-          'Currency': currency,
-          'Status': 'Not Found'
-        });
-      }
-
-    } catch (error) {
-      console.error('Transaction check error:', error);
-      showResult('error', 'Verification Error', error.message, {
-        'Error Type': 'System Error',
-        'Transaction ID': transactionId || 'N/A'
-      });
-    }
-  }
-
   // Example function to upload file to backend:
   const uploadToBackend = async (file) => {
     const formData = new FormData();
@@ -597,7 +530,7 @@ export const CryptoCheckoutForm = ({ setCoins }) => {
             name="key"
             value={userDetails.key}
             onChange={handleInputChange}
-
+            
             style={styles.input}
           />
           <small>For proof of payment</small>
